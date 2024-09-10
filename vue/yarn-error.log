@@ -1,0 +1,94 @@
+Arguments: 
+  /usr/local/bin/node /home/raouinti/.node/corepack/yarn/1.22.15/bin/yarn.js add core-js/modules/es.array.push.js
+
+PATH: 
+  /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/Windows/system32:/mnt/c/Windows:/mnt/c/Windows/System32/Wbem:/mnt/c/Windows/System32/WindowsPowerShell/v1.0/:/mnt/c/Windows/System32/OpenSSH/:/mnt/c/Program Files/PuTTY/:/mnt/c/Program Files/NVIDIA Corporation/NVIDIA NvDLISR:/mnt/c/Users/RamiAouinti/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/RamiAouinti/AppData/Local/Programs/Git/cmd:/snap/bin
+
+Yarn version: 
+  1.22.15
+
+Node version: 
+  17.9.1
+
+Platform: 
+  linux x64
+
+Trace: 
+  Error: https://registry.yarnpkg.com/core-js%2fmodules/es.array.push.js: Request "https://registry.yarnpkg.com/core-js%2fmodules/es.array.push.js" returned a 405
+      at Request.params.callback [as _callback] (/home/raouinti/.node/corepack/yarn/1.22.15/lib/cli.js:66149:18)
+      at Request.self.callback (/home/raouinti/.node/corepack/yarn/1.22.15/lib/cli.js:140885:22)
+      at Request.emit (node:events:527:28)
+      at Request.<anonymous> (/home/raouinti/.node/corepack/yarn/1.22.15/lib/cli.js:141857:10)
+      at Request.emit (node:events:527:28)
+      at IncomingMessage.<anonymous> (/home/raouinti/.node/corepack/yarn/1.22.15/lib/cli.js:141779:12)
+      at Object.onceWrapper (node:events:641:28)
+      at IncomingMessage.emit (node:events:539:35)
+      at endReadableNT (node:internal/streams/readable:1345:12)
+      at processTicksAndRejections (node:internal/process/task_queues:83:21)
+
+npm manifest: 
+  {
+    "name": "vuetify-material-dashboard-pro",
+    "version": "3.0.0",
+    "private": true,
+    "scripts": {
+      "serve": "vue-cli-service serve --open",
+      "build": "vue-cli-service build",
+      "lint": "vue-cli-service lint",
+      "dev": "npm run serve"
+    },
+    "dependencies": {
+      "@fullcalendar/core": "5.10.0",
+      "@fullcalendar/daygrid": "5.10.0",
+      "@fullcalendar/interaction": "5.10.0",
+      "@fullcalendar/timegrid": "5.10.0",
+      "@fullcalendar/vue": "5.10.0",
+      "@googlemaps/js-api-loader": "1.12.6",
+      "chart.js": "3.5.1",
+      "core-js": "3.18.3",
+      "d3": "7.1.1",
+      "datamaps": "0.5.9",
+      "dropzone": "5.9.3",
+      "jsvectormap": "1.4.5",
+      "leaflet": "^1.7.1",
+      "orbit-controls": "^1.2.4",
+      "perfect-scrollbar": "1.5.2",
+      "quill": "1.3.7",
+      "sweetalert2": "11.1.9",
+      "vue": "2.6.14",
+      "vue-github-buttons": "^3.1.0",
+      "vue-kanban": "^1.8.0",
+      "vue-pswipe": "0.15.3",
+      "vue-round-slider": "^1.0.1",
+      "vue-router": "3.5.2",
+      "vue-sweetalert2": "5.0.2",
+      "vue2-leaflet": "^2.7.1",
+      "vue2-transitions": "0.3.0",
+      "vuelidate": "0.7.6",
+      "vuetify": "2.5.10"
+    },
+    "devDependencies": {
+      "@fortawesome/fontawesome-free": "^5.15.4",
+      "@vue/cli-plugin-babel": "4.5.14",
+      "@vue/cli-plugin-eslint": "4.5.14",
+      "@vue/cli-plugin-router": "4.5.14",
+      "@vue/cli-service": "4.5.14",
+      "@vue/eslint-config-prettier": "6.0.0",
+      "babel-eslint": "10.1.0",
+      "eslint": "7.25.0",
+      "eslint-plugin-prettier": "3.4.0",
+      "eslint-plugin-vue": "7.9.0",
+      "prettier": "2.4.1",
+      "sass": "1.32.12",
+      "sass-loader": "10.1.1",
+      "vue-cli-plugin-vuetify": "2.4.3",
+      "vue-template-compiler": "2.6.14",
+      "vuetify-loader": "1.7.3"
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile

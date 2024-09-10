@@ -1,12 +1,18 @@
 reports/*
 !reports/.gitkeep
 
+.idea
+/.idea
+/.idea/*
+.idea/*.xml
+.idea/*.iml
 ###> symfony/framework-bundle ###
 /.env.local
 /.env.local.php
 /.env.*.local
 /config/secrets/prod/prod.decrypt.private.php
 /public/bundles/
+/vue/node_modules/
 /var/*
 !/var/elasticsearch-data/.gitkeep
 /vendor/
