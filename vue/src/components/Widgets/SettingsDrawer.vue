@@ -1,5 +1,5 @@
 <template>
-  <div class="fixed-plugin" :class="showSettingsDrawer == true ? 'show' : ''">
+  <div class="fixed-plugin" :class="showSettingsDrawer === true ? 'show' : ''">
     <v-card class="shadow-lg">
       <div class="card-padding mb-16">
         <div class="float-start">
@@ -119,7 +119,7 @@
             color="#fff"
             small
             :class="
-              sidebarTheme == 'dark'
+              sidebarTheme === 'dark'
                 ? 'bg-gradient-default'
                 : 'btn-outline-default'
             "
@@ -133,7 +133,7 @@
             color="#fff"
             small
             :class="
-              sidebarTheme == 'transparent'
+              sidebarTheme === 'transparent'
                 ? 'bg-gradient-default'
                 : 'btn-outline-default'
             "
@@ -147,7 +147,7 @@
             color="#fff"
             small
             :class="
-              sidebarTheme == 'white'
+              sidebarTheme === 'white'
                 ? 'bg-gradient-default'
                 : 'btn-outline-default'
             "

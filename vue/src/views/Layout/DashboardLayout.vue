@@ -4,6 +4,7 @@
       :drawer="drawer"
       :sidebarColor="sidebarColor"
       :sidebarTheme="sidebarTheme"
+      :title="title"
     >
     </drawer>
     <v-main>
@@ -96,6 +97,7 @@ import Drawer from "@/components/Drawer.vue";
 import AppBar from "@/components/AppBar.vue";
 import ContentFooter from "@/components/Footer.vue";
 import SettingsDrawer from "@/components/Widgets/SettingsDrawer.vue";
+import ConfigurationService from "../../services/configuration.service";
 
 export default {
   components: {
@@ -112,6 +114,8 @@ export default {
       sidebarColor: "success",
       sidebarTheme: "dark",
       navbarFixed: false,
+      title: "Platform",
+        configuration: [],
     };
   },
   methods: {
@@ -125,9 +129,39 @@ export default {
       this.showSettingsDrawer = value;
     },
     updateSidebarColor(value) {
+        function updateSidebarColorValue(configArray, value) {
+            configArray.forEach(config => {
+                if (config.configurationKey === 'sidebarColor') {
+                    try {
+                        const item = {
+                            configurationKey: config.configurationKey,
+                            configurationEntry: value
+                        };
+
+                        console.log(item);
+                        ConfigurationService.updateConfiguration(item, config.id).then(
+                            (response) => {
+                                console.log('Success')
+                            },
+                            (error) => {
+                                this.content =
+                                    (error.response && error.response.data) ||
+                                    error.message ||
+                                    error.toString();
+                            }
+                        )
+                    } catch (error) {
+                        console.error('Problem by update:', error);
+                    }
+                }
+            });
+        }
+
+        updateSidebarColorValue(this.configuration, value);
       this.sidebarColor = value;
     },
     updateSidebarTheme(value) {
+        updateSidebarThemeValue(this.configuration, value);
       let siblings = event.target.closest("button").parentElement.children;
       for (var i = 0; i < siblings.length; i++) {
         siblings[i].classList.remove("bg-gradient-default");
@@ -138,10 +172,39 @@ export default {
       this.sidebarTheme = value;
     },
     toggleNavbarPosition(value) {
+        updateNavBarFixedValue(this.configuration, value);
       this.navbarFixed = value;
     },
+      parseConfigurations(configArray) {
+          configArray.forEach(config => {
+              if (config.configurationKey === 'title') {
+                  this.title = config.configurationEntry || 'BroWorld';
+              }
+              if (config.configurationKey === 'sidebarTheme') {
+                  this.sidebarTheme = config.configurationEntry || 'dark';
+              }
+              if (config.configurationKey === 'sidebarColor') {
+                  this.sidebarColor = config.configurationEntry || 'success';
+              }
+              if (config.configurationKey === 'navbarFixed') {
+                  this.navbarFixed = config.configurationEntry || false;
+              }
+          });
+      }
   },
   mounted() {
+      ConfigurationService.getConfigurations().then(
+          (response) => {
+              this.configuration = response.data;
+              this.parseConfigurations(response.data)
+          },
+          (error) => {
+              this.content =
+                  (error.response && error.response.data) ||
+                  error.message ||
+                  error.toString();
+          }
+      )
     this.initScrollbar();
   },
 };

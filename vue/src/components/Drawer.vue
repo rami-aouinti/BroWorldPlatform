@@ -21,7 +21,7 @@
               src="@/assets/img/logo-ct-white.png"
               class="navbar-brand-img ms-3"
               width="32"
-              v-if="sidebarTheme == 'dark'"
+              v-if="sidebarTheme === 'dark'"
             >
             </v-img>
             <v-img
@@ -32,7 +32,7 @@
             >
             </v-img>
             <span class="ms-2 font-weight-bold text-sm"
-              >Material Dashboard 2 PRO</span
+              >{{ title }}</span
             >
           </div>
         </v-list-item-title>
@@ -41,7 +41,7 @@
 
     <hr
       class="horizontal mb-0"
-      :class="sidebarTheme == 'dark' ? 'light' : 'dark'"
+      :class="sidebarTheme === 'dark' ? 'light' : 'dark'"
     />
 
     <v-list nav dense>
@@ -58,7 +58,7 @@
 
           <v-list-item-content>
             <v-list-item-title class="ms-2 ps-1 font-weight-light">
-              Brooklyn Alice
+                {{ profile ? `${profile.firstName} ${profile.lastName}` : 'No Username' }}
             </v-list-item-title>
           </v-list-item-content>
         </template>
@@ -126,7 +126,7 @@
 
     <hr
       class="horizontal mb-3"
-      :class="sidebarTheme == 'dark' ? 'light' : 'dark'"
+      :class="sidebarTheme === 'dark' ? 'light' : 'dark'"
     />
 
     <v-list nav dense>
@@ -230,7 +230,7 @@
           d-none-mini
           white-space-nowrap
         "
-        :class="sidebarTheme == 'dark' ? 'text-white' : 'text-default'"
+        :class="sidebarTheme === 'dark' ? 'text-white' : 'text-default'"
       >
         Pages
       </h5>
@@ -339,7 +339,7 @@
 
       <hr
         class="horizontal my-4"
-        :class="sidebarTheme == 'dark' ? 'light' : 'dark'"
+        :class="sidebarTheme === 'dark' ? 'light' : 'dark'"
       />
 
       <h5
@@ -355,7 +355,7 @@
           d-none-mini
           white-space-nowrap
         "
-        :class="sidebarTheme == 'dark' ? 'text-white' : 'text-default'"
+        :class="sidebarTheme === 'dark' ? 'text-white' : 'text-default'"
       >
         Docs
       </h5>
@@ -415,6 +415,7 @@
   </v-navigation-drawer>
 </template>
 <script>
+
 export default {
   name: "drawer",
   props: {
@@ -430,6 +431,10 @@ export default {
       type: String,
       default: "dark",
     },
+      title: {
+          type: String,
+          default: "Platform",
+      },
   },
   data: () => ({
     mini: false,
@@ -798,5 +803,13 @@ export default {
       }
     },
   },
+    computed: {
+        profile() {
+            return this.$store.state.profile.profile;
+        }
+    },
+    mounted() {
+        this.$store.dispatch("profile/loadProfile", this.profile);
+    }
 };
 </script>

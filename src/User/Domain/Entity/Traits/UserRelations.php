@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\User\Domain\Entity\Traits;
 
+use App\Configuration\Domain\Entity\Configuration;
 use App\Log\Domain\Entity\LogLogin;
 use App\Log\Domain\Entity\LogLoginFailure;
 use App\Log\Domain\Entity\LogRequest;
@@ -31,6 +32,13 @@ trait UserRelations
         'User.userGroups',
     ])]
     protected Collection | ArrayCollection $userGroups;
+
+    #[ORM\OneToMany(
+        mappedBy: 'user',
+        targetEntity: Configuration::class,
+        cascade: ['persist', 'remove']
+    )]
+    private Collection $configurations;
 
     /**
      * @var Collection<int, LogRequest>|ArrayCollection<int, LogRequest>
@@ -162,6 +170,32 @@ trait UserRelations
     public function clearUserGroups(): self
     {
         $this->userGroups->clear();
+
+        return $this;
+    }
+
+    public function getConfigurations(): Collection
+    {
+        return $this->configurations;
+    }
+
+    public function addConfiguration(Configuration $configuration): self
+    {
+        if (!$this->configurations->contains($configuration)) {
+            $this->configurations[] = $configuration;
+            $configuration->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeConfiguration(Configuration $configuration): self
+    {
+        if ($this->configurations->removeElement($configuration)) {
+            if ($configuration->getUser() === $this) {
+                $configuration->setUser(null);
+            }
+        }
 
         return $this;
     }

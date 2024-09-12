@@ -16,8 +16,10 @@ Coded by www.creative-tim.com
 import Vue from "vue";
 import App from "./App.vue";
 import router from "./router";
+import store from "./store"
 import vuetify from "./plugins/vuetify";
 import DashboardPlugin from "./plugins/dashboard-plugin";
+import VeeValidate from "vee-validate";
 
 Vue.config.productionTip = false;
 
@@ -25,11 +27,14 @@ Vue.config.productionTip = false;
 import Photoswipe from "vue-pswipe";
 Vue.use(Photoswipe);
 
+Vue.use(VeeValidate);
+
 // plugin setup
 Vue.use(DashboardPlugin);
 
 new Vue({
   router,
+  store,
   vuetify,
   render: (h) => h(App),
 }).$mount("#app");

@@ -95,6 +95,9 @@ const OrderDetails = () =>
     /* webpackChunkName: "pages" */ "@/views/Ecommerce/Orders/OrderDetails.vue"
   );
 
+const Login = () =>
+    import(/* webpackChunkName: "pages" */ "@/views/Platform/Auth/Login.vue");
+
 Vue.use(VueRouter);
 
 let vrPages = {
@@ -317,6 +320,19 @@ let authIllustrationPages = {
   ],
 };
 
+let login = {
+    path: "/",
+    component: AuthBasicLayout,
+    name: "Authentication Basic",
+    children: [
+        {
+            path: "/login",
+            name: "Login",
+            component: Login,
+        },
+    ],
+};
+
 const routes = [
   {
     path: "/",
@@ -464,6 +480,7 @@ const routes = [
   authBasicPages,
   authCoverPages,
   authIllustrationPages,
+    login,
 ];
 
 const router = new VueRouter({

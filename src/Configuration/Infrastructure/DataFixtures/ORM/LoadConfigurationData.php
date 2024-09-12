@@ -2,16 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\User\Infrastructure\DataFixtures\ORM;
+namespace App\Configuration\Infrastructure\DataFixtures\ORM;
 
-use App\Configuration\Domain\Entity\Configuration;
 use App\General\Domain\Enum\Language;
 use App\General\Domain\Enum\Locale;
 use App\General\Domain\Rest\UuidHelper;
 use App\Role\Application\Security\Interfaces\RolesServiceInterface;
 use App\Tests\Utils\PhpUnitUtil;
-use App\User\Domain\Entity\User;
-use App\User\Domain\Entity\UserGroup;
+use App\Configuration\Domain\Entity\Configuration;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
@@ -20,11 +18,11 @@ use Throwable;
 use function array_map;
 
 /**
- * @package App\User
+ * @package App\Configuration
  *
  * @psalm-suppress PropertyNotSetInConstructor
  */
-final class LoadUserData extends Fixture implements OrderedFixtureInterface
+final class LoadConfigurationData extends Fixture implements OrderedFixtureInterface
 {
     /**
      * @var array<string, string>
@@ -38,11 +36,6 @@ final class LoadUserData extends Fixture implements OrderedFixtureInterface
         'john-root' => '20000000-0000-1000-8000-000000000006',
     ];
 
-    public function __construct(
-        private readonly RolesServiceInterface $rolesService,
-    ) {
-    }
-
     /**
      * Load data fixtures with the passed EntityManager
      *
@@ -51,13 +44,7 @@ final class LoadUserData extends Fixture implements OrderedFixtureInterface
     public function load(ObjectManager $manager): void
     {
         // Create entities
-        array_map(
-            fn (?string $role): bool => $this->createUser($manager, $role),
-            [
-                null,
-                ...$this->rolesService->getRoles(),
-            ],
-        );
+        $this->createConfiguration($manager);
         // Flush database changes
         $manager->flush();
     }
@@ -80,37 +67,12 @@ final class LoadUserData extends Fixture implements OrderedFixtureInterface
      *
      * @throws Throwable
      */
-    private function createUser(ObjectManager $manager, ?string $role = null): bool
+    private function createConfiguration(ObjectManager $manager): bool
     {
-        $suffix = $role === null ? '' : '-' . $this->rolesService->getShort($role);
         // Create new entity
-        $entity = (new User())
-            ->setUsername('john' . $suffix)
-            ->setFirstName('John')
-            ->setLastName('Doe')
-            ->setEmail('john.doe' . $suffix . '@test.com')
-            ->setLanguage(Language::EN)
-            ->setLocale(Locale::EN)
-            ->setPlainPassword('password' . $suffix);
-
-        if ($role !== null) {
-            /** @var UserGroup $userGroup */
-            $userGroup = $this->getReference('UserGroup-' . $this->rolesService->getShort($role), UserGroup::class);
-            $entity->addUserGroup($userGroup);
-        }
-
-        PhpUnitUtil::setProperty(
-            'id',
-            UuidHelper::fromString(self::$uuids['john' . $suffix]),
-            $entity
-        );
-
-        // Create Configuration
-
         $entityConfigurationTitle = (new Configuration())
             ->setConfigurationKey('title')
-            ->setConfigurationEntry('Example of Title')
-            ->setUser($entity)
+            ->setConfigurationEntry('BroWorld')
         ;
 
         $entityConfigurationDrawer = (new Configuration())
@@ -132,23 +94,12 @@ final class LoadUserData extends Fixture implements OrderedFixtureInterface
             ->setConfigurationEntry(false)
         ;
 
-
-        $entity->addConfiguration($entityConfigurationTitle);
-        $entity->addConfiguration($entityConfigurationDrawer);
-        $entity->addConfiguration($entityConfigurationSidebarColor);
-        $entity->addConfiguration($entityConfigurationSidebarTheme);
-        $entity->addConfiguration($entityConfigurationNavbarFixed);
-
-
         // Persist entity
         $manager->persist($entityConfigurationTitle);
         $manager->persist($entityConfigurationDrawer);
         $manager->persist($entityConfigurationSidebarColor);
         $manager->persist($entityConfigurationSidebarTheme);
         $manager->persist($entityConfigurationNavbarFixed);
-        $manager->persist($entity);
-        // Create reference for later usage
-        $this->addReference('User-' . $entity->getUsername(), $entity);
 
         return true;
     }
