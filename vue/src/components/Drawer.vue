@@ -32,7 +32,7 @@
             >
             </v-img>
             <span class="ms-2 font-weight-bold text-sm"
-              >{{ title }}</span
+              >{{ (configuration && configuration.title) || 'Title' }}</span
             >
           </div>
         </v-list-item-title>
@@ -58,7 +58,7 @@
 
           <v-list-item-content>
             <v-list-item-title class="ms-2 ps-1 font-weight-light">
-                {{ profile ? `${profile.firstName} ${profile.lastName}` : 'No Username' }}
+                {{ user ? `${user.firstName} ${user.lastName}` : 'No Username' }}
             </v-list-item-title>
           </v-list-item-content>
         </template>
@@ -237,7 +237,7 @@
 
       <v-list-group
         :ripple="false"
-        v-for="item in itemsPages"
+        v-for="item in menu"
         :key="item.title"
         v-model="item.active"
         append-icon="fas fa-angle-down"
@@ -416,6 +416,8 @@
 </template>
 <script>
 
+import {mapGetters} from "vuex";
+
 export default {
   name: "drawer",
   props: {
@@ -430,11 +432,7 @@ export default {
     sidebarTheme: {
       type: String,
       default: "dark",
-    },
-      title: {
-          type: String,
-          default: "Platform",
-      },
+    }
   },
   data: () => ({
     mini: false,
@@ -719,6 +717,7 @@ export default {
         ],
       },
     ],
+      menus: [],
   }),
   methods: {
     listClose(event) {
@@ -804,12 +803,9 @@ export default {
     },
   },
     computed: {
-        profile() {
-            return this.$store.state.profile.profile;
-        }
-    },
-    mounted() {
-        this.$store.dispatch("profile/loadProfile", this.profile);
+        ...mapGetters('user', ['user']),
+        ...mapGetters('menu', ['menu']),
+        ...mapGetters('configuration', ['configuration']),
     }
 };
 </script>

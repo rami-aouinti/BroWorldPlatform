@@ -70,10 +70,7 @@
           </div>
           <div class="px-4 py-4">
             <p class="text-sm font-weight-light text-body">
-              Hi, I’m Alec Thompson, Decisions: If you can’t decide, the answer
-              is no. If two equally difficult paths, choose the one more painful
-              in the short term (pain avoidance is creating an illusion of
-              equality).
+                {{ profile ? profile.description : 'Empty' }}
             </p>
             <hr class="horizontal dark mt-6 mb-3" />
             <v-list>
@@ -82,7 +79,7 @@
                   <v-list-item-content class="py-0">
                     <div class="text-body text-sm">
                       <strong class="text-dark">Full Name:</strong>
-                      &nbsp; Alec M. Thompson
+                      &nbsp; {{ user ? user.firstName + ' ' + user.lastName : 'Empty' }}
                     </div>
                   </v-list-item-content>
                 </v-list-item>
@@ -90,7 +87,7 @@
                   <v-list-item-content class="py-0">
                     <div class="text-body text-sm">
                       <strong class="text-dark">Mobile:</strong>
-                      &nbsp; (44) 123 1234 123
+                      &nbsp; {{ profile ? profile.mobile : 'Empty' }}
                     </div>
                   </v-list-item-content>
                 </v-list-item>
@@ -98,7 +95,7 @@
                   <v-list-item-content class="py-0">
                     <div class="text-body text-sm">
                       <strong class="text-dark">Email:</strong>
-                      &nbsp; alecthompson@mail.com
+                      &nbsp; {{ user ? user.email : 'Empty' }}
                     </div>
                   </v-list-item-content>
                 </v-list-item>
@@ -215,7 +212,7 @@
                     <p class="text-body font-weight-light mb-0 text-sm">
                       {{ card.title }}
                     </p>
-                    <a href="javascript:;" class="text-decoration-none">
+                    <a href="javascript:" class="text-decoration-none">
                       <h5 class="text-h5 font-weight-bold text-typo mb-2">
                         {{ card.style }}
                       </h5>
@@ -264,6 +261,9 @@
   </v-container>
 </template>
 <script>
+
+import { mapGetters } from 'vuex';
+
 export default {
   name: "Profile-Overview",
   data: function () {
@@ -427,5 +427,9 @@ export default {
       ],
     };
   },
+    computed: {
+        ...mapGetters('profile', ['profile']),
+        ...mapGetters('user', ['user']),
+    },
 };
 </script>

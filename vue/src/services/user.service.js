@@ -33,6 +33,10 @@ class UserService {
     return axios.get(API_URL + "profile", { headers: authHeader() });
   }
 
+    getProfileData() {
+        return axios.get(API_URL + "profile/data", { headers: authHeader() });
+    }
+
   updateProfile(item) {
     return axios.post(API_URL + "setting", { item }, { headers: authHeader() });
   }

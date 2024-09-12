@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace App\User\Transport\Controller\Api\v1\Profile;
 
-use App\Configuration\Domain\Entity\Configuration;
+use App\General\Domain\Utils\JSON;
+use App\User\Domain\Entity\Profile;
 use App\User\Domain\Entity\User;
+use JsonException;
+use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Attributes as OA;
 use OpenApi\Attributes\JsonContent;
 use OpenApi\Attributes\Property;
@@ -22,29 +25,32 @@ use Symfony\Component\Serializer\SerializerInterface;
  */
 #[AsController]
 #[OA\Tag(name: 'Profile')]
-class ConfigurationsController
+class ProfileController
 {
-
     public function __construct(
         private readonly SerializerInterface $serializer,
     ) {
     }
 
     /**
-     * Get current user roles as an array, accessible only for 'IS_AUTHENTICATED_FULLY' users.
+     * Get current user profile data, accessible only for 'IS_AUTHENTICATED_FULLY' users.
+     *
+     * @throws JsonException
      */
     #[Route(
-        path: '/v1/profile/configurations',
+        path: '/v1/profile/data',
         methods: [Request::METHOD_GET],
     )]
     #[IsGranted(AuthenticatedVoter::IS_AUTHENTICATED_FULLY)]
     #[OA\Response(
         response: 200,
-        description: 'List of logged in user user configurations',
+        description: 'User profile data',
         content: new JsonContent(
-            type: 'array',
-            items: new OA\Items(type: 'string', example: 'ROLE_USER'),
-            example: ['ROLE_USER', 'ROLE_LOGGED'],
+            ref: new Model(
+                type: User::class,
+                groups: ['set.UserProfile'],
+            ),
+            type: 'object',
         ),
     )]
     #[OA\Response(
@@ -79,16 +85,18 @@ class ConfigurationsController
     )]
     public function __invoke(User $loggedInUser): JsonResponse
     {
-
-        return new JsonResponse(
+        /** @var array<string, string|array<string, string>> $output */
+        $output = JSON::decode(
             $this->serializer->serialize(
-                $loggedInUser->getConfigurations()->toArray(),
+                $loggedInUser->getProfile(),
                 'json',
                 [
-                    'groups' => Configuration::SET_USER_CONFIGURATION,
-                ],
+                    'groups' => Profile::SET_PROFILE,
+                ]
             ),
-            json: true,
+            true,
         );
+
+        return new JsonResponse($output);
     }
 }

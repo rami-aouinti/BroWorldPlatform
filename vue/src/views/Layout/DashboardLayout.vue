@@ -4,7 +4,6 @@
       :drawer="drawer"
       :sidebarColor="sidebarColor"
       :sidebarTheme="sidebarTheme"
-      :title="title"
     >
     </drawer>
     <v-main>
@@ -14,7 +13,7 @@
         class="position-absolute drawer-state"
       ></div>
       <app-bar
-        v-if="$route.name != 'Profile'"
+        v-if="$route.name !== 'Profile'"
         background="bg-transparent"
         has-bg
         @drawer-toggle="drawer = $event"
@@ -23,7 +22,7 @@
         @toggleSettingsDrawer="toggleSettingsDrawer"
       ></app-bar>
       <app-bar
-        v-else-if="$route.name == 'Profile'"
+        v-else-if="$route.name === 'Profile'"
         background="bg-default"
         has-bg
         @drawer-toggle="drawer = $event"
@@ -114,7 +113,6 @@ export default {
       sidebarColor: "success",
       sidebarTheme: "dark",
       navbarFixed: false,
-      title: "Platform",
         configuration: [],
     };
   },
@@ -138,7 +136,6 @@ export default {
                             configurationEntry: value
                         };
 
-                        console.log(item);
                         ConfigurationService.updateConfiguration(item, config.id).then(
                             (response) => {
                                 console.log('Success')
@@ -175,36 +172,8 @@ export default {
         updateNavBarFixedValue(this.configuration, value);
       this.navbarFixed = value;
     },
-      parseConfigurations(configArray) {
-          configArray.forEach(config => {
-              if (config.configurationKey === 'title') {
-                  this.title = config.configurationEntry || 'BroWorld';
-              }
-              if (config.configurationKey === 'sidebarTheme') {
-                  this.sidebarTheme = config.configurationEntry || 'dark';
-              }
-              if (config.configurationKey === 'sidebarColor') {
-                  this.sidebarColor = config.configurationEntry || 'success';
-              }
-              if (config.configurationKey === 'navbarFixed') {
-                  this.navbarFixed = config.configurationEntry || false;
-              }
-          });
-      }
   },
   mounted() {
-      ConfigurationService.getConfigurations().then(
-          (response) => {
-              this.configuration = response.data;
-              this.parseConfigurations(response.data)
-          },
-          (error) => {
-              this.content =
-                  (error.response && error.response.data) ||
-                  error.message ||
-                  error.toString();
-          }
-      )
     this.initScrollbar();
   },
 };

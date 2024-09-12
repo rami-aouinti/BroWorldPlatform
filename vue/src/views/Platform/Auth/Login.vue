@@ -172,20 +172,6 @@ export default {
                 if (this.user.username && this.user.password) {
                     this.$store.dispatch("auth/login", this.user).then(
                         () => {
-                            this.$store.dispatch("profile/loadProfile", this.profile).then(
-                                () => {
-                                    console.log('success')
-                                },
-                                (error) => {
-                                    this.loading = false;
-                                    this.message =
-                                        (error.response &&
-                                            error.response.data &&
-                                            error.response.data.message) ||
-                                        error.message ||
-                                        error.toString();
-                                }
-                            );
                             if (this.user.username === 'john-root') {
                                 this.$router.push("/pages/dashboards/discover");
                             } else {

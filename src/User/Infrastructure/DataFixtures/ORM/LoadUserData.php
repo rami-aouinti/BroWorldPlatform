@@ -8,10 +8,14 @@ use App\Configuration\Domain\Entity\Configuration;
 use App\General\Domain\Enum\Language;
 use App\General\Domain\Enum\Locale;
 use App\General\Domain\Rest\UuidHelper;
+use App\Menu\Domain\Entity\Menu;
 use App\Role\Application\Security\Interfaces\RolesServiceInterface;
 use App\Tests\Utils\PhpUnitUtil;
+use App\User\Domain\Entity\Address;
+use App\User\Domain\Entity\Profile;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Entity\UserGroup;
+use DateTimeImmutable;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
@@ -105,6 +109,143 @@ final class LoadUserData extends Fixture implements OrderedFixtureInterface
             $entity
         );
 
+
+        // Create Address
+
+        $address = new Address();
+        $address->setCountry('Germany');
+        $address->setCity('köln');
+        $address->setStreet('Widdersdorfer Landstr');
+        $address->setHousenumber('11');
+        $address->setPostcode('50859');
+        $manager->persist($address);
+
+        // Create Profile
+
+        $profile = new Profile();
+        $profile->setTitle('Ing');
+        $profile->setPhoto('img.png');
+        $profile->setDescription('Hi, I’m Alec Thompson, Decisions: If you can’t decide, the answer is no.
+         If two equally difficult paths, choose the one more painful in the short term
+         (pain avoidance is creating an illusion of equality).');
+        $profile->setMobile('(49) 176 35587613');
+        $profile->setBirthday(new DateTimeImmutable('now'));
+        $profile->setAddress($address);
+        $manager->persist($profile);
+
+        $entity->setProfile($profile);
+
+        // Create Menu
+
+        $pagesMenu = new Menu();
+        $pagesMenu->setAction('image');
+        $pagesMenu->setActive(false);
+        $pagesMenu->setTitle('Test 14');
+        $manager->persist($pagesMenu);
+
+        // Ajout des sous-éléments sous "Pages"
+        $profileMenu = new Menu();
+        $profileMenu->setTitle('Test 13');
+        $profileMenu->setPrefix('P');
+        $profileMenu->setActive(false);
+        $profileMenu->setParent($pagesMenu);
+        $profileMenu->setLevel(1);
+        $manager->persist($profileMenu);
+
+        // Ajout des sous-éléments sous "Profile"
+        $profileOverview = new Menu();
+        $profileOverview->setTitle('Test 12');
+        $profileOverview->setPrefix('P');
+        $profileOverview->setLink('/pages/pages/profile/overview');
+        $profileOverview->setParent($profileMenu);
+        $profileOverview->setLevel(2);
+        $manager->persist($profileOverview);
+
+        $allProjects = new Menu();
+        $allProjects->setTitle('Test 11');
+        $allProjects->setPrefix('A');
+        $allProjects->setLink('/pages/pages/profile/projects');
+        $allProjects->setParent($profileMenu);
+        $allProjects->setLevel(3);
+        $manager->persist($allProjects);
+
+        $messages = new Menu();
+        $messages->setTitle('Test 8');
+        $messages->setPrefix('M');
+        $messages->setLink('/pages/pages/profile/messages');
+        $messages->setParent($profileMenu);
+        $messages->setLevel(4);
+        $manager->persist($messages);
+
+        // Ajout de l'élément "Users"
+        $usersMenu = new Menu();
+        $usersMenu->setTitle('Test 9');
+        $usersMenu->setPrefix('U');
+        $usersMenu->setActive(false);
+        $usersMenu->setParent($pagesMenu);
+        $usersMenu->setLevel(5);
+        $manager->persist($usersMenu);
+
+        // Ajout des sous-éléments sous "Users"
+        $reports = new Menu();
+        $reports->setTitle('Test 7');
+        $reports->setPrefix('R');
+        $reports->setLink('/pages/pages/users/reports');
+        $reports->setParent($usersMenu);
+        $reports->setLevel(6);
+        $manager->persist($reports);
+
+        $newUser = new Menu();
+        $newUser->setTitle('Test 5');
+        $newUser->setPrefix('N');
+        $newUser->setLink('/pages/pages/users/new-user');
+        $newUser->setParent($usersMenu);
+        $newUser->setLevel(7);
+        $manager->persist($newUser);
+
+        // Ajout des autres éléments de niveau supérieur comme "Applications", "Ecommerce", "Authentication", etc.
+        $applicationsMenu = new Menu();
+        $applicationsMenu->setAction('apps');
+        $applicationsMenu->setActive(false);
+        $applicationsMenu->setTitle('Test 1');
+        $manager->persist($applicationsMenu);
+
+        $ecommerceMenu = new Menu();
+        $ecommerceMenu->setAction('shopping_basket');
+        $ecommerceMenu->setActive(false);
+        $ecommerceMenu->setTitle('Test 2');
+        $manager->persist($ecommerceMenu);
+
+        $authenticationMenu = new Menu();
+        $authenticationMenu->setAction('content_paste');
+        $authenticationMenu->setActive(false);
+        $authenticationMenu->setTitle('Test 3');
+
+        $entity->addMenu($pagesMenu);
+        $entity->addMenu($profileMenu);
+        $entity->addMenu($profileOverview);
+        $entity->addMenu($allProjects);
+        $entity->addMenu($messages);
+        $entity->addMenu($usersMenu);
+        $entity->addMenu($reports);
+        $entity->addMenu($newUser);
+        $entity->addMenu($applicationsMenu);
+        $entity->addMenu($ecommerceMenu);
+        $entity->addMenu($authenticationMenu);
+
+        // Persist entity
+        $manager->persist($pagesMenu);
+        $manager->persist($profileMenu);
+        $manager->persist($profileOverview);
+        $manager->persist($allProjects);
+        $manager->persist($messages);
+        $manager->persist($usersMenu);
+        $manager->persist($reports);
+        $manager->persist($newUser);
+        $manager->persist($applicationsMenu);
+        $manager->persist($ecommerceMenu);
+        $manager->persist($authenticationMenu);
+
         // Create Configuration
 
         $entityConfigurationTitle = (new Configuration())
@@ -138,7 +279,6 @@ final class LoadUserData extends Fixture implements OrderedFixtureInterface
         $entity->addConfiguration($entityConfigurationSidebarColor);
         $entity->addConfiguration($entityConfigurationSidebarTheme);
         $entity->addConfiguration($entityConfigurationNavbarFixed);
-
 
         // Persist entity
         $manager->persist($entityConfigurationTitle);

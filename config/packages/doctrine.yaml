@@ -86,6 +86,12 @@ doctrine:
                         dir: '%kernel.project_dir%/src/Configuration/Domain/Entity'
                         prefix: 'App\Configuration\Domain\Entity'
                         alias: Configuration
+                    Menu:
+                        type: attribute
+                        is_bundle: false
+                        dir: '%kernel.project_dir%/src/Menu/Domain/Entity'
+                        prefix: 'App\Menu\Domain\Entity'
+                        alias: Menu
                 dql:
                     datetime_functions:
                         datesub: DoctrineExtensions\Query\Mysql\DateSub

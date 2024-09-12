@@ -5,29 +5,29 @@ import UserService from '../services/user.service'; // Assurez-vous que le chemi
 
 Vue.use(Vuex);
 
-export const profile = {
+export const user = {
     namespaced: true,
     state: {
-        profile: null,
+        user: null,
     },
     mutations: {
-        setProfile(state, profile) {
-            state.profile = profile;
+        setUser(state, user) {
+            state.user = user;
         },
     },
     actions: {
-        async fetchProfile({ commit }) {
+        async fetchUser({ commit }) {
             try {
-                const response = await UserService.getProfileData(); // Assurez-vous que cette méthode fonctionne
-                commit('setProfile', response.data);
+                const response = await UserService.getProfile(); // Assurez-vous que cette méthode fonctionne
+                commit('setUser', response.data);
             } catch (error) {
                 console.error('Erreur lors de la récupération du profil:', error);
             }
         },
     },
     getters: {
-        profile: state => {
-            return state.profile;
+        user: state => {
+            return state.user;
         },
     },
 };

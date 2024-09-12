@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace App\Configuration\Infrastructure\Repository;
+namespace App\Menu\Infrastructure\Repository;
 
 use App\General\Infrastructure\Repository\BaseRepository;
-use App\Configuration\Domain\Entity\Configuration as Entity;
-use App\Configuration\Domain\Repository\Interfaces\ConfigurationRepositoryInterface;
+use App\Menu\Domain\Entity\Menu as Entity;
+use App\Menu\Domain\Repository\Interfaces\MenuRepositoryInterface;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @package App\Configuration
+ * @package App\Menu
  *
  * @psalm-suppress LessSpecificImplementedReturnType
  * @codingStandardsIgnoreStart
@@ -24,12 +24,12 @@ use Doctrine\Persistence\ManagerRegistry;
  *
  * @codingStandardsIgnoreEnd
  */
-class ConfigurationRepository extends BaseRepository implements ConfigurationRepositoryInterface
+class MenuRepository extends BaseRepository implements MenuRepositoryInterface
 {
     /**
      * @var array<int, string>
      */
-    protected static array $searchColumns = ['configurationKey', 'configurationEntry'];
+    protected static array $searchColumns = ['title', 'prefix', 'link', 'action'];
 
     /**
      * @psalm-var class-string
@@ -37,6 +37,7 @@ class ConfigurationRepository extends BaseRepository implements ConfigurationRep
     protected static string $entityName = Entity::class;
 
     public function __construct(
-        protected ManagerRegistry $managerRegistry) {
+        protected ManagerRegistry $managerRegistry,
+    ) {
     }
 }

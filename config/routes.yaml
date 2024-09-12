@@ -42,3 +42,12 @@ configuration-controllers:
     prefix: /api
     defaults:
         _format: json
+
+menu-controllers:
+    resource:
+        path: ../src/Menu/Transport/Controller/Api/
+        namespace: App\Menu\Transport\Controller\Api
+    type: attribute
+    prefix: /api
+    defaults:
+        _format: json

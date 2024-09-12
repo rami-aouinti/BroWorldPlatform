@@ -246,6 +246,7 @@ class User implements EntityInterface, UserInterface, UserGroupAwareInterface
         $this->logsLogin = new ArrayCollection();
         $this->logsLoginFailure = new ArrayCollection();
         $this->configurations = new ArrayCollection();
+        $this->menus = new ArrayCollection();
     }
 
     public function getId(): string

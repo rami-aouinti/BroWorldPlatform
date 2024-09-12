@@ -8,6 +8,8 @@ use App\Configuration\Domain\Entity\Configuration;
 use App\Log\Domain\Entity\LogLogin;
 use App\Log\Domain\Entity\LogLoginFailure;
 use App\Log\Domain\Entity\LogRequest;
+use App\Menu\Domain\Entity\Menu;
+use App\User\Domain\Entity\Profile;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Entity\UserGroup;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -20,6 +22,12 @@ use Symfony\Component\Serializer\Annotation\Groups;
  */
 trait UserRelations
 {
+
+    #[ORM\OneToOne(targetEntity: Profile::class, cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(name: 'profile_id', referencedColumnName: 'id', nullable: true)]
+    #[Groups(['User.profile'])]
+    private ?Profile $profile = null;
+
     /**
      * @var Collection<int, UserGroup>|ArrayCollection<int, UserGroup>
      */
@@ -39,6 +47,13 @@ trait UserRelations
         cascade: ['persist', 'remove']
     )]
     private Collection $configurations;
+
+    #[ORM\OneToMany(
+        mappedBy: 'user',
+        targetEntity: Menu::class,
+        cascade: ['persist', 'remove']
+    )]
+    private Collection $menus;
 
     /**
      * @var Collection<int, LogRequest>|ArrayCollection<int, LogRequest>
@@ -75,6 +90,19 @@ trait UserRelations
         'User.logsLoginFailure',
     ])]
     protected Collection | ArrayCollection $logsLoginFailure;
+
+
+    public function getProfile(): ?Profile
+    {
+        return $this->profile;
+    }
+
+    public function setProfile(?Profile $profile): self
+    {
+        $this->profile = $profile;
+
+        return $this;
+    }
 
     /**
      * Getter for roles.
@@ -199,4 +227,31 @@ trait UserRelations
 
         return $this;
     }
+
+    public function getMenus(): Collection
+    {
+        return $this->menus;
+    }
+
+    public function addMenu(Menu $menu): self
+    {
+        if (!$this->menus->contains($menu)) {
+            $this->menus[] = $menu;
+            $menu->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMenu(Menu $menu): self
+    {
+        if ($this->menus->removeElement($menu)) {
+            if ($menu->getUser() === $this) {
+                $menu->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
 }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\User\Transport\Controller\Api\v1\Profile;
 
-use App\Configuration\Domain\Entity\Configuration;
+use App\Menu\Domain\Entity\Menu;
 use App\User\Domain\Entity\User;
 use OpenApi\Attributes as OA;
 use OpenApi\Attributes\JsonContent;
@@ -22,7 +22,7 @@ use Symfony\Component\Serializer\SerializerInterface;
  */
 #[AsController]
 #[OA\Tag(name: 'Profile')]
-class ConfigurationsController
+class MenuController
 {
 
     public function __construct(
@@ -34,7 +34,7 @@ class ConfigurationsController
      * Get current user roles as an array, accessible only for 'IS_AUTHENTICATED_FULLY' users.
      */
     #[Route(
-        path: '/v1/profile/configurations',
+        path: '/v1/profile/menu',
         methods: [Request::METHOD_GET],
     )]
     #[IsGranted(AuthenticatedVoter::IS_AUTHENTICATED_FULLY)]
@@ -82,13 +82,54 @@ class ConfigurationsController
 
         return new JsonResponse(
             $this->serializer->serialize(
-                $loggedInUser->getConfigurations()->toArray(),
+                $this->manageMenu($loggedInUser->getMenus()->toArray()),
                 'json',
                 [
-                    'groups' => Configuration::SET_USER_CONFIGURATION,
+                    'groups' => Menu::SET_USER_MENU,
                 ],
             ),
             json: true,
         );
+    }
+
+
+    private function manageMenu(array $menuItems): array
+    {
+        $rootItems = [];
+
+        foreach ($menuItems as $menuItem) {
+            if ($menuItem->getParent() !== null) {
+                continue;
+            }
+
+            $rootItems[$menuItem->getId()] = $this->formatMenuItem($menuItem);
+        }
+
+        return $rootItems;
+    }
+
+    /**
+     * @param $menuItem
+     *
+     * @return array
+     */
+    private function formatMenuItem($menuItem): array
+    {
+        $children = $menuItem->getChildren();
+        $subItems = [];
+
+        foreach ($children as $child) {
+            $subItems[$child->getId()] = $this->formatMenuItem($child);
+        }
+
+        return [
+            'id' => $menuItem->getId(),
+            'title' => $menuItem->getTitle(),
+            'prefix' => $menuItem->getPrefix(),
+            'link' => $menuItem->getLink(),
+            'active' => $menuItem->isActive(),
+            'action' => $menuItem->getAction(),
+            'items' => $subItems
+        ];
     }
 }

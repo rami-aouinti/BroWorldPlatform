@@ -101,6 +101,9 @@ when@dev:
         App\Configuration\Infrastructure\DataFixtures\:
             resource: '../src/Configuration/Infrastructure/DataFixtures/*'
 
+        App\Menu\Infrastructure\DataFixtures\:
+            resource: '../src/Menu/Infrastructure/DataFixtures/*'
+
         App\Tests\TestCase\:
             resource: '../tests/TestCase/*'
 
