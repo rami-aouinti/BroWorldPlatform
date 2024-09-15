@@ -77,7 +77,7 @@ class Configuration implements EntityInterface, ConfigurationInterface
     #[Assert\NotNull]
     private mixed $configurationEntry = null;
 
-    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'configurations')]
+    #[ORM\ManyToOne(targetEntity: User::class, cascade: ['persist'] , inversedBy: 'configurations')]
     #[ORM\JoinColumn(nullable: true)]
     private ?User $user = null;
 

@@ -8,12 +8,17 @@ import AuthBasicLayout from "../views/Layout/AuthBasicLayout";
 import AuthCoverLayout from "../views/Layout/AuthCoverLayout";
 import AuthIllustrationLayout from "../views/Layout/AuthIllustrationLayout";
 
+
 // Dashboard pages
 const Dashboard = () => import("../views/Dashboard/Dashboard.vue");
 const Discover = () => import("../views/Dashboard/Discover.vue");
 const Automotive = () => import("../views/Dashboard/Automotive.vue");
 const Sales = () => import("../views/Dashboard/Sales.vue");
 const SmartHome = () => import("../views/Dashboard/SmartHome.vue");
+const Quiz = () => import("../views/Dashboard/Quiz.vue");
+const QuizQuestion = () => import("../components/Question.vue");
+const Score = () => import("../components/Score.vue");
+
 const VrDefault = () => import("../views/Dashboard/VrDefault.vue");
 const VrInfo = () => import("../views/Dashboard/VrInfo.vue");
 const Crm = () => import("../views/Dashboard/Crm.vue");
@@ -97,6 +102,19 @@ const OrderDetails = () =>
 
 const Login = () =>
     import(/* webpackChunkName: "pages" */ "@/views/Platform/Auth/Login.vue");
+
+const AdminDatatables = () =>
+    import(/* webpackChunkName: "pages" */ "@/views/Applications/AdminDatatables.vue");
+
+const AdminUserDatatables = () =>
+    import(/* webpackChunkName: "pages" */ "@/views/Admin/UserDatatables.vue");
+
+const AdminConfigurationDatatables = () =>
+    import(/* webpackChunkName: "pages" */ "@/views/Admin/ConfigurationDatatables.vue");
+
+const AdminMenuDatatables = () =>
+    import(/* webpackChunkName: "pages" */ "@/views/Admin/MenuDatatables.vue");
+
 
 Vue.use(VueRouter);
 
@@ -340,6 +358,38 @@ const routes = [
     redirect: "/pages/dashboards/analytics",
     component: DashboardLayout,
     children: [
+        {
+            path: "pages/dashboards/admin",
+            name: "Admin",
+            component: AdminDatatables,
+            meta: {
+                groupName: "Admin",
+            },
+        },
+        {
+            path: "pages/dashboards/admin/user",
+            name: "Admin User",
+            component: AdminUserDatatables,
+            meta: {
+                groupName: "Admin",
+            },
+        },
+        {
+            path: "pages/dashboards/admin/configuration",
+            name: "Admin Configuration",
+            component: AdminConfigurationDatatables,
+            meta: {
+                groupName: "Admin",
+            },
+        },
+        {
+            path: "pages/dashboards/admin/menu",
+            name: "Admin Menu",
+            component: AdminMenuDatatables,
+            meta: {
+                groupName: "Admin",
+            },
+        },
       {
         path: "pages/dashboards/analytics",
         name: "Analytics",
@@ -356,6 +406,26 @@ const routes = [
           groupName: "Dashboards",
         },
       },
+        {
+            path: "/pages/dashboards/quiz",
+            name: "Quiz",
+            component: Quiz,
+            meta: {
+                groupName: "Dashboards",
+            },
+        },
+        {
+            path: '/question/:id',
+            name: 'Quiz',
+            component: QuizQuestion,
+            props: true, // Permet de passer les paramètres comme props
+        },
+        {
+            path: '/score',
+            name: 'Score',
+            component: Score,
+            props: true, // Permet de passer les paramètres comme props
+        },
       {
         path: "/pages/dashboards/smart-home",
         name: "SmartHome",

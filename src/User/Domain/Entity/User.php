@@ -377,4 +377,25 @@ class User implements EntityInterface, UserInterface, UserGroupAwareInterface
     {
         $this->plainPassword = '';
     }
+
+    /**
+     * @return array{int|null, string|null, string|null}
+     */
+    public function __serialize(): array
+    {
+        return [$this->id, $this->username, $this->password];
+    }
+
+    /**
+     * @param array{int|null, string, string} $data
+     */
+    public function __unserialize(array $data): void
+    {
+        [$this->id, $this->username, $this->password] = $data;
+    }
+
+    public function __toString(): string
+    {
+        return (string) $this->username; // Ou une autre représentation textuelle de l'utilisateur
+    }
 }

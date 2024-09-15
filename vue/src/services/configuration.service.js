@@ -30,7 +30,6 @@ class ConfigurationService {
     }
 
     updateConfiguration(item, id) {
-      console.log(item);
         return axios.put(API_URL + "configuration/" + id, {
             configurationKey: item.configurationKey,
             configurationEntry: item.configurationEntry },

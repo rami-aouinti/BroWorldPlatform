@@ -1,0 +1,5 @@
+mercure:
+    hubs:
+        default:
+            url: 'http://mercure/.well-known/mercure'
+            jwt: '%env(MERCURE_JWT_TOKEN)%'

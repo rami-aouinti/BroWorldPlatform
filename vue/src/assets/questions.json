@@ -1,0 +1,191 @@
+{
+    "items": [
+        { 
+            "id": 0, 
+            "text": "What is the capital of Finland?",
+            "answer": 2,
+            "choices": [
+                { "id": 0, "text": "Reykjavik" },
+                { "id": 1, "text": "Bangkok" },
+                { "id": 2, "text": "Helsinki" },
+                { "id": 3, "text": "Paris" }
+            ]
+        },
+        { 
+            "id": 1, 
+            "text": "What is the chemical formula of table salt?",
+            "answer": 1,
+            "choices": [
+                { "id": 0, "text": "Sodium Hydroxide" },
+                { "id": 1, "text": "Sodium Chloride" },
+                { "id": 2, "text": "Potassium Chloride" },
+                { "id": 3, "text": "Potassium Nitrate" }
+            ]
+        },
+        { 
+            "id": 2, 
+            "text": "In what country can you find Waterloo?",
+            "answer": 1,
+            "choices": [
+                { "id": 0, "text": "France" },
+                { "id": 1, "text": "Belgium" },
+                { "id": 2, "text": "Denmark" },
+                { "id": 3, "text": "Germany" }
+            ]
+        },
+        { 
+            "id": 3, 
+            "text": "Who assassinated US President Abraham Lincoln?",
+            "answer": 3,
+            "choices": [
+                { "id": 0, "text": "Alexander Hamilton" },
+                { "id": 1, "text": "Harvey Oswald" },
+                { "id": 2, "text": "Jack Ruby" },
+                { "id": 3, "text": "John Wilkes Booth" }
+            ]
+        },
+        { 
+            "id": 4, 
+            "text": "Who is the last emperor of China?",
+            "answer": 1,
+            "choices": [
+                { "id": 0, "text": "Bao Dai" },
+                { "id": 1, "text": "Puyi" },
+                { "id": 2, "text": "Koxinga" },
+                { "id": 3, "text": "Sun Tzu" }
+            ]
+        },
+        { 
+            "id": 5, 
+            "text": "What is the color of chlorine gas at room temperature?",
+            "answer": 0,
+            "choices": [
+                { "id": 0, "text": "yellow green" },
+                { "id": 1, "text": "aquablue" },
+                { "id": 2, "text": "skyblue" },
+                { "id": 3, "text": "deep purple" }
+            ]
+        },
+        { 
+            "id": 6, 
+            "text": "What is the national fruit of Jamaica?",
+            "answer": 3,
+            "choices": [
+                { "id": 0, "text": "chapotes" },
+                { "id": 1, "text": "banana" },
+                { "id": 2, "text": "guava" },
+                { "id": 3, "text": "ackee" }
+            ]
+        },
+        { 
+            "id": 7, 
+            "text": "Where can you find orangutan?",
+            "answer": 0,
+            "choices": [
+                { "id": 0, "text": "Sumatra" },
+                { "id": 1, "text": "Madagascar" },
+                { "id": 2, "text": "Andaman" },
+                { "id": 3, "text": "Nicobar" }
+            ]
+        },
+        { 
+            "id": 8, 
+            "text": "Who discovered bacteria?",
+            "answer": 1,
+            "choices": [
+                { "id": 0, "text": "Isaac Newton" },
+                { "id": 1, "text": "Antoni van Leeuwenhoek" },
+                { "id": 2, "text": "Louis Vuitton" },
+                { "id": 3, "text": "Louis Pasteur" }
+            ]
+        },
+        { 
+            "id": 9, 
+            "text": "After crossing this river, Julius Caesar precipitated a civil war that catalputed him to power as the dictator of the Roman Empire. What is the name of this river?",
+            "answer": 2,
+            "choices": [
+                { "id": 0, "text": "Rhine" },
+                { "id": 1, "text": "Danube" },
+                { "id": 2, "text": "Rubicon" },
+                { "id": 3, "text": "Nile" }
+            ]
+        },
+        { 
+            "id": 10, 
+            "text": "What is the name of the first animal launched into orbit in space?",
+            "answer": 2,
+            "choices": [
+                { "id": 0, "text": "Yuri" },
+                { "id": 1, "text": "Hachiko" },
+                { "id": 2, "text": "Laika" },
+                { "id": 3, "text": "Able" }
+            ]
+        },
+        { 
+            "id": 11, 
+            "text": "Who is the Mongol emperor that founded the Yuan dynasty of China?",
+            "answer": 3,
+            "choices": [
+                { "id": 0, "text": "Mongke Khan" },
+                { "id": 1, "text": "Genghis Khan" },
+                { "id": 2, "text": "Chaka Khan" },
+                { "id": 3, "text": "Kublai Khan" }
+            ]
+        },
+        { 
+            "id": 12, 
+            "text": "Who is the first emperor of a unified China?",
+            "answer": 0,
+            "choices": [
+                { "id": 0, "text": "Qin Shi Huang" },
+                { "id": 1, "text": "Emperor Gao" },
+                { "id": 2, "text": "Emperor Xiantian" },
+                { "id": 3, "text": "Emperor Chengtian" }
+            ]
+        },
+        { 
+            "id": 13, 
+            "text": "Who is the British physicist that discovered the electron?",
+            "answer": 0,
+            "choices": [
+                { "id": 0, "text": "J.J. Thompson" },
+                { "id": 1, "text": "H.A. Lorentz" },
+                { "id": 2, "text": "Ernest Rutherford" },
+                { "id": 3, "text": "Niels Bohr" }
+            ]
+        },
+        { 
+            "id": 14, 
+            "text": "What is the capital of Denmark?",
+            "answer": 0,
+            "choices": [
+                { "id": 0, "text": "Copenhagen" },
+                { "id": 1, "text": "Amsterdam" },
+                { "id": 2, "text": "Brussels" },
+                { "id": 3, "text": "Stockholm" }
+            ]
+        },
+        { 
+            "id": 15, 
+            "text": "What do you call the area comprising of 27 European countries that abolished all border controls at their mutual borders?",
+            "answer": 1,
+            "choices": [
+                { "id": 0, "text": "Szechuan Area" },
+                { "id": 1, "text": "Schengen Area" },
+                { "id": 2, "text": "Seychelles Area" },
+                { "id": 3, "text": "Shenzhen Area" }
+            ]
+        },
+        { 
+            "id": 16, 
+            "text": "Who is the former NBA player that is regarded as the greatest point guard of all-time?",
+            "answer": 1,
+            "choices": [
+                { "id": 0, "text": "Michael Jordan" },
+                { "id": 1, "text": "Magic Johnson" },
+                { "id": 2, "text": "Michael Jackson" },
+                { "id": 3, "text": "LeBron James" }
+            ]
+        }
+    ]
+}

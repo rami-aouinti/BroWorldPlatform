@@ -6,12 +6,12 @@ import store from "./store"; // Utilisez le store principal
 import vuetify from "./plugins/vuetify";
 import DashboardPlugin from "./plugins/dashboard-plugin";
 import VeeValidate from "vee-validate";
-import Photoswipe from "vue-pswipe";
+import Photoswipe from "vue-pswipe"
+
 
 Vue.use(Photoswipe);
 Vue.use(VeeValidate);
 Vue.use(DashboardPlugin);
-
 Vue.config.productionTip = false;
 
 new Vue({
@@ -24,5 +24,9 @@ new Vue({
         this.$store.dispatch('user/fetchUser');
         this.$store.dispatch('menu/fetchMenu');
         this.$store.dispatch('configuration/fetchConfiguration');
+        this.$store.dispatch('fetchQuizData', {
+            category: 'Geography',
+            difficulty: 'easy'
+        });
     },
 }).$mount("#app");

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\User\Domain\Entity\Traits;
 
+use App\Calendar\Domain\Entity\Event;
 use App\Configuration\Domain\Entity\Configuration;
 use App\Log\Domain\Entity\LogLogin;
 use App\Log\Domain\Entity\LogLoginFailure;
@@ -47,6 +48,13 @@ trait UserRelations
         cascade: ['persist', 'remove']
     )]
     private Collection $configurations;
+
+    #[ORM\OneToMany(
+        mappedBy: 'user',
+        targetEntity: Event::class,
+        cascade: ['persist', 'remove']
+    )]
+    private Collection $events;
 
     #[ORM\OneToMany(
         mappedBy: 'user',
@@ -248,6 +256,32 @@ trait UserRelations
         if ($this->menus->removeElement($menu)) {
             if ($menu->getUser() === $this) {
                 $menu->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getEvents(): Collection
+    {
+        return $this->events;
+    }
+
+    public function addEvent(Event $event): self
+    {
+        if (!$this->events->contains($event)) {
+            $this->events[] = $event;
+            $event->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEvent(Event $event): self
+    {
+        if ($this->menus->removeElement($event)) {
+            if ($event->getUser() === $this) {
+                $event->setUser(null);
             }
         }
 

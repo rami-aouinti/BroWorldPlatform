@@ -477,11 +477,43 @@ export default {
       },
     ],
     items: [
-      {
+        {
+            action: "dashboard",
+            active: false,
+            title: "Admin",
+            items: [
+                {
+                    title: "Dashboard",
+                    prefix: "D",
+                    link: "/pages/dashboards/admin",
+                },
+                {
+                    title: "User Management",
+                    prefix: "U",
+                    link: "/pages/dashboards/admin/user",
+                },
+                {
+                    title: "Configuration Management",
+                    prefix: "C",
+                    link: "/pages/dashboards/admin/configuration",
+                },
+                {
+                    title: "Menu Management",
+                    prefix: "M",
+                    link: "/pages/dashboards/admin/menu",
+                },
+            ],
+        },
+        {
         action: "dashboard",
         active: true,
         title: "Dashboards",
         items: [
+            {
+                title: "Quiz",
+                prefix: "A",
+                link: "/pages/dashboards/quiz",
+            },
           {
             title: "Analytics",
             prefix: "A",
@@ -506,213 +538,6 @@ export default {
             title: "Smart Home",
             prefix: "S",
             link: "/pages/dashboards/smart-home",
-          },
-        ],
-      },
-    ],
-    itemsPages: [
-      {
-        action: "image",
-        active: false,
-        title: "Pages",
-        items: [
-          {
-            title: "Profile",
-            prefix: "P",
-            active: false,
-            items: [
-              {
-                title: "Profile Overview",
-                prefix: "P",
-                link: "/pages/pages/profile/overview",
-              },
-              {
-                title: "All Projects",
-                prefix: "A",
-                link: "/pages/pages/profile/projects",
-              },
-              {
-                title: "Messages",
-                prefix: "M",
-                link: "/pages/pages/profile/messages",
-              },
-            ],
-          },
-          {
-            title: "Users",
-            prefix: "U",
-            active: false,
-            items: [
-              {
-                title: "Reports",
-                prefix: "R",
-                link: "/pages/pages/users/reports",
-              },
-              {
-                title: "New User",
-                prefix: "N",
-                link: "/pages/pages/users/new-user",
-              },
-            ],
-          },
-          {
-            title: "Account",
-            prefix: "A",
-            active: false,
-            items: [
-              {
-                title: "Settings",
-                prefix: "S",
-                link: "/pages/pages/account/settings",
-              },
-              {
-                title: "Billing",
-                prefix: "B",
-                link: "/pages/pages/account/billing",
-              },
-              {
-                title: "Invoice",
-                prefix: "I",
-                link: "/pages/pages/account/invoice",
-              },
-            ],
-          },
-          {
-            title: "Projects",
-            prefix: "P",
-            active: false,
-            items: [
-              {
-                title: "Timeline",
-                prefix: "T",
-                link: "/pages/pages/projects/timeline",
-              },
-            ],
-          },
-          {
-            title: "Virtual Reality",
-            prefix: "V",
-            active: false,
-            items: [
-              {
-                title: "VR Default",
-                prefix: "V",
-                link: "/pages/dashboards/vr/vr-default",
-              },
-              {
-                title: "VR Info",
-                prefix: "V",
-                link: "/pages/dashboards/vr/vr-info",
-              },
-            ],
-          },
-          {
-            title: "Pricing Page",
-            prefix: "P",
-            link: "/pages/pages/pricing-page",
-          },
-          { title: "RTL", prefix: "R", link: "/pages/pages/rtl" },
-          { title: "Charts", prefix: "C", link: "/pages/pages/charts" },
-          { title: "Alerts", prefix: "A", link: "/pages/pages/alerts" },
-          {
-            title: "Notifications",
-            prefix: "N",
-            link: "/pages/pages/notifications",
-          },
-        ],
-      },
-      {
-        action: "apps",
-        active: false,
-        title: "Applications",
-        items: [
-          { title: "CRM", prefix: "C", link: "/pages/dashboards/crm" },
-          { title: "Kanban", prefix: "K", link: "/pages/applications/kanban" },
-          { title: "Wizard", prefix: "W", link: "/pages/applications/wizard" },
-          {
-            title: "DataTables",
-            prefix: "D",
-            link: "/pages/applications/datatables",
-          },
-          {
-            title: "Calendar",
-            prefix: "C",
-            link: "/pages/applications/calendar",
-          },
-        ],
-      },
-      {
-        action: "shopping_basket",
-        active: false,
-        title: "Ecommerce",
-        items: [
-          {
-            title: "Products",
-            prefix: "P",
-            active: false,
-            items: [
-              {
-                title: "New Product",
-                prefix: "N",
-                link: "/pages/ecommerce/products/new-product",
-              },
-              {
-                title: "Edit Product",
-                prefix: "E",
-                link: "/pages/ecommerce/products/edit-product",
-              },
-              {
-                title: "Product Page",
-                prefix: "P",
-                link: "/pages/ecommerce/products/product-page",
-              },
-            ],
-          },
-          {
-            title: "Orders",
-            prefix: "O",
-            active: false,
-            items: [
-              {
-                title: "Order List",
-                prefix: "O",
-                link: "/pages/ecommerce/orders/list",
-              },
-              {
-                title: "Order Details",
-                prefix: "O",
-                link: "/pages/ecommerce/orders/details",
-              },
-            ],
-          },
-        ],
-      },
-      {
-        action: "content_paste",
-        active: false,
-        title: "Authentication",
-        items: [
-          {
-            title: "Sign Up",
-            prefix: "S",
-            active: false,
-            items: [
-              {
-                title: "Basic",
-                prefix: "B",
-                link: "/pages/authentication/signup/basic",
-              },
-              {
-                title: "Cover",
-                prefix: "C",
-                link: "/pages/authentication/signup/cover",
-              },
-              {
-                title: "Illustration",
-                prefix: "I",
-                link: "/pages/authentication/signup/illustration",
-              },
-            ],
           },
         ],
       },
