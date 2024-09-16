@@ -4,6 +4,12 @@ declare(strict_types=1);
 
 namespace App\User\Domain\Entity;
 
+use App\Crm\Application\Service\Utils\EquatableInterface;
+use App\Crm\Application\Service\Utils\StringHelper;
+use App\Crm\Domain\Entity\ColorTrait;
+use App\Crm\Domain\Entity\Team;
+use App\Crm\Domain\Entity\TeamMember;
+use App\Crm\Domain\Entity\UserPreference;
 use App\General\Domain\Doctrine\DBAL\Types\Types as AppTypes;
 use App\General\Domain\Entity\Interfaces\EntityInterface;
 use App\General\Domain\Entity\Traits\Timestampable;
@@ -12,18 +18,32 @@ use App\General\Domain\Enum\Language;
 use App\General\Domain\Enum\Locale;
 use App\Tool\Domain\Service\Interfaces\LocalizationServiceInterface;
 use App\User\Domain\Entity\Interfaces\UserGroupAwareInterface;
-use App\User\Domain\Entity\Interfaces\UserInterface;
+use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Security\Core\User\UserInterface;
 use App\User\Domain\Entity\Traits\Blameable;
 use App\User\Domain\Entity\Traits\UserRelations;
+use App\User\Infrastructure\Repository\UserRepository;
+use DateTimeImmutable;
+use DateTimeInterface;
+use DateTimeZone;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Exception;
+use KevinPapst\TablerBundle\Model\UserInterface as ThemeUserInterface;
 use Ramsey\Uuid\Doctrine\UuidBinaryOrderedTimeType;
 use Ramsey\Uuid\UuidInterface;
+use Scheb\TwoFactorBundle\Model\Totp\TotpConfiguration;
+use Scheb\TwoFactorBundle\Model\Totp\TotpConfigurationInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints as AssertCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 use Throwable;
+use App\Crm\Application\Service\Export\Annotation as Exporter;
+use JMS\Serializer\Annotation as Serializer;
+use OpenApi\Attributes as OA;
+
+use function count;
 
 /**
  * @package App\User
@@ -41,17 +61,44 @@ use Throwable;
 #[ORM\ChangeTrackingPolicy('DEFERRED_EXPLICIT')]
 #[AssertCollection\UniqueEntity('email')]
 #[AssertCollection\UniqueEntity('username')]
-class User implements EntityInterface, UserInterface, UserGroupAwareInterface
+#[Serializer\ExclusionPolicy('all')]
+#[Exporter\Order(['id', 'username', 'alias', 'title', 'email', 'last_login', 'language', 'timezone', 'active', 'registeredAt', 'roles', 'teams', 'color', 'accountNumber'])]
+#[Exporter\Expose(name: 'email', label: 'email', exp: 'object.getEmail()')]
+#[Exporter\Expose(name: 'username', label: 'username', exp: 'object.getUserIdentifier()')]
+#[Exporter\Expose(name: 'timezone', label: 'timezone', exp: 'object.getTimezone()')]
+#[Exporter\Expose(name: 'language', label: 'language', exp: 'object.getLanguage()')]
+#[Exporter\Expose(name: 'last_login', label: 'lastLogin', type: 'datetime', exp: 'object.getLastLogin()')]
+#[Exporter\Expose(name: 'roles', label: 'roles', type: 'array', exp: 'object.getRoles()')]
+#[Exporter\Expose(name: 'active', label: 'active', type: 'boolean', exp: 'object.isEnabled()')]
+class User implements EntityInterface, UserInterface, UserGroupAwareInterface, EquatableInterface, ThemeUserInterface
 {
     use Blameable;
     use Timestampable;
     use UserRelations;
     use Uuid;
+    use ColorTrait;
 
     final public const string SET_USER_PROFILE = 'set.UserProfile';
     final public const string SET_USER_BASIC = 'set.UserBasic';
 
     final public const int PASSWORD_MIN_LENGTH = 8;
+
+
+
+    public const string ROLE_USER = 'ROLE_USER';
+    public const string ROLE_TEAMLEAD = 'ROLE_TEAMLEAD';
+    public const string ROLE_ADMIN = 'ROLE_ADMIN';
+    public const string ROLE_SUPER_ADMIN = 'ROLE_SUPER_ADMIN';
+
+    public const string DEFAULT_ROLE = self::ROLE_USER;
+    public const string DEFAULT_LANGUAGE = 'en';
+    public const string DEFAULT_FIRST_WEEKDAY = 'monday';
+
+    public const string AUTH_INTERNAL = 'kimai';
+    public const string AUTH_LDAP = 'ldap';
+    public const string AUTH_SAML = 'saml';
+
+    public const array WIZARDS = ['intro', 'profile'];
 
     #[ORM\Id]
     #[ORM\Column(
@@ -74,6 +121,73 @@ class User implements EntityInterface, UserInterface, UserGroupAwareInterface
         self::SET_USER_BASIC,
     ])]
     private UuidInterface $id;
+
+    /**
+     * The type of authentication used by the user (e.g. "kimai", "ldap", "saml")
+     *
+     * @internal for internal usage only
+     */
+    #[ORM\Column(name: 'auth', type: 'string', length: 20, nullable: true)]
+    #[Assert\Length(max: 20)]
+    private ?string $auth = self::AUTH_INTERNAL;
+
+    /**
+     * The user alias will be displayed in the frontend instead of the username
+     */
+    #[ORM\Column(name: 'alias', type: 'string', length: 60, nullable: true)]
+    #[Assert\Length(max: 60)]
+    #[Serializer\Expose]
+    #[Serializer\Groups(['Default'])]
+    #[Exporter\Expose(label: 'alias')]
+    private ?string $alias = null;
+
+    /**
+     * An additional title for the user, like the Job position or Department
+     */
+    #[ORM\Column(name: 'title', type: 'string', length: 50, nullable: true)]
+    #[Assert\Length(max: 50)]
+    #[Serializer\Expose]
+    #[Serializer\Groups(['Default'])]
+    #[Exporter\Expose(label: 'title')]
+    private ?string $title = null;
+
+    /**
+     * URL to the user avatar, will be auto-generated if empty
+     */
+    #[ORM\Column(name: 'avatar', type: 'string', length: 255, nullable: true)]
+    #[Assert\Length(max: 255, groups: ['Profile'])]
+    #[Serializer\Expose]
+    #[Serializer\Groups(['User_Entity'])]
+    private ?string $avatar = null;
+
+    #[ORM\Column(name: 'account', type: 'string', length: 30, nullable: true)]
+    #[Assert\Length(max: 30)]
+    #[Serializer\Expose]
+    #[Serializer\Groups(['Default'])]
+    #[Exporter\Expose(label: 'account_number')]
+    private ?string $accountNumber = null;
+
+    #[ORM\Column(name: 'enabled', type: 'boolean', nullable: false)]
+    #[Serializer\Expose]
+    #[Serializer\Groups(['Default'])]
+    private bool $enabled = false;
+
+    /**
+     * If not empty two-factor authentication is enabled.
+     * TODO reduce the length, which was initially forgotten and set to 255, as this is the default for MySQL with Doctrine (see migration Version20230126002049)
+     */
+    #[ORM\Column(name: 'totp_secret', type: 'string', length: 255, nullable: true)]
+    private ?string $totpSecret = 'secret';
+    #[ORM\Column(name: 'totp_enabled', type: 'boolean', nullable: false, options: ['default' => false])]
+    private bool $totpEnabled = false;
+    #[ORM\Column(name: 'system_account', type: 'boolean', nullable: false, options: ['default' => false])]
+    private bool $systemAccount = false;
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    #[Serializer\Expose]
+    #[Serializer\Groups(['User_Entity'])]
+    #[OA\Property(ref: '#/components/schemas/User')]
+    private ?User $supervisor = null;
 
     #[ORM\Column(
         name: 'username',
@@ -247,6 +361,8 @@ class User implements EntityInterface, UserInterface, UserGroupAwareInterface
         $this->logsLoginFailure = new ArrayCollection();
         $this->configurations = new ArrayCollection();
         $this->menus = new ArrayCollection();
+        $this->preferences = new ArrayCollection();
+        $this->memberships = new ArrayCollection();
     }
 
     public function getId(): string
@@ -368,6 +484,466 @@ class User implements EntityInterface, UserInterface, UserGroupAwareInterface
     }
 
     /**
+     * @internal only here to satisfy the theme interface
+     */
+    public function getIdentifier(): string
+    {
+        return $this->getUsername();
+    }
+
+    public function getUserIdentifier(): string
+    {
+        return $this->getUsername();
+    }
+
+    public function getAuth(): ?string
+    {
+        return $this->auth;
+    }
+
+    public function setAuth(string $auth): User
+    {
+        $this->auth = $auth;
+
+        return $this;
+    }
+
+    public function isSamlUser(): bool
+    {
+        return $this->auth === self::AUTH_SAML;
+    }
+
+    public function isLdapUser(): bool
+    {
+        return $this->auth === self::AUTH_LDAP;
+    }
+
+    public function isInternalUser(): bool
+    {
+        return $this->auth === null || $this->auth === self::AUTH_INTERNAL;
+    }
+
+    #[Serializer\VirtualProperty]
+    #[Serializer\SerializedName('initials')]
+    #[Serializer\Groups(['Default'])]
+    #[OA\Property(type: 'string')]
+    public function getInitials(): string
+    {
+        $length = 2;
+
+        $name = $this->getDisplayName();
+        $initial = '';
+
+        if (filter_var($name, FILTER_VALIDATE_EMAIL)) {
+            // turn my.email@gmail.com into "My Email"
+            $result = mb_strstr($name, '@', true);
+            $name = $result === false ? $name : $result;
+            $name = str_replace('.', ' ', $name);
+        }
+
+        $words = explode(' ', $name);
+
+        // if name contains single word, use first N character
+        if (count($words) === 1) {
+            $initial = $words[0];
+
+            if (mb_strlen($name) >= $length) {
+                $initial = mb_substr($name, 0, $length, 'UTF-8');
+            }
+        } else {
+            // otherwise, use initial char from each word
+            foreach ($words as $word) {
+                $initial .= mb_substr($word, 0, 1, 'UTF-8');
+            }
+            $initial = mb_substr($initial, 0, $length, 'UTF-8');
+        }
+
+        $initial = mb_strtoupper($initial);
+
+        return $initial;
+    }
+
+    public function setUserIdentifier(string $identifier): void
+    {
+        $this->setUsername($identifier);
+    }
+
+    public function hasUsername(): bool
+    {
+        return $this->username !== '';
+    }
+
+    public function getDisplayName(): string
+    {
+        if (!empty($this->getAlias())) {
+            return $this->getAlias();
+        }
+
+        return $this->getUserIdentifier();
+    }
+
+    public function setAlias(?string $alias): User
+    {
+        $this->alias = StringHelper::ensureMaxLength($alias, 60);
+
+        return $this;
+    }
+
+    public function getAlias(): ?string
+    {
+        return $this->alias;
+    }
+
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    public function setTitle(?string $title): User
+    {
+        $this->title = StringHelper::ensureMaxLength($title, 50);
+
+        return $this;
+    }
+
+    public function getAvatar(): ?string
+    {
+        return $this->avatar;
+    }
+
+    public function setAvatar(?string $avatar): User
+    {
+        $this->avatar = $avatar;
+
+        return $this;
+    }
+
+    /**
+     * Read-only list of all visible user preferences.
+     *
+     * @internal only for API usage
+     * @return UserPreference[]
+     */
+    #[Serializer\VirtualProperty]
+    #[Serializer\SerializedName('preferences')]
+    #[Serializer\Groups(['User_Entity'])]
+    #[OA\Property(type: 'array', items: new OA\Items(ref: '#/components/schemas/UserPreference'))]
+    public function getVisiblePreferences(): array
+    {
+        // hide all internal preferences, which are either available in other fields
+        // or which are only used within the Kimai UI
+        $skip = [
+            UserPreference::TIMEZONE,
+            UserPreference::LOCALE,
+            UserPreference::LANGUAGE,
+            UserPreference::SKIN,
+            'calendar_initial_view',
+            'login_initial_view',
+            'update_browser_title',
+            'daily_stats',
+            'export_decimal',
+        ];
+
+        $all = [];
+        foreach ($this->preferences as $preference) {
+            if ($preference->isEnabled() && !\in_array($preference->getName(), $skip)) {
+                $all[] = $preference;
+            }
+        }
+
+        return $all;
+    }
+
+    public function isFirstDayOfWeekSunday(): bool
+    {
+        return $this->getFirstDayOfWeek() === 'sunday';
+    }
+
+    public function getFirstDayOfWeek(): string
+    {
+        return $this->getPreferenceValue(UserPreference::FIRST_WEEKDAY, User::DEFAULT_FIRST_WEEKDAY, false);
+    }
+
+    public function isExportDecimal(): bool
+    {
+        return (bool) $this->getPreferenceValue('export_decimal', false, false);
+    }
+
+    public function getSkin(): string
+    {
+        return (string) $this->getPreferenceValue(UserPreference::SKIN, 'default', false);
+    }
+
+
+    public function isEnabled(): bool
+    {
+        return $this->enabled;
+    }
+
+    public function setEnabled(bool $enabled): User
+    {
+        $this->enabled = $enabled;
+
+        return $this;
+    }
+
+    public function getAccountNumber(): ?string
+    {
+        return $this->accountNumber;
+    }
+
+    public function setAccountNumber(?string $accountNumber): void
+    {
+        // @CloudRequired because SAML mapping could include a longer value
+        $this->accountNumber = StringHelper::ensureMaxLength($accountNumber, 30);
+    }
+
+    public function isSystemAccount(): bool
+    {
+        return $this->systemAccount;
+    }
+
+    public function setSystemAccount(bool $isSystemAccount): void
+    {
+        $this->systemAccount = $isSystemAccount;
+    }
+
+    public function setTotpSecret(?string $secret): void
+    {
+        $this->totpSecret = $secret;
+    }
+
+    public function hasTotpSecret(): bool
+    {
+        return $this->totpSecret !== null;
+    }
+
+    public function getTotpSecret(): ?string
+    {
+        return $this->totpSecret;
+    }
+
+    public function getTotpEnabled(): bool
+    {
+        return $this->totpEnabled;
+    }
+
+    public function getWorkday(): bool
+    {
+        return true;
+    }
+
+    public function isTotpAuthenticationEnabled(): bool
+    {
+        return $this->totpEnabled;
+    }
+
+    public function enableTotpAuthentication(): void
+    {
+        $this->totpEnabled = true;
+    }
+
+    public function disableTotpAuthentication(): void
+    {
+        $this->totpEnabled = false;
+    }
+
+    public function getTotpAuthenticationUsername(): string
+    {
+        return $this->getUserIdentifier();
+    }
+
+    public function getTotpAuthenticationConfiguration(): TotpConfigurationInterface
+    {
+        return new TotpConfiguration($this->totpSecret, TotpConfiguration::ALGORITHM_SHA1, 30, 6);
+    }
+
+    public function getWorkHoursMonday(): int
+    {
+        return (int) $this->getPreferenceValue(UserPreference::WORK_HOURS_MONDAY, 0);
+    }
+
+    public function getWorkHoursTuesday(): int
+    {
+        return (int) $this->getPreferenceValue(UserPreference::WORK_HOURS_TUESDAY, 0);
+    }
+
+    public function getWorkHoursWednesday(): int
+    {
+        return (int) $this->getPreferenceValue(UserPreference::WORK_HOURS_WEDNESDAY, 0);
+    }
+
+    public function getWorkHoursThursday(): int
+    {
+        return (int) $this->getPreferenceValue(UserPreference::WORK_HOURS_THURSDAY, 0);
+    }
+
+    public function getWorkHoursFriday(): int
+    {
+        return (int) $this->getPreferenceValue(UserPreference::WORK_HOURS_FRIDAY, 0);
+    }
+
+    public function getWorkHoursSaturday(): int
+    {
+        return (int) $this->getPreferenceValue(UserPreference::WORK_HOURS_SATURDAY, 0);
+    }
+
+    public function getWorkHoursSunday(): int
+    {
+        return (int) $this->getPreferenceValue(UserPreference::WORK_HOURS_SUNDAY, 0);
+    }
+
+    public function getWorkStartingDay(): ?DateTimeInterface
+    {
+        $date = $this->getPreferenceValue(UserPreference::WORK_STARTING_DAY);
+
+        if ($date === null) {
+            return null;
+        }
+
+        try {
+            $date = DateTimeImmutable::createFromFormat('Y-m-d h:i:s', $date . ' 00:00:00', new DateTimeZone($this->getTimezone()));
+        } catch (Exception $e) {
+        }
+
+        return ($date instanceof DateTimeInterface) ? $date : null;
+    }
+
+    public function setWorkStartingDay(?DateTimeInterface $date): void
+    {
+        $this->setPreferenceValue(UserPreference::WORK_STARTING_DAY, $date?->format('Y-m-d'));
+    }
+
+    public function getPublicHolidayGroup(): null|string
+    {
+        $group = $this->getPreferenceValue(UserPreference::PUBLIC_HOLIDAY_GROUP);
+
+        return $group === null ? $group : (string) $group;
+    }
+
+    public function getHolidaysPerYear(): float
+    {
+        $holidays = $this->getPreferenceValue(UserPreference::HOLIDAYS_PER_YEAR, 0.0);
+
+        return $this->getFormattedHoliday(is_numeric($holidays) ? $holidays : 0.0);
+    }
+
+    public function setWorkHoursMonday(int $seconds): void
+    {
+        $this->setPreferenceValue(UserPreference::WORK_HOURS_MONDAY, $seconds);
+    }
+
+    public function setWorkHoursTuesday(int $seconds): void
+    {
+        $this->setPreferenceValue(UserPreference::WORK_HOURS_TUESDAY, $seconds);
+    }
+
+    public function setWorkHoursWednesday(int $seconds): void
+    {
+        $this->setPreferenceValue(UserPreference::WORK_HOURS_WEDNESDAY, $seconds);
+    }
+
+    public function setWorkHoursThursday(int $seconds): void
+    {
+        $this->setPreferenceValue(UserPreference::WORK_HOURS_THURSDAY, $seconds);
+    }
+
+    public function setWorkHoursFriday(int $seconds): void
+    {
+        $this->setPreferenceValue(UserPreference::WORK_HOURS_FRIDAY, $seconds);
+    }
+
+    public function setWorkHoursSaturday(int $seconds): void
+    {
+        $this->setPreferenceValue(UserPreference::WORK_HOURS_SATURDAY, $seconds);
+    }
+
+    public function setWorkHoursSunday(int $seconds): void
+    {
+        $this->setPreferenceValue(UserPreference::WORK_HOURS_SUNDAY, $seconds);
+    }
+
+    public function setPublicHolidayGroup(null|string $group = null): void
+    {
+        $this->setPreferenceValue(UserPreference::PUBLIC_HOLIDAY_GROUP, $group);
+    }
+
+    public function setHolidaysPerYear(?float $holidays): void
+    {
+        if ($holidays !== null) {
+            // makes sure that the number is a multiple of 0.5
+            $holidays = $this->getFormattedHoliday($holidays);
+        }
+
+        $this->setPreferenceValue(UserPreference::HOLIDAYS_PER_YEAR, $holidays ?? 0.0);
+    }
+
+    private function getFormattedHoliday(int|float|string|null $holidays): float
+    {
+        if (!is_numeric($holidays)) {
+            $holidays = 0.0;
+        }
+
+        return (float) number_format((round($holidays * 2) / 2), 1);
+    }
+
+    public function hasContractSettings(): bool
+    {
+        return $this->hasWorkHourConfiguration() || $this->getHolidaysPerYear() !== 0.0;
+    }
+
+    public function hasWorkHourConfiguration(): bool
+    {
+        return $this->getWorkHoursMonday() !== 0 ||
+            $this->getWorkHoursTuesday() !== 0 ||
+            $this->getWorkHoursWednesday() !== 0 ||
+            $this->getWorkHoursThursday() !== 0 ||
+            $this->getWorkHoursFriday() !== 0 ||
+            $this->getWorkHoursSaturday() !== 0 ||
+            $this->getWorkHoursSunday() !== 0;
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function getWorkHoursForDay(DateTimeInterface $dateTime): int
+    {
+        return match ($dateTime->format('N')) {
+            '1' => $this->getWorkHoursMonday(),
+            '2' => $this->getWorkHoursTuesday(),
+            '3' => $this->getWorkHoursWednesday(),
+            '4' => $this->getWorkHoursThursday(),
+            '5' => $this->getWorkHoursFriday(),
+            '6' => $this->getWorkHoursSaturday(),
+            '7' => $this->getWorkHoursSunday(),
+            default => throw new Exception('Unknown day: ' . $dateTime->format('Y-m-d'))
+        };
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function isWorkDay(DateTimeInterface $dateTime): bool
+    {
+        return $this->getWorkHoursForDay($dateTime) > 0;
+    }
+
+    public function hasSupervisor(): bool
+    {
+        return $this->supervisor !== null;
+    }
+
+    public function getSupervisor(): ?User
+    {
+        return $this->supervisor;
+    }
+
+    public function setSupervisor(?User $supervisor): void
+    {
+        $this->supervisor = $supervisor;
+    }
+
+    /**
      * Removes sensitive data from the user.
      *
      * This is important if, at any given point, sensitive information like
@@ -397,5 +973,238 @@ class User implements EntityInterface, UserInterface, UserGroupAwareInterface
     public function __toString(): string
     {
         return (string) $this->username; // Ou une autre représentation textuelle de l'utilisateur
+    }
+
+    public function getName(): string
+    {
+        return $this->getUsername();
+    }
+
+    /**
+     * @return true
+     */
+    public function getEqualTo(): true
+    {
+        return true;
+    }
+
+    public function isEqualTo(UserInterface|Interfaces\UserInterface $user): bool
+    {
+        if (!$user instanceof self) {
+            return false;
+        }
+
+        if ($this->username !== $user->getUserIdentifier()) {
+            return false;
+        }
+
+        if ($this->enabled !== $user->isEnabled()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function canSeeAllData(): bool
+    {
+        return true;
+    }
+
+    /**
+     * @return Collection<UserPreference>
+     */
+    public function getPreferences(): Collection
+    {
+        return $this->preferences;
+    }
+
+    /**
+     * @param iterable<UserPreference> $preferences
+     * @return User
+     */
+    public function setPreferences(iterable $preferences): User
+    {
+        $this->preferences = new ArrayCollection();
+
+        foreach ($preferences as $preference) {
+            $this->addPreference($preference);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param string                     $name
+     * @param float|bool|int|string|null $value
+     */
+    public function setPreferenceValue(string $name, float|bool|int|string $value = null): void
+    {
+        $pref = $this->getPreference($name);
+
+        if (null === $pref) {
+            $pref = new UserPreference($name);
+            $this->addPreference($pref);
+        }
+
+        $pref->setValue($value);
+    }
+
+    public function getPreference(string $name): ?UserPreference
+    {
+        if ($this->preferences === null) {
+            return null;
+        }
+
+        foreach ($this->preferences as $preference) {
+            if ($preference->matches($name)) {
+                return $preference;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param string $name
+     * @param bool|int|float|string|null $default
+     * @param bool $allowNull
+     * @return bool|int|float|string|null
+     */
+    public function getPreferenceValue(string $name, mixed $default = null, bool $allowNull = true): bool|int|float|string|null
+    {
+        $preference = $this->getPreference($name);
+        if (null === $preference) {
+            return $default;
+        }
+
+        $value = $preference->getValue();
+
+        return $allowNull ? $value : ($value ?? $default);
+    }
+
+    /**
+     * @param UserPreference $preference
+     * @return User
+     */
+    public function addPreference(UserPreference $preference): User
+    {
+        if (null === $this->preferences) {
+            $this->preferences = new ArrayCollection();
+        }
+
+        $this->preferences->add($preference);
+        $preference->setUser($this);
+
+        return $this;
+    }
+
+    public function addMembership(TeamMember $member): void
+    {
+        if ($this->memberships->contains($member)) {
+            return;
+        }
+
+        if ($member->getUser() === null) {
+            $member->setUser($this);
+        }
+
+        if ($member->getUser() !== $this) {
+            throw new InvalidArgumentException('Cannot set foreign user membership');
+        }
+
+        // when using the API an invalid Team ID triggers the validation too late
+        $team = $member->getTeam();
+        if (($team) === null) {
+            return;
+        }
+
+        if (null !== $this->findMemberByTeam($team)) {
+            return;
+        }
+
+        $this->memberships->add($member);
+        $team->addMember($member);
+    }
+
+    private function findMemberByTeam(Team $team): ?TeamMember
+    {
+        foreach ($this->memberships as $member) {
+            if ($member->getTeam() === $team) {
+                return $member;
+            }
+        }
+
+        return null;
+    }
+
+    public function removeMembership(TeamMember $member): void
+    {
+        if (!$this->memberships->contains($member)) {
+            return;
+        }
+
+        $this->memberships->removeElement($member);
+        if ($member->getTeam() !== null) {
+            $member->getTeam()->removeMember($member);
+        }
+        $member->setUser(null);
+        $member->setTeam(null);
+    }
+
+    /**
+     * @return Collection<TeamMember>
+     */
+    public function getMemberships(): Collection
+    {
+        return $this->memberships;
+    }
+
+    public function hasMembership(TeamMember $member): bool
+    {
+        return $this->memberships->contains($member);
+    }
+
+    /**
+     * Checks if the user is member of any team.
+     *
+     * @return bool
+     */
+    public function hasTeamAssignment(): bool
+    {
+        return !$this->memberships->isEmpty();
+    }
+
+    /**
+     * Checks is the user is teamlead in any of the assigned teams.
+     *
+     * @see User::hasTeamleadRole()
+     * @return bool
+     */
+    public function isTeamlead(): bool
+    {
+        foreach ($this->memberships as $membership) {
+            if ($membership->isTeamlead()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Checks if the given user is a team member.
+     *
+     * @param User $user
+     * @return bool
+     */
+    public function hasTeamMember(User $user): bool
+    {
+        foreach ($this->memberships as $membership) {
+            if ($membership->getTeam() !== null && $membership->getTeam()->hasUser($user)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

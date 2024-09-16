@@ -78,3 +78,12 @@ quiz-controllers:
     prefix: /api
     defaults:
         _format: json
+
+crm-controllers:
+    resource:
+        path: ../src/Crm/Transport/Controller/Api/
+        namespace: App\Crm\Transport\Controller\Api
+    type: attribute
+    prefix: /api
+    defaults:
+        _format: json

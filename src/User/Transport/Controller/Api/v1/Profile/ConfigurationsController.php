@@ -22,11 +22,11 @@ use Symfony\Component\Serializer\SerializerInterface;
  */
 #[AsController]
 #[OA\Tag(name: 'Profile')]
-class ConfigurationsController
+readonly class ConfigurationsController
 {
 
     public function __construct(
-        private readonly SerializerInterface $serializer,
+        private SerializerInterface $serializer,
     ) {
     }
 

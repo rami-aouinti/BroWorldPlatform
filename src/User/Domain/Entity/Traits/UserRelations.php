@@ -6,6 +6,9 @@ namespace App\User\Domain\Entity\Traits;
 
 use App\Calendar\Domain\Entity\Event;
 use App\Configuration\Domain\Entity\Configuration;
+use App\Crm\Domain\Entity\Team;
+use App\Crm\Domain\Entity\TeamMember;
+use App\Crm\Domain\Entity\UserPreference;
 use App\Log\Domain\Entity\LogLogin;
 use App\Log\Domain\Entity\LogLoginFailure;
 use App\Log\Domain\Entity\LogRequest;
@@ -16,7 +19,13 @@ use App\User\Domain\Entity\UserGroup;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use InvalidArgumentException;
 use Symfony\Component\Serializer\Annotation\Groups;
+use JMS\Serializer\Annotation as Serializer;
+use OpenApi\Attributes as OA;
+use Symfony\Component\Validator\Constraints as Assert;
+
+use function in_array;
 
 /**
  * @package App\User
@@ -98,6 +107,32 @@ trait UserRelations
         'User.logsLoginFailure',
     ])]
     protected Collection | ArrayCollection $logsLoginFailure;
+
+    /**
+     * User preferences
+     *
+     * List of preferences for this user, required ones have dedicated fields/methods
+     *
+     * This Collection can be null for one edge case ONLY:
+     * if a currently logged-in user will be deleted and then refreshed from the session from one of the UserProvider
+     * e.g. see LdapUserProvider::refreshUser() it might crash if $user->getPreferenceValue() is called
+     *
+     * @var Collection<UserPreference>|null
+     */
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: UserPreference::class, cascade: ['persist'])]
+    private ?Collection $preferences = null;
+    /**
+     * List of all team memberships.
+     *
+     * @var Collection<TeamMember>
+     */
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: TeamMember::class, cascade: ['persist'], fetch: 'LAZY', orphanRemoval: true)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
+    #[Assert\NotNull]
+    #[Serializer\Expose]
+    #[Serializer\Groups(['User_Entity'])]
+    #[OA\Property(type: 'array', items: new OA\Items(ref: '#/components/schemas/TeamMembership'))]
+    private Collection $memberships;
 
 
     public function getProfile(): ?Profile
