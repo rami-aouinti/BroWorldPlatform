@@ -20,8 +20,6 @@ use Symfony\Component\Finder\SplFileInfo;
 use function dirname;
 
 /**
- * Class InvoiceDocumentRepository
- *
  * @package App\Crm\Infrastructure\Repository
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
@@ -65,8 +63,6 @@ final class InvoiceDocumentRepository
 
     /**
      * @codeCoverageIgnore
-     *
-     * @param InvoiceDocument $invoiceDocument
      *
      * @throws Exception
      */

@@ -17,8 +17,6 @@ use Endroid\QrCode\Writer\PngWriter;
 use Twig\Extension\RuntimeExtensionInterface;
 
 /**
- * Class QrCodeExtension
- *
  * @package App\Crm\Transport\Twig\Runtime
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
@@ -29,9 +27,7 @@ final class QrCodeExtension implements RuntimeExtensionInterface
     }
 
     /**
-     * @param string $data
      * @param array<string, mixed> $writerOptions
-     * @return string
      */
     public function qrCodeDataUriFunction(string $data, array $writerOptions = []): string
     {

@@ -9,8 +9,8 @@
 
 namespace App\Crm\Transport\Form\DataTransformer;
 
-use App\Crm\Infrastructure\Repository\TagRepository;
 use App\Crm\Domain\Entity\Tag;
+use App\Crm\Infrastructure\Repository\TagRepository;
 use Symfony\Component\Form\DataTransformerInterface;
 use Symfony\Component\Form\Exception\TransformationFailedException;
 
@@ -22,8 +22,7 @@ final class TagArrayToStringTransformer implements DataTransformerInterface
     public function __construct(
         private readonly TagRepository $tagRepository,
         private readonly bool $create
-    )
-    {
+    ) {
     }
 
     /**
@@ -52,7 +51,7 @@ final class TagArrayToStringTransformer implements DataTransformerInterface
     public function reverseTransform(mixed $value): array
     {
         // check for empty tag list
-        if ('' === $value || null === $value) {
+        if ($value === '' || $value === null) {
             return [];
         }
         if (!\is_array($value)) {

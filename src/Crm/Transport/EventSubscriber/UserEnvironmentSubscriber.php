@@ -23,8 +23,7 @@ final class UserEnvironmentSubscriber implements EventSubscriberInterface
         private readonly TokenStorageInterface $tokenStorage,
         private readonly AuthorizationCheckerInterface $auth,
         private readonly LocaleFormatExtensions $localeFormatExtensions
-    )
-    {
+    ) {
     }
 
     public static function getSubscribedEvents(): array

@@ -9,8 +9,8 @@
 
 namespace App\Crm\Transport\Form;
 
-use App\Crm\Transport\Form\Type\TeamType;
 use App\Crm\Domain\Entity\Activity;
+use App\Crm\Transport\Form\Type\TeamType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -36,7 +36,7 @@ final class ActivityTeamPermissionForm extends AbstractType
             'csrf_field_name' => '_token',
             'csrf_token_id' => 'admin_activity_teams_edit',
             'attr' => [
-                'data-form-event' => 'kimai.activityTeamUpdate'
+                'data-form-event' => 'kimai.activityTeamUpdate',
             ],
         ]);
     }

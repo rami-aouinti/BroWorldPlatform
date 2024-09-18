@@ -7,8 +7,6 @@ namespace App\Quiz\Domain\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Class Choice
- *
  * @package App\Quiz\Domain\Entity
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
@@ -27,27 +25,27 @@ class Choice
     #[ORM\JoinColumn(nullable: false)]
     private Question $question;
 
-    public  function getId(): int
+    public function getId(): int
     {
         return $this->id;
     }
-    public  function setId(int $id):void
+    public function setId(int $id): void
     {
         $this->id = $id;
     }
-    public  function getText(): string
+    public function getText(): string
     {
         return $this->text;
     }
-    public  function setText(string $text):void
+    public function setText(string $text): void
     {
         $this->text = $text;
     }
-    public  function getQuestion(): Question
+    public function getQuestion(): Question
     {
         return $this->question;
     }
-    public  function setQuestion(Question $question):void
+    public function setQuestion(Question $question): void
     {
         $this->question = $question;
     }

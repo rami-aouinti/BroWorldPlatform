@@ -19,8 +19,11 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 
 final class UserAmountYear extends AbstractCounterYear
 {
-    public function __construct(private TimesheetRepository $repository, SystemConfiguration $systemConfiguration, private EventDispatcherInterface $dispatcher)
-    {
+    public function __construct(
+        private TimesheetRepository $repository,
+        SystemConfiguration $systemConfiguration,
+        private EventDispatcherInterface $dispatcher
+    ) {
         parent::__construct($systemConfiguration);
     }
 
@@ -32,11 +35,6 @@ final class UserAmountYear extends AbstractCounterYear
     public function getPermissions(): array
     {
         return ['view_rate_own_timesheet'];
-    }
-
-    protected function getFinancialYearTitle(): string
-    {
-        return 'stats.amountFinancialYear';
     }
 
     public function getId(): string
@@ -54,6 +52,11 @@ final class UserAmountYear extends AbstractCounterYear
             'icon' => 'money',
             'color' => WidgetInterface::COLOR_YEAR,
         ], parent::getOptions($options));
+    }
+
+    protected function getFinancialYearTitle(): string
+    {
+        return 'stats.amountFinancialYear';
     }
 
     /**

@@ -33,8 +33,10 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 final class TimesheetMultiUpdate extends AbstractType
 {
-    public function __construct(private TimesheetRepository $timesheet, private CustomerRepository $customers)
-    {
+    public function __construct(
+        private TimesheetRepository $timesheet,
+        private CustomerRepository $customers
+    ) {
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -54,11 +56,11 @@ final class TimesheetMultiUpdate extends AbstractType
             $project = $entry->getProject();
             $customer = $project?->getCustomer();
 
-            if (null === $project && null !== $activity) {
+            if ($project === null && $activity !== null) {
                 $project = $activity->getProject();
             }
 
-            if (null !== $customer) {
+            if ($customer !== null) {
                 $currency = $customer->getCurrency();
             }
         }
@@ -148,7 +150,7 @@ final class TimesheetMultiUpdate extends AbstractType
             'choices' => [
                 'append' => false,
                 'replace' => true,
-            ]
+            ],
         ]);
 
         $builder->add('tags', TagsType::class, [
@@ -165,7 +167,7 @@ final class TimesheetMultiUpdate extends AbstractType
             'choices' => [
                 'append' => false,
                 'replace' => true,
-            ]
+            ],
         ]);
 
         $builder->add('description', DescriptionType::class, [
@@ -184,8 +186,8 @@ final class TimesheetMultiUpdate extends AbstractType
                 'required' => false,
                 'choices' => [
                     'entryState.exported' => true,
-                    'entryState.not_exported' => false
-                ]
+                    'entryState.not_exported' => false,
+                ],
             ]);
         }
 
@@ -216,7 +218,9 @@ final class TimesheetMultiUpdate extends AbstractType
 
         // meta fields only if at least one exists
         if ($entry !== null && $entry->getMetaFields()->count() > 0) {
-            $builder->add('metaFields', MetaFieldsCollectionType::class, ['fields_required' => false]);
+            $builder->add('metaFields', MetaFieldsCollectionType::class, [
+                'fields_required' => false,
+            ]);
 
             $choices = [];
             foreach ($entry->getMetaFields() as $field) {

@@ -14,8 +14,12 @@ use App\Crm\Domain\Entity\Customer;
 
 final class CustomerStatisticEvent extends AbstractCustomerEvent
 {
-    public function __construct(Customer $customer, private CustomerStatistic $statistic, private ?\DateTime $begin = null, private ?\DateTime $end = null)
-    {
+    public function __construct(
+        Customer $customer,
+        private CustomerStatistic $statistic,
+        private ?\DateTime $begin = null,
+        private ?\DateTime $end = null
+    ) {
         parent::__construct($customer);
     }
 

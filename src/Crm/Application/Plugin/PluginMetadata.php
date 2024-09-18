@@ -18,8 +18,6 @@ use function array_key_exists;
 use function is_int;
 
 /**
- * Class PluginMetadata
- *
  * @package App\Crm\Application\Plugin
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */

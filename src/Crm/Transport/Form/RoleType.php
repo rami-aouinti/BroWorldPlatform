@@ -30,8 +30,8 @@ final class RoleType extends AbstractType
                 new RoleName(),
             ],
             'attr' => [
-                'maxlength' => 50
-            ]
+                'maxlength' => 50,
+            ],
         ]);
 
         $replacer = function ($roleName): ?string {

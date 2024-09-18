@@ -18,6 +18,6 @@ class RequestMapper extends RestRequestMapper
         'title',
         'slug',
         'summary',
-        'content'
+        'content',
     ];
 }

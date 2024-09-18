@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Configuration\Transport\Controller\Api\v1\Configuration;
 
-use App\General\Transport\Rest\Controller;
-use App\General\Transport\Rest\ResponseHandler;
-use App\General\Transport\Rest\Traits\Actions;
 use App\Configuration\Application\DTO\Configuration\ConfigurationCreate;
 use App\Configuration\Application\DTO\Configuration\ConfigurationPatch;
 use App\Configuration\Application\DTO\Configuration\ConfigurationUpdate;
 use App\Configuration\Application\Resource\ConfigurationResource;
+use App\General\Transport\Rest\Controller;
+use App\General\Transport\Rest\ResponseHandler;
+use App\General\Transport\Rest\Traits\Actions;
 use OpenApi\Attributes as OA;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;

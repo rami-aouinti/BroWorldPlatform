@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Blog\Transport\AutoMapper\Comment;
 
-use App\General\Transport\AutoMapper\RestAutoMapperConfiguration;
 use App\Blog\Application\DTO\Comment\CommentCreate;
 use App\Blog\Application\DTO\Comment\CommentPatch;
 use App\Blog\Application\DTO\Comment\CommentUpdate;
+use App\General\Transport\AutoMapper\RestAutoMapperConfiguration;
 
 /**
  * @package App\Comment

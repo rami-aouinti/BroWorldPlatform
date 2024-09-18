@@ -12,7 +12,6 @@ use App\Crm\Domain\Entity\UserPreference;
 use App\General\Domain\Enum\Language;
 use App\General\Domain\Enum\Locale;
 use App\General\Domain\Rest\UuidHelper;
-use App\Menu\Domain\Entity\Menu;
 use App\Messenger\Domain\Entity\Message;
 use App\Role\Application\Security\Interfaces\RolesServiceInterface;
 use App\Tests\Utils\PhpUnitUtil;
@@ -29,6 +28,7 @@ use Exception;
 use Random\RandomException;
 use Symfony\Component\String\AbstractUnicodeString;
 use Symfony\Component\String\Slugger\SluggerInterface;
+use Symfony\Component\String\UnicodeString;
 use Throwable;
 
 use function array_map;
@@ -42,7 +42,6 @@ use function Symfony\Component\String\u;
  */
 final class LoadUserData extends Fixture implements OrderedFixtureInterface
 {
-
     public const string DEFAULT_PASSWORD = 'kitten-test';
     public const string DEFAULT_API_TOKEN = 'api_kitten';
     public const string DEFAULT_AVATAR = 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=retro&f=y';
@@ -141,7 +140,6 @@ final class LoadUserData extends Fixture implements OrderedFixtureInterface
             $entity
         );
 
-
         // Create Address
 
         $address = new Address();
@@ -167,116 +165,7 @@ final class LoadUserData extends Fixture implements OrderedFixtureInterface
 
         $entity->setProfile($profile);
 
-        // Create Menu
-
-        $pagesMenu = new Menu();
-        $pagesMenu->setAction('image');
-        $pagesMenu->setActive(false);
-        $pagesMenu->setTitle('Test 14');
-        $manager->persist($pagesMenu);
-
-        // Ajout des sous-éléments sous "Pages"
-        $profileMenu = new Menu();
-        $profileMenu->setTitle('Test 13');
-        $profileMenu->setPrefix('P');
-        $profileMenu->setActive(false);
-        $profileMenu->setParent($pagesMenu);
-        $profileMenu->setLevel(1);
-        $manager->persist($profileMenu);
-
-        // Ajout des sous-éléments sous "Profile"
-        $profileOverview = new Menu();
-        $profileOverview->setTitle('Test 12');
-        $profileOverview->setPrefix('P');
-        $profileOverview->setLink('/pages/pages/profile/overview');
-        $profileOverview->setParent($profileMenu);
-        $profileOverview->setLevel(2);
-        $manager->persist($profileOverview);
-
-        $allProjects = new Menu();
-        $allProjects->setTitle('Test 11');
-        $allProjects->setPrefix('A');
-        $allProjects->setLink('/pages/pages/profile/projects');
-        $allProjects->setParent($profileMenu);
-        $allProjects->setLevel(3);
-        $manager->persist($allProjects);
-
-        $messages = new Menu();
-        $messages->setTitle('Test 8');
-        $messages->setPrefix('M');
-        $messages->setLink('/pages/pages/profile/messages');
-        $messages->setParent($profileMenu);
-        $messages->setLevel(4);
-        $manager->persist($messages);
-
-        // Ajout de l'élément "Users"
-        $usersMenu = new Menu();
-        $usersMenu->setTitle('Test 9');
-        $usersMenu->setPrefix('U');
-        $usersMenu->setActive(false);
-        $usersMenu->setParent($pagesMenu);
-        $usersMenu->setLevel(5);
-        $manager->persist($usersMenu);
-
-        // Ajout des sous-éléments sous "Users"
-        $reports = new Menu();
-        $reports->setTitle('Test 7');
-        $reports->setPrefix('R');
-        $reports->setLink('/pages/pages/users/reports');
-        $reports->setParent($usersMenu);
-        $reports->setLevel(6);
-        $manager->persist($reports);
-
-        $newUser = new Menu();
-        $newUser->setTitle('Test 5');
-        $newUser->setPrefix('N');
-        $newUser->setLink('/pages/pages/users/new-user');
-        $newUser->setParent($usersMenu);
-        $newUser->setLevel(7);
-        $manager->persist($newUser);
-
         // Ajout des autres éléments de niveau supérieur comme "Applications", "Ecommerce", "Authentication", etc.
-        $applicationsMenu = new Menu();
-        $applicationsMenu->setAction('apps');
-        $applicationsMenu->setActive(false);
-        $applicationsMenu->setTitle('Test 1');
-        $manager->persist($applicationsMenu);
-
-        $ecommerceMenu = new Menu();
-        $ecommerceMenu->setAction('shopping_basket');
-        $ecommerceMenu->setActive(false);
-        $ecommerceMenu->setTitle('Test 2');
-        $manager->persist($ecommerceMenu);
-
-        $authenticationMenu = new Menu();
-        $authenticationMenu->setAction('content_paste');
-        $authenticationMenu->setActive(false);
-        $authenticationMenu->setTitle('Test 3');
-
-        $entity->addMenu($pagesMenu);
-        $entity->addMenu($profileMenu);
-        $entity->addMenu($profileOverview);
-        $entity->addMenu($allProjects);
-        $entity->addMenu($messages);
-        $entity->addMenu($usersMenu);
-        $entity->addMenu($reports);
-        $entity->addMenu($newUser);
-        $entity->addMenu($applicationsMenu);
-        $entity->addMenu($ecommerceMenu);
-        $entity->addMenu($authenticationMenu);
-
-        // Persist entity
-        $manager->persist($pagesMenu);
-        $manager->persist($profileMenu);
-        $manager->persist($profileOverview);
-        $manager->persist($allProjects);
-        $manager->persist($messages);
-        $manager->persist($usersMenu);
-        $manager->persist($reports);
-        $manager->persist($newUser);
-        $manager->persist($applicationsMenu);
-        $manager->persist($ecommerceMenu);
-        $manager->persist($authenticationMenu);
 
         // Create Configuration
 
@@ -305,7 +194,6 @@ final class LoadUserData extends Fixture implements OrderedFixtureInterface
             ->setConfigurationEntry(false)
         ;
 
-
         $entity->addConfiguration($entityConfigurationTitle);
         $entity->addConfiguration($entityConfigurationDrawer);
         $entity->addConfiguration($entityConfigurationSidebarColor);
@@ -319,10 +207,6 @@ final class LoadUserData extends Fixture implements OrderedFixtureInterface
         $manager->persist($entityConfigurationSidebarTheme);
         $manager->persist($entityConfigurationNavbarFixed);
 
-
-
-
-
         $manager->persist($entity);
         // Create reference for later usage
         $this->addReference('User-' . $entity->getUsername(), $entity);
@@ -330,13 +214,16 @@ final class LoadUserData extends Fixture implements OrderedFixtureInterface
         return true;
     }
 
+    /**
+     * @throws Throwable
+     */
     private function loadTags(ObjectManager $manager): void
     {
         foreach ($this->getTagData() as $name) {
             $tag = new Tag($name);
 
             $manager->persist($tag);
-            $this->addReference('tag-'.$name, $tag);
+            $this->addReference('tag-' . $name, $tag);
         }
 
         $manager->flush();
@@ -365,7 +252,7 @@ final class LoadUserData extends Fixture implements OrderedFixtureInterface
                 $comment = new Comment();
                 $comment->setAuthor($commentAuthor);
                 $comment->setContent((string)$this->getRandomText(random_int(255, 512)));
-                $comment->setPublishedAt(new DateTimeImmutable('now + '.$i.'seconds'));
+                $comment->setPublishedAt(new DateTimeImmutable('now + ' . $i . 'seconds'));
 
                 $post->addComment($comment);
             }
@@ -407,14 +294,14 @@ final class LoadUserData extends Fixture implements OrderedFixtureInterface
             // $postData = [$title, $slug, $summary, $content, $publishedAt, $author, $tags, $comments];
 
             /** @var User $user */
-            $user = $this->getReference(['User-john-user', 'User-john-root', 'User-john-admin'][0 === $i ? 0 : random_int(0, 1)]);
+            $user = $this->getReference(['User-john-user', 'User-john-root', 'User-john-admin'][$i === 0 ? 0 : random_int(0, 1)]);
 
             $posts[] = [
                 $title,
                 $this->slugger->slug($title)->lower(),
                 $this->getRandomText(),
                 $this->getPostContent(),
-                (new DateTimeImmutable('now - '.$i.'days'))->setTime(random_int(8, 17), random_int(7, 49), random_int(0, 59)),
+                (new DateTimeImmutable('now - ' . $i . 'days'))->setTime(random_int(8, 17), random_int(7, 49), random_int(0, 59)),
                 // Ensure that the first post is written by Jane Doe to simplify tests
                 $user,
                 $this->getRandomTags(),
@@ -463,7 +350,7 @@ final class LoadUserData extends Fixture implements OrderedFixtureInterface
         ];
     }
 
-    private function getRandomText(int $maxLength = 255): \Symfony\Component\String\AbstractString|\Symfony\Component\String\UnicodeString
+    private function getRandomText(int $maxLength = 255): UnicodeString
     {
         $phrases = $this->getPhrases();
         shuffle($phrases);
@@ -529,7 +416,7 @@ final class LoadUserData extends Fixture implements OrderedFixtureInterface
 
         return array_map(function ($tagName) {
             /** @var Tag $tag */
-            $tag = $this->getReference('tag-'.$tagName);
+            $tag = $this->getReference('tag-' . $tagName);
 
             return $tag;
         }, $selectedTags);
@@ -591,9 +478,7 @@ final class LoadUserData extends Fixture implements OrderedFixtureInterface
         $manager->persist($message3);
         $manager->persist($message4);
         $manager->persist($message5);
-
     }
-
 
     /**
      * Default users for all test cases
@@ -623,11 +508,6 @@ final class LoadUserData extends Fixture implements OrderedFixtureInterface
         $manager->clear();
     }
 
-    /**
-     * @param User $user
-     * @param string|null $timezone
-     * @return array
-     */
     private function getUserPreferences(User $user, string $timezone = null): array
     {
         $preferences = [];
@@ -636,7 +516,7 @@ final class LoadUserData extends Fixture implements OrderedFixtureInterface
         $user->addPreference($prefHourlyRate);
         $preferences[] = $prefHourlyRate;
 
-        if (null !== $timezone) {
+        if ($timezone !== null) {
             $prefTimezone = new UserPreference(UserPreference::TIMEZONE, $timezone);
             $user->addPreference($prefTimezone);
             $preferences[] = $prefTimezone;
@@ -782,5 +662,4 @@ final class LoadUserData extends Fixture implements OrderedFixtureInterface
             ],
         ];
     }
-
 }

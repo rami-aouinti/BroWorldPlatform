@@ -12,16 +12,16 @@ declare(strict_types=1);
 namespace App\Crm\Infrastructure\Repository;
 
 use App\Crm\Application\Service\Utils\Pagination;
+use App\Crm\Domain\Entity\Invoice;
+use App\Crm\Domain\Entity\Team;
+use App\Crm\Domain\Entity\Timesheet;
+use App\Crm\Domain\Entity\UserPreference;
 use App\Crm\Infrastructure\Repository\Loader\UserLoader;
 use App\Crm\Infrastructure\Repository\Paginator\LoaderPaginator;
 use App\Crm\Infrastructure\Repository\Paginator\PaginatorInterface;
 use App\Crm\Infrastructure\Repository\Query\UserFormTypeQuery;
 use App\Crm\Infrastructure\Repository\Query\UserQuery;
-use App\Crm\Domain\Entity\Invoice;
-use App\Crm\Domain\Entity\Team;
-use App\Crm\Domain\Entity\Timesheet;
 use App\User\Domain\Entity\User;
-use App\Crm\Domain\Entity\UserPreference;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityRepository;
@@ -51,7 +51,6 @@ class UserRepository extends EntityRepository implements UserLoaderInterface, Us
     }
 
     /**
-     * @param User $user
      * @throws ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
      */
@@ -84,7 +83,6 @@ class UserRepository extends EntityRepository implements UserLoaderInterface, Us
      * Used to fetch a user by its ID.
      *
      * @param int $id
-     * @return null|User
      */
     public function getUserById($id): ?User
     {
@@ -134,20 +132,23 @@ class UserRepository extends EntityRepository implements UserLoaderInterface, Us
 
     public function findByUsername($username): ?User
     {
-        return parent::findOneBy(['username' => $username]);
+        return parent::findOneBy([
+            'username' => $username,
+        ]);
     }
 
     public function countUser(?bool $enabled = null): int
     {
-        if (null !== $enabled) {
-            return $this->count(['enabled' => $enabled]);
+        if ($enabled !== null) {
+            return $this->count([
+                'enabled' => $enabled,
+            ]);
         }
 
         return $this->count([]);
     }
 
     /**
-     * @param string $identifier
      * @return User
      * @throws UserNotFoundException
      */
@@ -202,19 +203,125 @@ class UserRepository extends EntityRepository implements UserLoaderInterface, Us
     }
 
     /**
-     * @param QueryBuilder $qb
-     * @param User|null $user
+     * @return User[]
+     * @internal
+     */
+    public function findUsersWithRole(string $role): array
+    {
+        if ($role === User::ROLE_USER) {
+            return $this->findAll();
+        }
+
+        $qb = $this->getEntityManager()->createQueryBuilder();
+
+        $qb
+            ->select('u')
+            ->from(User::class, 'u')
+            ->andWhere('u.roles LIKE :role');
+        $qb->setParameter('role', '%' . $role . '%');
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function getPagerfantaForQuery(UserQuery $query): Pagination
+    {
+        return new Pagination($this->getPaginatorForQuery($query), $query);
+    }
+
+    public function countUsersForQuery(UserQuery $query): int
+    {
+        $qb = $this->getQueryBuilderForQuery($query);
+        $qb
+            ->resetDQLPart('select')
+            ->resetDQLPart('orderBy')
+            ->select($qb->expr()->countDistinct('u.id'))
+        ;
+
+        return (int)$qb->getQuery()->getSingleScalarResult();
+    }
+
+    /**
+     * @return User[]
+     */
+    public function getUsersForQuery(UserQuery $query): array
+    {
+        $qb = $this->getQueryBuilderForQuery($query);
+
+        return $this->getHydratedResultsByQuery($qb);
+    }
+
+    public function deleteUser(User $delete, ?User $replace = null)
+    {
+        $em = $this->getEntityManager();
+        $em->beginTransaction();
+
+        try {
+            if ($replace !== null) {
+                $qb = $em->createQueryBuilder();
+                $qb
+                    ->update(Timesheet::class, 't')
+                    ->set('t.user', ':replace')
+                    ->where('t.user = :delete')
+                    ->setParameter('delete', $delete->getId())
+                    ->setParameter('replace', $replace->getId())
+                    ->getQuery()
+                    ->execute();
+
+                $qb = $em->createQueryBuilder();
+                $qb
+                    ->update(Invoice::class, 'i')
+                    ->set('i.user', ':replace')
+                    ->where('i.user = :delete')
+                    ->setParameter('delete', $delete->getId())
+                    ->setParameter('replace', $replace->getId())
+                    ->getQuery()
+                    ->execute();
+            }
+
+            $em->remove($delete);
+            $em->flush();
+            $em->commit();
+        } catch (ORMException $ex) {
+            $em->rollback();
+
+            throw $ex;
+        }
+    }
+
+    protected function getPaginatorForQuery(UserQuery $query): PaginatorInterface
+    {
+        $counter = $this->countUsersForQuery($query);
+        $qb = $this->getQueryBuilderForQuery($query);
+
+        return new LoaderPaginator(new UserLoader($qb->getEntityManager()), $qb, $counter);
+    }
+
+    /**
+     * @return User[]
+     */
+    protected function getHydratedResultsByQuery(QueryBuilder $qb): array
+    {
+        /** @var array<User> $results */
+        $results = $qb->getQuery()->getResult();
+
+        $loader = new UserLoader($qb->getEntityManager());
+        $loader->loadResults($results);
+
+        return $results;
+    }
+
+    /**
      * @param Team[] $teams
      */
     private function addPermissionCriteria(QueryBuilder $qb, ?User $user = null, array $teams = [])
     {
         // make sure that all queries without a user see all user
-        if (null === $user && empty($teams)) {
+        if ($user === null && empty($teams)) {
             return;
         }
 
         // make sure that admins see all user
-        if (null !== $user && $user->canSeeAllData()) {
+        if ($user !== null && $user->canSeeAllData()) {
             return;
         }
 
@@ -222,7 +329,7 @@ class UserRepository extends EntityRepository implements UserLoaderInterface, Us
 
         // if no explicit team was requested and the user is part of some teams
         // then find all members of his teams (where he is teamlead)
-        if (null !== $user && $user->isTeamlead()) {
+        if ($user !== null && $user->isTeamlead()) {
             $userIds = [];
             foreach ($user->getTeams() as $team) {
                 if ($team->isTeamlead($user)) {
@@ -250,7 +357,7 @@ class UserRepository extends EntityRepository implements UserLoaderInterface, Us
         }
 
         // and make sure, that the user himself is always returned
-        if (null !== $user) {
+        if ($user !== null) {
             $or->add($qb->expr()->eq('u.id', ':self'));
             $qb->setParameter('self', $user);
         }
@@ -258,28 +365,6 @@ class UserRepository extends EntityRepository implements UserLoaderInterface, Us
         if ($or->count() > 0) {
             $qb->andWhere($or);
         }
-    }
-
-    /**
-     * @param string $role
-     * @return User[]
-     * @internal
-     */
-    public function findUsersWithRole(string $role): array
-    {
-        if ($role === User::ROLE_USER) {
-            return $this->findAll();
-        }
-
-        $qb = $this->getEntityManager()->createQueryBuilder();
-
-        $qb
-            ->select('u')
-            ->from(User::class, 'u')
-            ->andWhere('u.roles LIKE :role');
-        $qb->setParameter('role', '%' . $role . '%');
-
-        return $qb->getQuery()->getResult();
     }
 
     private function getQueryBuilderForQuery(UserQuery $query): QueryBuilder
@@ -372,93 +457,5 @@ class UserRepository extends EntityRepository implements UserLoaderInterface, Us
         }
 
         return $qb;
-    }
-
-    public function getPagerfantaForQuery(UserQuery $query): Pagination
-    {
-        return new Pagination($this->getPaginatorForQuery($query), $query);
-    }
-
-    public function countUsersForQuery(UserQuery $query): int
-    {
-        $qb = $this->getQueryBuilderForQuery($query);
-        $qb
-            ->resetDQLPart('select')
-            ->resetDQLPart('orderBy')
-            ->select($qb->expr()->countDistinct('u.id'))
-        ;
-
-        return (int) $qb->getQuery()->getSingleScalarResult();
-    }
-
-    protected function getPaginatorForQuery(UserQuery $query): PaginatorInterface
-    {
-        $counter = $this->countUsersForQuery($query);
-        $qb = $this->getQueryBuilderForQuery($query);
-
-        return new LoaderPaginator(new UserLoader($qb->getEntityManager()), $qb, $counter);
-    }
-
-    /**
-     * @param UserQuery $query
-     * @return User[]
-     */
-    public function getUsersForQuery(UserQuery $query): array
-    {
-        $qb = $this->getQueryBuilderForQuery($query);
-
-        return $this->getHydratedResultsByQuery($qb);
-    }
-
-    /**
-     * @param QueryBuilder $qb
-     * @return User[]
-     */
-    protected function getHydratedResultsByQuery(QueryBuilder $qb): array
-    {
-        /** @var array<User> $results */
-        $results = $qb->getQuery()->getResult();
-
-        $loader = new UserLoader($qb->getEntityManager());
-        $loader->loadResults($results);
-
-        return $results;
-    }
-
-    public function deleteUser(User $delete, ?User $replace = null)
-    {
-        $em = $this->getEntityManager();
-        $em->beginTransaction();
-
-        try {
-            if (null !== $replace) {
-                $qb = $em->createQueryBuilder();
-                $qb
-                    ->update(Timesheet::class, 't')
-                    ->set('t.user', ':replace')
-                    ->where('t.user = :delete')
-                    ->setParameter('delete', $delete->getId())
-                    ->setParameter('replace', $replace->getId())
-                    ->getQuery()
-                    ->execute();
-
-                $qb = $em->createQueryBuilder();
-                $qb
-                    ->update(Invoice::class, 'i')
-                    ->set('i.user', ':replace')
-                    ->where('i.user = :delete')
-                    ->setParameter('delete', $delete->getId())
-                    ->setParameter('replace', $replace->getId())
-                    ->getQuery()
-                    ->execute();
-            }
-
-            $em->remove($delete);
-            $em->flush();
-            $em->commit();
-        } catch (ORMException $ex) {
-            $em->rollback();
-            throw $ex;
-        }
     }
 }

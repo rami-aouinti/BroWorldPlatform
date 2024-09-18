@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 /*
  * This file is part of the Kimai time-tracking app.
  *
@@ -24,22 +25,21 @@ use Twig\Environment;
 use Twig\Extension\RuntimeExtensionInterface;
 
 /**
- * Class ThemeExtension
- *
  * @package App\Crm\Transport\Twig\Runtime
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 final class ThemeExtension implements RuntimeExtensionInterface
 {
-    public function __construct(private EventDispatcherInterface $eventDispatcher, private TranslatorInterface $translator, private SystemConfiguration $configuration, private Security $security)
-    {
+    public function __construct(
+        private EventDispatcherInterface $eventDispatcher,
+        private TranslatorInterface $translator,
+        private SystemConfiguration $configuration,
+        private Security $security
+    ) {
     }
 
     /**
-     * @param Environment $environment
-     * @param string $eventName
      * @param array<string, mixed> $payload
-     * @return ThemeEvent
      */
     public function trigger(Environment $environment, string $eventName, array $payload = []): ThemeEvent
     {
@@ -82,9 +82,21 @@ final class ThemeExtension implements RuntimeExtensionInterface
 
     public function getProgressbarClass(float $percent, ?bool $reverseColors = false): string
     {
-        $colors = ['xl' => 'bg-red', 'l' => 'bg-warning', 'm' => 'bg-green', 's' => 'bg-green', 'e' => ''];
-        if (true === $reverseColors) {
-            $colors = ['s' => 'bg-red', 'm' => 'bg-warning', 'l' => 'bg-green', 'xl' => 'bg-green', 'e' => ''];
+        $colors = [
+            'xl' => 'bg-red',
+            'l' => 'bg-warning',
+            'm' => 'bg-green',
+            's' => 'bg-green',
+            'e' => '',
+        ];
+        if ($reverseColors === true) {
+            $colors = [
+                's' => 'bg-red',
+                'm' => 'bg-warning',
+                'l' => 'bg-green',
+                'xl' => 'bg-green',
+                'e' => '',
+            ];
         }
 
         if ($percent > 90) {

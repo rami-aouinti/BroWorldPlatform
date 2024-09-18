@@ -20,6 +20,6 @@ class RequestMapper extends RestRequestMapper
         'link',
         'active',
         'action',
-        'level'
+        'level',
     ];
 }

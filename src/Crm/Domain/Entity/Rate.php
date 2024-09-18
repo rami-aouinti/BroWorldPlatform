@@ -17,9 +17,6 @@ use JMS\Serializer\Annotation as Serializer;
 use OpenApi\Attributes as OA;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- *
- */
 trait Rate
 {
     #[ORM\Column(name: 'id', type: 'integer')]
@@ -49,10 +46,15 @@ trait Rate
     #[Serializer\Groups(['Default'])]
     private bool $isFixed = false;
 
+    public function __clone()
+    {
+        if ($this->id) {
+            $this->id = null;
+        }
+    }
+
     /**
      * Get entry id, returns null for new entities which were not persisted.
-     *
-     * @return int|null
      */
     public function getId(): ?int
     {
@@ -105,12 +107,5 @@ trait Rate
         $this->isFixed = $isFixed;
 
         return $this;
-    }
-
-    public function __clone()
-    {
-        if ($this->id) {
-            $this->id = null;
-        }
     }
 }

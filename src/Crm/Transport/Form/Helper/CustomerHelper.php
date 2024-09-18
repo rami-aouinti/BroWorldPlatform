@@ -23,8 +23,9 @@ final class CustomerHelper
 
     private ?string $pattern = null;
 
-    public function __construct(private readonly SystemConfiguration $configuration)
-    {
+    public function __construct(
+        private readonly SystemConfiguration $configuration
+    ) {
     }
 
     public function getChoicePattern(): string

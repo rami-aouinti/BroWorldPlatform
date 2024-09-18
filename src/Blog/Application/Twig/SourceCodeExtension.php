@@ -61,7 +61,7 @@ final class SourceCodeExtension extends AbstractExtension
         #[Autowire('%kernel.project_dir%')]
         private string $projectDir,
     ) {
-        $this->projectDir = str_replace('\\', '/', $projectDir).'/';
+        $this->projectDir = str_replace('\\', '/', $projectDir) . '/';
     }
 
     public function setController(?callable $controller): void
@@ -72,8 +72,14 @@ final class SourceCodeExtension extends AbstractExtension
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('link_source_file', $this->linkSourceFile(...), ['is_safe' => ['html'], 'needs_environment' => true]),
-            new TwigFunction('show_source_code', $this->showSourceCode(...), ['is_safe' => ['html'], 'needs_environment' => true]),
+            new TwigFunction('link_source_file', $this->linkSourceFile(...), [
+                'is_safe' => ['html'],
+                'needs_environment' => true,
+            ]),
+            new TwigFunction('show_source_code', $this->showSourceCode(...), [
+                'is_safe' => ['html'],
+                'needs_environment' => true,
+            ]),
         ];
     }
 
@@ -89,11 +95,12 @@ final class SourceCodeExtension extends AbstractExtension
         }
 
         $link = $this->fileLinkFormat->format($file, $line);
-        if (false === $link) {
+        if ($link === false) {
             return '';
         }
 
-        return sprintf('<a href="%s" title="Click to open this file" class="file_link">%s</a> at line %d',
+        return sprintf(
+            '<a href="%s" title="Click to open this file" class="file_link">%s</a> at line %d',
             htmlspecialchars($link, ENT_COMPAT | ENT_SUBSTITUTE, $twig->getCharset()),
             htmlspecialchars($text, ENT_COMPAT | ENT_SUBSTITUTE, $twig->getCharset()),
             $line,
@@ -119,7 +126,7 @@ final class SourceCodeExtension extends AbstractExtension
     private function getController(): ?array
     {
         // this happens for example for exceptions (404 errors, etc.)
-        if (null === $this->controller) {
+        if ($this->controller === null) {
             return null;
         }
 
@@ -129,7 +136,7 @@ final class SourceCodeExtension extends AbstractExtension
         $fileName = $method->getFileName();
 
         $classCode = file($fileName);
-        if (false === $classCode) {
+        if ($classCode === false) {
             throw new LogicException(sprintf('There was an error while trying to read the contents of the "%s" file.', $fileName));
         }
 
@@ -143,7 +150,7 @@ final class SourceCodeExtension extends AbstractExtension
                 break;
             }
 
-            --$startLine;
+            $startLine--;
         }
 
         $controllerCode = implode('', array_slice($classCode, $startLine, $endLine - $startLine));
@@ -160,10 +167,7 @@ final class SourceCodeExtension extends AbstractExtension
      *
      * This logic is copied from Symfony\Component\HttpKernel\Controller\ControllerResolver::getArguments
      *
-     * @param callable $callable
-     *
      * @throws ReflectionException
-     * @return ReflectionFunctionAbstract
      */
     private function getCallableReflector(callable $callable): ReflectionFunctionAbstract
     {

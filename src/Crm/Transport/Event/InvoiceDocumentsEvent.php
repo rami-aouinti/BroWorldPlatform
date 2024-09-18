@@ -22,8 +22,9 @@ final class InvoiceDocumentsEvent extends Event
     /**
      * @param InvoiceDocument[] $documents
      */
-    public function __construct(private array $documents)
-    {
+    public function __construct(
+        private array $documents
+    ) {
     }
 
     /**

@@ -27,9 +27,17 @@ final class InvoiceToolbarForm extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $this->addSearchTermInputField($builder);
-        $this->addDateRange($builder, ['timezone' => $options['timezone']]);
-        $this->addCustomerMultiChoice($builder, ['start_date_param' => null, 'end_date_param' => null, 'ignore_date' => true], true);
-        $this->addProjectMultiChoice($builder, ['ignore_date' => true], true, true);
+        $this->addDateRange($builder, [
+            'timezone' => $options['timezone'],
+        ]);
+        $this->addCustomerMultiChoice($builder, [
+            'start_date_param' => null,
+            'end_date_param' => null,
+            'ignore_date' => true,
+        ], true);
+        $this->addProjectMultiChoice($builder, [
+            'ignore_date' => true,
+        ], true, true);
         $this->addActivitySelect($builder, [], true, true, false);
         $this->addTagInputField($builder);
         if ($options['include_user']) {
@@ -43,14 +51,6 @@ final class InvoiceToolbarForm extends AbstractType
         $this->addTemplateChoice($builder);
     }
 
-    protected function addTemplateChoice(FormBuilderInterface $builder): void
-    {
-        $builder->add('template', InvoiceTemplateType::class, [
-            'required' => true,
-            'placeholder' => null,
-        ]);
-    }
-
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
@@ -58,6 +58,14 @@ final class InvoiceToolbarForm extends AbstractType
             'csrf_protection' => false,
             'include_user' => true,
             'timezone' => date_default_timezone_get(),
+        ]);
+    }
+
+    protected function addTemplateChoice(FormBuilderInterface $builder): void
+    {
+        $builder->add('template', InvoiceTemplateType::class, [
+            'required' => true,
+            'placeholder' => null,
         ]);
     }
 }

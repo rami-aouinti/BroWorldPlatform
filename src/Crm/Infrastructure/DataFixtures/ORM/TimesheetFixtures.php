@@ -11,13 +11,13 @@ declare(strict_types=1);
 
 namespace App\Crm\Infrastructure\DataFixtures\ORM;
 
+use App\Crm\Application\Service\Timesheet\Util;
 use App\Crm\Domain\Entity\Activity;
 use App\Crm\Domain\Entity\Project;
 use App\Crm\Domain\Entity\Tag;
 use App\Crm\Domain\Entity\Timesheet;
-use App\User\Domain\Entity\User;
 use App\Crm\Domain\Entity\UserPreference;
-use App\Crm\Application\Service\Timesheet\Util;
+use App\User\Domain\Entity\User;
 use DateTime;
 use DateTimeZone;
 use Doctrine\Bundle\FixturesBundle\Fixture;
@@ -145,9 +145,7 @@ final class TimesheetFixtures extends Fixture implements FixtureGroupInterface
 
     /**
      * @template T of object
-     * @param ObjectManager   $manager
      * @param class-string<T> $class
-     * @param int             $amount
      *
      * @throws NonUniqueResultException
      * @return array<int, T>
@@ -178,8 +176,6 @@ final class TimesheetFixtures extends Fixture implements FixtureGroupInterface
     }
 
     /**
-     * @param ObjectManager $manager
-     *
      * @throws NonUniqueResultException
      * @return array<int|string, Tag>
      */
@@ -189,7 +185,6 @@ final class TimesheetFixtures extends Fixture implements FixtureGroupInterface
     }
 
     /**
-     * @param ObjectManager $manager
      * @return array<int|string, User>
      */
     private function getAllUsers(ObjectManager $manager): array
@@ -205,8 +200,6 @@ final class TimesheetFixtures extends Fixture implements FixtureGroupInterface
     }
 
     /**
-     * @param ObjectManager $manager
-     *
      * @throws NonUniqueResultException
      * @return array<int|string, Project>
      */
@@ -216,8 +209,6 @@ final class TimesheetFixtures extends Fixture implements FixtureGroupInterface
     }
 
     /**
-     * @param ObjectManager $manager
-     *
      * @throws NonUniqueResultException
      * @return array<int|string, Activity>
      */
@@ -248,7 +239,7 @@ final class TimesheetFixtures extends Fixture implements FixtureGroupInterface
             $end = $end->modify('+ ' . (rand(self::MIN_MINUTES_PER_ENTRY, self::MAX_MINUTES_PER_ENTRY)) . ' minutes');
 
             $duration = $end->getTimestamp() - $start->getTimestamp();
-            $hourlyRate = (float) $user->getPreferenceValue(UserPreference::HOURLY_RATE);
+            $hourlyRate = (float)$user->getPreferenceValue(UserPreference::HOURLY_RATE);
             $rate = Util::calculateRate($hourlyRate, $duration);
 
             $entry->setEnd($end);

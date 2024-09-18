@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace App\Blog\Domain\Entity;
 
-use App\Blog\Infrastructure\Repository\PostRepository;
 use App\General\Domain\Entity\Traits\Timestampable;
 use App\General\Domain\Entity\Traits\Uuid;
 use App\User\Domain\Entity\Traits\Blameable;
@@ -118,7 +117,9 @@ class Post
      * @var Collection<int, Comment>
      */
     #[ORM\OneToMany(mappedBy: 'post', targetEntity: Comment::class, cascade: ['persist'], orphanRemoval: true)]
-    #[ORM\OrderBy(['publishedAt' => 'DESC'])]
+    #[ORM\OrderBy([
+        'publishedAt' => 'DESC',
+    ])]
     #[Groups([
         'Post',
         self::SET_BLOG_POST,
@@ -130,7 +131,9 @@ class Post
      */
     #[ORM\ManyToMany(targetEntity: Tag::class, cascade: ['persist'])]
     #[ORM\JoinTable(name: 'symfony_demo_post_tag')]
-    #[ORM\OrderBy(['name' => 'ASC'])]
+    #[ORM\OrderBy([
+        'name' => 'ASC',
+    ])]
     #[Assert\Count(max: 4, maxMessage: 'post.too_many_tags')]
     #[Groups([
         'Post',
@@ -275,6 +278,7 @@ class Post
                 return true;
             }
         }
+
         return false;
     }
 }

@@ -10,13 +10,13 @@
 namespace App\Crm\Infrastructure\Repository;
 
 use App\Crm\Application\Service\Utils\Pagination;
+use App\Crm\Domain\Entity\Team;
+use App\Crm\Domain\Entity\TeamMember;
+use App\Crm\Domain\Entity\Timesheet;
 use App\Crm\Infrastructure\Repository\Loader\TeamLoader;
 use App\Crm\Infrastructure\Repository\Paginator\LoaderPaginator;
 use App\Crm\Infrastructure\Repository\Paginator\PaginatorInterface;
 use App\Crm\Infrastructure\Repository\Query\TeamQuery;
-use App\Crm\Domain\Entity\Team;
-use App\Crm\Domain\Entity\TeamMember;
-use App\Crm\Domain\Entity\Timesheet;
 use App\User\Domain\Entity\User;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Exception\ORMException;
@@ -61,7 +61,6 @@ class TeamRepository extends EntityRepository
     }
 
     /**
-     * @param Team $team
      * @throws ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
      */
@@ -73,7 +72,6 @@ class TeamRepository extends EntityRepository
     }
 
     /**
-     * @param TeamMember $member
      * @throws ORMException
      */
     public function removeTeamMember(TeamMember $member)
@@ -83,7 +81,6 @@ class TeamRepository extends EntityRepository
     }
 
     /**
-     * @param Team $team
      * @throws ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
      */
@@ -96,9 +93,6 @@ class TeamRepository extends EntityRepository
 
     /**
      * Returns a query builder that is used for TeamType and your own 'query_builder' option.
-     *
-     * @param TeamQuery $query
-     * @return QueryBuilder
      */
     public function getQueryBuilderForFormType(TeamQuery $query): QueryBuilder
     {
@@ -118,23 +112,7 @@ class TeamRepository extends EntityRepository
         return new Pagination($this->getPaginatorForQuery($query), $query);
     }
 
-    protected function getPaginatorForQuery(TeamQuery $query): PaginatorInterface
-    {
-        $qb = $this->getQueryBuilderForQuery($query);
-        $qb
-            ->resetDQLPart('select')
-            ->resetDQLPart('orderBy')
-            ->select($qb->expr()->countDistinct('t.id'))
-        ;
-        $counter = (int) $qb->getQuery()->getSingleScalarResult();
-
-        $qb = $this->getQueryBuilderForQuery($query);
-
-        return new LoaderPaginator(new TeamLoader($qb->getEntityManager()), $qb, $counter);
-    }
-
     /**
-     * @param TeamQuery $query
      * @return Timesheet[]
      */
     public function getTeamsForQuery(TeamQuery $query): iterable
@@ -144,6 +122,21 @@ class TeamRepository extends EntityRepository
         $paginator = $this->getPaginatorForQuery($query);
 
         return $paginator->getAll();
+    }
+
+    protected function getPaginatorForQuery(TeamQuery $query): PaginatorInterface
+    {
+        $qb = $this->getQueryBuilderForQuery($query);
+        $qb
+            ->resetDQLPart('select')
+            ->resetDQLPart('orderBy')
+            ->select($qb->expr()->countDistinct('t.id'))
+        ;
+        $counter = (int)$qb->getQuery()->getSingleScalarResult();
+
+        $qb = $this->getQueryBuilderForQuery($query);
+
+        return new LoaderPaginator(new TeamLoader($qb->getEntityManager()), $qb, $counter);
     }
 
     private function getQueryBuilderForQuery(TeamQuery $query): QueryBuilder
@@ -208,19 +201,17 @@ class TeamRepository extends EntityRepository
     }
 
     /**
-     * @param QueryBuilder $qb
-     * @param User|null $user
      * @param Team[] $teams
      */
     private function addPermissionCriteria(QueryBuilder $qb, ?User $user = null, array $teams = [])
     {
         // make sure that all queries without a user see all user
-        if (null === $user && empty($teams)) {
+        if ($user === null && empty($teams)) {
             return;
         }
 
         // make sure that admins see all user
-        if (null !== $user && $user->canSeeAllData()) {
+        if ($user !== null && $user->canSeeAllData()) {
             return;
         }
 
@@ -229,7 +220,7 @@ class TeamRepository extends EntityRepository
         $or = $qb->expr()->orX();
 
         // this query should limit to teams where the user is a teamlead (eg. in dropdowns or listing page)
-        if (null !== $user) {
+        if ($user !== null) {
             $qb->leftJoin('t.members', 'members');
             $or->add(
                 $qb->expr()->andX(

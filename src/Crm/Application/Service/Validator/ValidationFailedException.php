@@ -14,15 +14,15 @@ namespace App\Crm\Application\Service\Validator;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 
 /**
- * Class ValidationFailedException
- *
  * @package App\Crm\Application\Service\Validator
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 final class ValidationFailedException extends \RuntimeException
 {
-    public function __construct(private ConstraintViolationListInterface $violations, ?string $message = null)
-    {
+    public function __construct(
+        private ConstraintViolationListInterface $violations,
+        ?string $message = null
+    ) {
         if ($message === null) {
             $message = 'Validation failed';
         }

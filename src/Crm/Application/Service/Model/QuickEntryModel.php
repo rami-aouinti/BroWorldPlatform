@@ -25,8 +25,21 @@ class QuickEntryModel
      */
     private array $timesheets = [];
 
-    public function __construct(private ?User $user = null, private ?Project $project = null, private ?Activity $activity = null)
+    public function __construct(
+        private ?User $user = null,
+        private ?Project $project = null,
+        private ?Activity $activity = null
+    ) {
+    }
+
+    public function __clone()
     {
+        $records = $this->timesheets;
+        $this->timesheets = [];
+
+        foreach ($records as $record) {
+            $this->timesheets[] = clone $record;
+        }
     }
 
     public function markAsPrototype(): void
@@ -142,6 +155,7 @@ class QuickEntryModel
 
             if ($latest === null) {
                 $latest = $timesheet;
+
                 continue;
             }
 
@@ -164,6 +178,7 @@ class QuickEntryModel
 
             if ($first === null) {
                 $first = $timesheet;
+
                 continue;
             }
 
@@ -173,15 +188,5 @@ class QuickEntryModel
         }
 
         return $first;
-    }
-
-    public function __clone()
-    {
-        $records = $this->timesheets;
-        $this->timesheets = [];
-
-        foreach ($records as $record) {
-            $this->timesheets[] = clone $record;
-        }
     }
 }

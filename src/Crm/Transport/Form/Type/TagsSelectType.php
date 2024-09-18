@@ -10,9 +10,9 @@
 namespace App\Crm\Transport\Form\Type;
 
 use App\Crm\Application\Service\Utils\Color;
+use App\Crm\Domain\Entity\Tag;
 use App\Crm\Infrastructure\Repository\Query\TagFormTypeQuery;
 use App\Crm\Infrastructure\Repository\TagRepository;
-use App\Crm\Domain\Entity\Tag;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -30,8 +30,7 @@ final class TagsSelectType extends AbstractType
 {
     public function __construct(
         private readonly TagRepository $tagRepository
-    )
-    {
+    ) {
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -92,12 +91,16 @@ final class TagsSelectType extends AbstractType
                     $color = (new Color())->getRandom($tag->getName());
                 }
 
-                return ['data-color' => $color];
+                return [
+                    'data-color' => $color,
+                ];
             },
             'choice_label' => function (Tag $tag) {
                 return $tag->getName();
             },
-            'attr' => ['data-renderer' => 'color'],
+            'attr' => [
+                'data-renderer' => 'color',
+            ],
         ]);
 
         $resolver->setDefault('query_builder', function (Options $options) {

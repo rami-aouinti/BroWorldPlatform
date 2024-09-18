@@ -8,7 +8,6 @@ use App\General\Infrastructure\Repository\BaseRepository;
 use App\Notification\Domain\Entity\Notification as Entity;
 use Doctrine\Persistence\ManagerRegistry;
 
-
 /**
  * @package App\Notification
  *
@@ -37,6 +36,7 @@ class NotificationRepository extends BaseRepository
     protected static string $entityName = Entity::class;
 
     public function __construct(
-        protected ManagerRegistry $managerRegistry) {
+        protected ManagerRegistry $managerRegistry
+    ) {
     }
 }

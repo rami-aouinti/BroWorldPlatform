@@ -10,16 +10,16 @@
 namespace App\Crm\Infrastructure\Repository;
 
 use App\Crm\Application\Service\Utils\Pagination;
-use App\Crm\Infrastructure\Repository\Loader\ActivityLoader;
-use App\Crm\Infrastructure\Repository\Paginator\LoaderPaginator;
-use App\Crm\Infrastructure\Repository\Paginator\PaginatorInterface;
-use App\Crm\Infrastructure\Repository\Query\ActivityFormTypeQuery;
-use App\Crm\Infrastructure\Repository\Query\ActivityQuery;
 use App\Crm\Domain\Entity\Activity;
 use App\Crm\Domain\Entity\ActivityMeta;
 use App\Crm\Domain\Entity\Project;
 use App\Crm\Domain\Entity\Team;
 use App\Crm\Domain\Entity\Timesheet;
+use App\Crm\Infrastructure\Repository\Loader\ActivityLoader;
+use App\Crm\Infrastructure\Repository\Paginator\LoaderPaginator;
+use App\Crm\Infrastructure\Repository\Paginator\PaginatorInterface;
+use App\Crm\Infrastructure\Repository\Query\ActivityFormTypeQuery;
+use App\Crm\Infrastructure\Repository\Query\ActivityQuery;
 use App\User\Domain\Entity\User;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\ORM\EntityRepository;
@@ -35,12 +35,13 @@ class ActivityRepository extends EntityRepository
     use RepositorySearchTrait;
 
     /**
-     * @param Project $project
      * @return Activity[]
      */
     public function findByProject(Project $project): array
     {
-        return $this->findBy(['project' => $project]);
+        return $this->findBy([
+            'project' => $project,
+        ]);
     }
 
     /**
@@ -64,7 +65,6 @@ class ActivityRepository extends EntityRepository
     }
 
     /**
-     * @param Activity $activity
      * @throws ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
      */
@@ -77,87 +77,20 @@ class ActivityRepository extends EntityRepository
 
     /**
      * @param null|bool $visible
-     * @return int
      */
     public function countActivity($visible = null): int
     {
-        if (null !== $visible) {
-            return $this->count(['visible' => (bool) $visible]);
+        if ($visible !== null) {
+            return $this->count([
+                'visible' => (bool)$visible,
+            ]);
         }
 
         return $this->count([]);
     }
 
-    private function addPermissionCriteria(QueryBuilder $qb, ?User $user = null, array $teams = [], bool $globalsOnly = false): void
-    {
-        $permissions = $this->getPermissionCriteria($qb, $user, $teams, $globalsOnly);
-        if ($permissions->count() > 0) {
-            $qb->andWhere($permissions);
-        }
-    }
-
-    private function getPermissionCriteria(QueryBuilder $qb, ?User $user = null, array $teams = [], bool $globalsOnly = false): Andx
-    {
-        $andX = $qb->expr()->andX();
-
-        // make sure that all queries without a user see all projects
-        if (null === $user && empty($teams)) {
-            return $andX;
-        }
-
-        // make sure that admins see all activities
-        if (null !== $user && $user->canSeeAllData()) {
-            return $andX;
-        }
-
-        if (null !== $user) {
-            $teams = array_merge($teams, $user->getTeams());
-        }
-
-        if (empty($teams)) {
-            $andX->add('SIZE(a.teams) = 0');
-            if (!$globalsOnly) {
-                $andX->add('SIZE(p.teams) = 0');
-                $andX->add('SIZE(c.teams) = 0');
-            }
-
-            return $andX;
-        }
-
-        $orActivity = $qb->expr()->orX(
-            'SIZE(a.teams) = 0',
-            $qb->expr()->isMemberOf(':teams', 'a.teams')
-        );
-        $andX->add($orActivity);
-
-        if (!$globalsOnly) {
-            $orProject = $qb->expr()->orX(
-                'SIZE(p.teams) = 0',
-                $qb->expr()->isMemberOf(':teams', 'p.teams')
-            );
-            $andX->add($orProject);
-
-            $orCustomer = $qb->expr()->orX(
-                'SIZE(c.teams) = 0',
-                $qb->expr()->isMemberOf(':teams', 'c.teams')
-            );
-            $andX->add($orCustomer);
-        }
-
-        $ids = array_values(array_unique(array_map(function (Team $team) {
-            return $team->getId();
-        }, $teams)));
-
-        $qb->setParameter('teams', $ids);
-
-        return $andX;
-    }
-
     /**
      * Returns a query builder that is used for ActivityType and your own 'query_builder' option.
-     *
-     * @param ActivityFormTypeQuery $query
-     * @return QueryBuilder
      */
     public function getQueryBuilderForFormType(ActivityFormTypeQuery $query): QueryBuilder
     {
@@ -234,7 +167,7 @@ class ActivityRepository extends EntityRepository
             $qb->setParameter('activity', $query->getActivities());
         }
 
-        if (null !== $query->getActivityToIgnore()) {
+        if ($query->getActivityToIgnore() !== null) {
             $mainQuery = $qb->expr()->andX(
                 $mainQuery,
                 $qb->expr()->neq('a.id', ':ignored')
@@ -247,6 +180,139 @@ class ActivityRepository extends EntityRepository
         $qb->andWhere($outerQuery);
 
         return $qb;
+    }
+
+    public function countActivitiesForQuery(ActivityQuery $query): int
+    {
+        $qb = $this->getQueryBuilderForQuery($query);
+        $qb
+            ->resetDQLPart('select')
+            ->resetDQLPart('orderBy')
+            ->resetDQLPart('groupBy')
+            ->select($qb->expr()->countDistinct('a.id'))
+        ;
+
+        return (int)$qb->getQuery()->getSingleScalarResult();
+    }
+
+    public function getPagerfantaForQuery(ActivityQuery $query): Pagination
+    {
+        return new Pagination($this->getPaginatorForQuery($query), $query);
+    }
+
+    /**
+     * @return Activity[]
+     */
+    public function getActivitiesForQuery(ActivityQuery $query): iterable
+    {
+        // this is using the paginator internally, as it will load all joined entities into the working unit
+        // do not "optimize" to use the query directly, as it would results in hundreds of additional lazy queries
+        $paginator = $this->getPaginatorForQuery($query);
+
+        return $paginator->getAll();
+    }
+
+    /**
+     * @throws \Doctrine\ORM\Exception\ORMException
+     */
+    public function deleteActivity(Activity $delete, ?Activity $replace = null)
+    {
+        $em = $this->getEntityManager();
+        $em->beginTransaction();
+
+        try {
+            if ($replace !== null) {
+                $qb = $em->createQueryBuilder();
+                $qb->update(Timesheet::class, 't')
+                    ->set('t.activity', ':replace')
+                    ->where('t.activity = :delete')
+                    ->setParameter('delete', $delete)
+                    ->setParameter('replace', $replace);
+
+                $qb->getQuery()->execute();
+            }
+
+            $em->remove($delete);
+            $em->flush();
+            $em->commit();
+        } catch (ORMException $ex) {
+            $em->rollback();
+
+            throw $ex;
+        }
+    }
+
+    protected function getPaginatorForQuery(ActivityQuery $query): PaginatorInterface
+    {
+        $counter = $this->countActivitiesForQuery($query);
+        $qb = $this->getQueryBuilderForQuery($query);
+
+        return new LoaderPaginator(new ActivityLoader($qb->getEntityManager()), $qb, $counter);
+    }
+
+    private function addPermissionCriteria(QueryBuilder $qb, ?User $user = null, array $teams = [], bool $globalsOnly = false): void
+    {
+        $permissions = $this->getPermissionCriteria($qb, $user, $teams, $globalsOnly);
+        if ($permissions->count() > 0) {
+            $qb->andWhere($permissions);
+        }
+    }
+
+    private function getPermissionCriteria(QueryBuilder $qb, ?User $user = null, array $teams = [], bool $globalsOnly = false): Andx
+    {
+        $andX = $qb->expr()->andX();
+
+        // make sure that all queries without a user see all projects
+        if ($user === null && empty($teams)) {
+            return $andX;
+        }
+
+        // make sure that admins see all activities
+        if ($user !== null && $user->canSeeAllData()) {
+            return $andX;
+        }
+
+        if ($user !== null) {
+            $teams = array_merge($teams, $user->getTeams());
+        }
+
+        if (empty($teams)) {
+            $andX->add('SIZE(a.teams) = 0');
+            if (!$globalsOnly) {
+                $andX->add('SIZE(p.teams) = 0');
+                $andX->add('SIZE(c.teams) = 0');
+            }
+
+            return $andX;
+        }
+
+        $orActivity = $qb->expr()->orX(
+            'SIZE(a.teams) = 0',
+            $qb->expr()->isMemberOf(':teams', 'a.teams')
+        );
+        $andX->add($orActivity);
+
+        if (!$globalsOnly) {
+            $orProject = $qb->expr()->orX(
+                'SIZE(p.teams) = 0',
+                $qb->expr()->isMemberOf(':teams', 'p.teams')
+            );
+            $andX->add($orProject);
+
+            $orCustomer = $qb->expr()->orX(
+                'SIZE(c.teams) = 0',
+                $qb->expr()->isMemberOf(':teams', 'c.teams')
+            );
+            $andX->add($orCustomer);
+        }
+
+        $ids = array_values(array_unique(array_map(function (Team $team) {
+            return $team->getId();
+        }, $teams)));
+
+        $qb->setParameter('teams', $ids);
+
+        return $andX;
     }
 
     private function getQueryBuilderForQuery(ActivityQuery $query): QueryBuilder
@@ -353,75 +419,5 @@ class ActivityRepository extends EntityRepository
     private function getSearchableFields(): array
     {
         return ['a.name', 'a.comment', 'a.number'];
-    }
-
-    public function countActivitiesForQuery(ActivityQuery $query): int
-    {
-        $qb = $this->getQueryBuilderForQuery($query);
-        $qb
-            ->resetDQLPart('select')
-            ->resetDQLPart('orderBy')
-            ->resetDQLPart('groupBy')
-            ->select($qb->expr()->countDistinct('a.id'))
-        ;
-
-        return (int) $qb->getQuery()->getSingleScalarResult();
-    }
-
-    public function getPagerfantaForQuery(ActivityQuery $query): Pagination
-    {
-        return new Pagination($this->getPaginatorForQuery($query), $query);
-    }
-
-    protected function getPaginatorForQuery(ActivityQuery $query): PaginatorInterface
-    {
-        $counter = $this->countActivitiesForQuery($query);
-        $qb = $this->getQueryBuilderForQuery($query);
-
-        return new LoaderPaginator(new ActivityLoader($qb->getEntityManager()), $qb, $counter);
-    }
-
-    /**
-     * @param ActivityQuery $query
-     * @return Activity[]
-     */
-    public function getActivitiesForQuery(ActivityQuery $query): iterable
-    {
-        // this is using the paginator internally, as it will load all joined entities into the working unit
-        // do not "optimize" to use the query directly, as it would results in hundreds of additional lazy queries
-        $paginator = $this->getPaginatorForQuery($query);
-
-        return $paginator->getAll();
-    }
-
-    /**
-     * @param Activity $delete
-     * @param Activity|null $replace
-     * @throws \Doctrine\ORM\Exception\ORMException
-     */
-    public function deleteActivity(Activity $delete, ?Activity $replace = null)
-    {
-        $em = $this->getEntityManager();
-        $em->beginTransaction();
-
-        try {
-            if (null !== $replace) {
-                $qb = $em->createQueryBuilder();
-                $qb->update(Timesheet::class, 't')
-                    ->set('t.activity', ':replace')
-                    ->where('t.activity = :delete')
-                    ->setParameter('delete', $delete)
-                    ->setParameter('replace', $replace);
-
-                $qb->getQuery()->execute();
-            }
-
-            $em->remove($delete);
-            $em->flush();
-            $em->commit();
-        } catch (ORMException $ex) {
-            $em->rollback();
-            throw $ex;
-        }
     }
 }

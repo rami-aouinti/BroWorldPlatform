@@ -15,9 +15,6 @@ use App\User\Domain\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- *
- */
 trait CommentTableTypeTrait
 {
     #[ORM\Id]
@@ -34,7 +31,9 @@ trait CommentTableTypeTrait
     #[ORM\Column(name: 'created_at', type: 'datetime', nullable: false)]
     #[Assert\NotNull]
     private ?\DateTime $createdAt = null;
-    #[ORM\Column(name: 'pinned', type: 'boolean', nullable: false, options: ['default' => false])]
+    #[ORM\Column(name: 'pinned', type: 'boolean', nullable: false, options: [
+        'default' => false,
+    ])]
     #[Assert\NotNull]
     private bool $pinned = false;
 

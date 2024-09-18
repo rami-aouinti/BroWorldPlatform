@@ -10,28 +10,21 @@
 namespace App\Crm\Transport\Controller\Api\v1;
 
 use App\Crm\Application\Service\Configuration\SystemConfiguration;
-
+use App\Crm\Application\Service\Export\Spreadsheet\EntityWithMetaFieldsExporter;
+use App\Crm\Application\Service\Export\Spreadsheet\Writer\BinaryFileResponseWriter;
+use App\Crm\Application\Service\Export\Spreadsheet\Writer\XlsxWriter;
+use App\Crm\Application\Service\Project\ProjectDuplicationService;
+use App\Crm\Application\Service\Project\ProjectService;
+use App\Crm\Application\Service\Project\ProjectStatisticService;
+use App\Crm\Application\Service\Utils\Context;
+use App\Crm\Application\Service\Utils\DataTable;
+use App\Crm\Application\Service\Utils\PageSetup;
 use App\Crm\Domain\Entity\Customer;
 use App\Crm\Domain\Entity\MetaTableTypeInterface;
 use App\Crm\Domain\Entity\Project;
 use App\Crm\Domain\Entity\ProjectComment;
 use App\Crm\Domain\Entity\ProjectRate;
 use App\Crm\Domain\Entity\Team;
-use App\Crm\Transport\Event\ProjectDetailControllerEvent;
-use App\Crm\Transport\Event\ProjectMetaDefinitionEvent;
-use App\Crm\Transport\Event\ProjectMetaDisplayEvent;
-use App\Crm\Application\Service\Export\Spreadsheet\EntityWithMetaFieldsExporter;
-use App\Crm\Application\Service\Export\Spreadsheet\Writer\BinaryFileResponseWriter;
-use App\Crm\Application\Service\Export\Spreadsheet\Writer\XlsxWriter;
-use App\Crm\Transport\Form\ProjectCommentForm;
-use App\Crm\Transport\Form\ProjectEditForm;
-use App\Crm\Transport\Form\ProjectRateForm;
-use App\Crm\Transport\Form\ProjectTeamPermissionForm;
-use App\Crm\Transport\Form\Toolbar\ProjectToolbarForm;
-use App\Crm\Transport\Form\Type\ProjectType;
-use App\Crm\Application\Service\Project\ProjectDuplicationService;
-use App\Crm\Application\Service\Project\ProjectService;
-use App\Crm\Application\Service\Project\ProjectStatisticService;
 use App\Crm\Infrastructure\Repository\ActivityRepository;
 use App\Crm\Infrastructure\Repository\ProjectRateRepository;
 use App\Crm\Infrastructure\Repository\ProjectRepository;
@@ -40,9 +33,16 @@ use App\Crm\Infrastructure\Repository\Query\ProjectQuery;
 use App\Crm\Infrastructure\Repository\Query\TeamQuery;
 use App\Crm\Infrastructure\Repository\Query\TimesheetQuery;
 use App\Crm\Infrastructure\Repository\TeamRepository;
-use App\Crm\Application\Service\Utils\Context;
-use App\Crm\Application\Service\Utils\DataTable;
-use App\Crm\Application\Service\Utils\PageSetup;
+use App\Crm\Transport\Event\ProjectDetailControllerEvent;
+use App\Crm\Transport\Event\ProjectMetaDefinitionEvent;
+use App\Crm\Transport\Event\ProjectMetaDisplayEvent;
+use App\Crm\Transport\Form\ProjectCommentForm;
+use App\Crm\Transport\Form\ProjectEditForm;
+use App\Crm\Transport\Form\ProjectRateForm;
+use App\Crm\Transport\Form\ProjectTeamPermissionForm;
+use App\Crm\Transport\Form\Toolbar\ProjectToolbarForm;
+use App\Crm\Transport\Form\Type\ProjectType;
+use OpenApi\Attributes as OA;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
@@ -55,7 +55,6 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
-use OpenApi\Attributes as OA;
 
 /**
  * Controller used to manage projects.
@@ -70,16 +69,19 @@ final class ProjectController extends AbstractController
         private readonly SystemConfiguration $configuration,
         private readonly EventDispatcherInterface $dispatcher,
         private readonly ProjectService $projectService
-    )
-    {
+    ) {
     }
 
     /**
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    #[Route(path: '/', name: 'admin_project', defaults: ['page' => 1], methods: ['GET'])]
-    #[Route(path: '/page/{page}', name: 'admin_project_paginated', requirements: ['page' => '[1-9]\d*'], methods: ['GET'])]
+    #[Route(path: '/', name: 'admin_project', defaults: [
+        'page' => 1,
+    ], methods: ['GET'])]
+    #[Route(path: '/page/{page}', name: 'admin_project_paginated', requirements: [
+        'page' => '[1-9]\d*',
+    ], methods: ['GET'])]
     #[IsGranted(new Expression("is_granted('listing', 'project')"))]
     public function indexAction(int $page, Request $request): Response
     {
@@ -101,31 +103,70 @@ final class ProjectController extends AbstractController
         $table->setPaginationRoute('admin_project_paginated');
         $table->setReloadEvents('kimai.projectUpdate kimai.projectDelete kimai.projectTeamUpdate');
 
-        $table->addColumn('name', ['class' => 'alwaysVisible']);
-        $table->addColumn('customer', ['class' => 'd-none']);
-        $table->addColumn('comment', ['class' => 'd-none', 'title' => 'description']);
-        $table->addColumn('number', ['class' => 'd-none w-min', 'title' => 'project_number']);
-        $table->addColumn('orderNumber', ['class' => 'd-none']);
-        $table->addColumn('orderDate', ['class' => 'd-none']);
-        $table->addColumn('project_start', ['class' => 'd-none']);
-        $table->addColumn('project_end', ['class' => 'd-none']);
+        $table->addColumn('name', [
+            'class' => 'alwaysVisible',
+        ]);
+        $table->addColumn('customer', [
+            'class' => 'd-none',
+        ]);
+        $table->addColumn('comment', [
+            'class' => 'd-none',
+            'title' => 'description',
+        ]);
+        $table->addColumn('number', [
+            'class' => 'd-none w-min',
+            'title' => 'project_number',
+        ]);
+        $table->addColumn('orderNumber', [
+            'class' => 'd-none',
+        ]);
+        $table->addColumn('orderDate', [
+            'class' => 'd-none',
+        ]);
+        $table->addColumn('project_start', [
+            'class' => 'd-none',
+        ]);
+        $table->addColumn('project_end', [
+            'class' => 'd-none',
+        ]);
 
         foreach ($metaColumns as $metaColumn) {
-            $table->addColumn('mf_' . $metaColumn->getName(), ['title' => $metaColumn->getLabel(), 'class' => 'd-none', 'orderBy' => false, 'data' => $metaColumn]);
+            $table->addColumn('mf_' . $metaColumn->getName(), [
+                'title' => $metaColumn->getLabel(),
+                'class' => 'd-none',
+                'orderBy' => false,
+                'data' => $metaColumn,
+            ]);
         }
 
         if ($this->isGranted('budget_money', 'project')) {
-            $table->addColumn('budget', ['class' => 'd-none text-end w-min', 'title' => 'budget']);
+            $table->addColumn('budget', [
+                'class' => 'd-none text-end w-min',
+                'title' => 'budget',
+            ]);
         }
 
         if ($this->isGranted('budget_time', 'project')) {
-            $table->addColumn('timeBudget', ['class' => 'd-none text-end w-min', 'title' => 'timeBudget']);
+            $table->addColumn('timeBudget', [
+                'class' => 'd-none text-end w-min',
+                'title' => 'timeBudget',
+            ]);
         }
 
-        $table->addColumn('billable', ['class' => 'd-none text-center w-min', 'orderBy' => false]);
-        $table->addColumn('team', ['class' => 'text-center w-min', 'orderBy' => false]);
-        $table->addColumn('visible', ['class' => 'd-none text-center w-min']);
-        $table->addColumn('actions', ['class' => 'actions']);
+        $table->addColumn('billable', [
+            'class' => 'd-none text-center w-min',
+            'orderBy' => false,
+        ]);
+        $table->addColumn('team', [
+            'class' => 'text-center w-min',
+            'orderBy' => false,
+        ]);
+        $table->addColumn('visible', [
+            'class' => 'd-none text-center w-min',
+        ]);
+        $table->addColumn('actions', [
+            'class' => 'actions',
+        ]);
 
         $page = $this->createPageSetup();
         $page->setDataTable($table);
@@ -139,24 +180,14 @@ final class ProjectController extends AbstractController
         ]);
     }
 
-    /**
-     * @param ProjectQuery $query
-     * @return MetaTableTypeInterface[]
-     */
-    private function findMetaColumns(ProjectQuery $query): array
-    {
-        $event = new ProjectMetaDisplayEvent($query, ProjectMetaDisplayEvent::PROJECT);
-        $this->dispatcher->dispatch($event);
-
-        return $event->getFields();
-    }
-
     #[Route(path: '/{id}/permissions', name: 'admin_project_permissions', methods: ['GET', 'POST'])]
     #[IsGranted('permissions', 'project')]
     public function teamPermissions(Project $project, Request $request): Response
     {
         $form = $this->createForm(ProjectTeamPermissionForm::class, $project, [
-            'action' => $this->generateUrl('admin_project_permissions', ['id' => $project->getId()]),
+            'action' => $this->generateUrl('admin_project_permissions', [
+                'id' => $project->getId(),
+            ]),
             'method' => 'POST',
         ]);
 
@@ -168,7 +199,9 @@ final class ProjectController extends AbstractController
                 $this->flashSuccess('action.update.success');
 
                 if ($this->isGranted('view', $project)) {
-                    return $this->redirectToRoute('project_details', ['id' => $project->getId()]);
+                    return $this->redirectToRoute('project_details', [
+                        'id' => $project->getId(),
+                    ]);
                 }
 
                 return $this->redirectToRoute('admin_project');
@@ -180,7 +213,7 @@ final class ProjectController extends AbstractController
         return $this->render('project/permissions.html.twig', [
             'page_setup' => $this->createPageSetup(),
             'project' => $project,
-            'form' => $form->createView()
+            'form' => $form->createView(),
         ]);
     }
 
@@ -198,31 +231,6 @@ final class ProjectController extends AbstractController
         return $this->createProject($request, null);
     }
 
-    private function createProject(Request $request, ?Customer $customer = null): Response
-    {
-        $project = $this->projectService->createNewProject($customer);
-
-        $editForm = $this->createEditForm($project);
-        $editForm->handleRequest($request);
-
-        if ($editForm->isSubmitted() && $editForm->isValid()) {
-            try {
-                $this->projectService->saveNewProject($project, new Context($this->getUser()));
-                $this->flashSuccess('action.update.success');
-
-                return $this->redirectToRouteAfterCreate('project_details', ['id' => $project->getId()]);
-            } catch (\Exception $ex) {
-                $this->handleFormUpdateException($ex, $editForm);
-            }
-        }
-
-        return $this->render('project/edit.html.twig', [
-            'page_setup' => $this->createPageSetup(),
-            'project' => $project,
-            'form' => $editForm->createView()
-        ]);
-    }
-
     #[Route(path: '/{id}/comment_delete/{token}', name: 'project_comment_delete', methods: ['GET'])]
     #[IsGranted(new Expression("is_granted('edit', subject.getProject()) and is_granted('comments', subject.getProject())"), 'comment')]
     public function deleteCommentAction(ProjectComment $comment, string $token, CsrfTokenManagerInterface $csrfTokenManager): Response
@@ -232,7 +240,9 @@ final class ProjectController extends AbstractController
         if (!$csrfTokenManager->isTokenValid(new CsrfToken('project.delete_comment', $token))) {
             $this->flashError('action.csrf.error');
 
-            return $this->redirectToRoute('project_details', ['id' => $projectId]);
+            return $this->redirectToRoute('project_details', [
+                'id' => $projectId,
+            ]);
         }
 
         $csrfTokenManager->refreshToken('project.delete_comment');
@@ -243,7 +253,9 @@ final class ProjectController extends AbstractController
             $this->flashDeleteException($ex);
         }
 
-        return $this->redirectToRoute('project_details', ['id' => $projectId]);
+        return $this->redirectToRoute('project_details', [
+            'id' => $projectId,
+        ]);
     }
 
     #[Route(path: '/{id}/comment_add', name: 'project_comment_add', methods: ['POST'])]
@@ -263,7 +275,9 @@ final class ProjectController extends AbstractController
             }
         }
 
-        return $this->redirectToRoute('project_details', ['id' => $project->getId()]);
+        return $this->redirectToRoute('project_details', [
+            'id' => $project->getId(),
+        ]);
     }
 
     #[Route(path: '/{id}/comment_pin/{token}', name: 'project_comment_pin', methods: ['GET'])]
@@ -275,19 +289,24 @@ final class ProjectController extends AbstractController
         if (!$csrfTokenManager->isTokenValid(new CsrfToken('project.pin_comment', $token))) {
             $this->flashError('action.csrf.error');
 
-            return $this->redirectToRoute('project_details', ['id' => $projectId]);
+            return $this->redirectToRoute('project_details', [
+                'id' => $projectId,
+            ]);
         }
 
         $csrfTokenManager->refreshToken('project.pin_comment');
 
         $comment->setPinned(!$comment->isPinned());
+
         try {
             $this->repository->saveComment($comment);
         } catch (\Exception $ex) {
             $this->flashUpdateException($ex);
         }
 
-        return $this->redirectToRoute('project_details', ['id' => $projectId]);
+        return $this->redirectToRoute('project_details', [
+            'id' => $projectId,
+        ]);
     }
 
     #[Route(path: '/{id}/create_team', name: 'project_team_create', methods: ['GET'])]
@@ -295,9 +314,11 @@ final class ProjectController extends AbstractController
     #[IsGranted('permissions', 'project')]
     public function createDefaultTeamAction(Project $project, TeamRepository $teamRepository): Response
     {
-        $defaultTeam = $teamRepository->findOneBy(['name' => $project->getName()]);
+        $defaultTeam = $teamRepository->findOneBy([
+            'name' => $project->getName(),
+        ]);
 
-        if (null === $defaultTeam) {
+        if ($defaultTeam === null) {
             $defaultTeam = new Team($project->getName());
         }
 
@@ -310,10 +331,14 @@ final class ProjectController extends AbstractController
             $this->flashUpdateException($ex);
         }
 
-        return $this->redirectToRoute('project_details', ['id' => $project->getId()]);
+        return $this->redirectToRoute('project_details', [
+            'id' => $project->getId(),
+        ]);
     }
 
-    #[Route(path: '/{id}/activities/{page}', defaults: ['page' => 1], name: 'project_activities', methods: ['GET', 'POST'])]
+    #[Route(path: '/{id}/activities/{page}', defaults: [
+        'page' => 1,
+    ], name: 'project_activities', methods: ['GET', 'POST'])]
     #[IsGranted('view', 'project')]
     public function activitiesAction(Project $project, int $page, ActivityRepository $activityRepository): Response
     {
@@ -356,15 +381,30 @@ final class ProjectController extends AbstractController
         $exportUrl = null;
         $invoiceUrl = null;
         if ($this->isGranted('create_export') && $project->getCustomer() !== null) {
-            $exportUrl = $this->generateUrl('export', ['customers[]' => $project->getCustomer()->getId(), 'projects[]' => $project->getId(), 'daterange' => '', 'exported' => TimesheetQuery::STATE_NOT_EXPORTED, 'preview' => true, 'billable' => true]);
+            $exportUrl = $this->generateUrl('export', [
+                'customers[]' => $project->getCustomer()->getId(),
+                'projects[]' => $project->getId(),
+                'daterange' => '',
+                'exported' => TimesheetQuery::STATE_NOT_EXPORTED,
+                'preview' => true,
+                'billable' => true,
+            ]);
         }
         if ($this->isGranted('view_invoice') && $project->getCustomer() !== null) {
-            $invoiceUrl = $this->generateUrl('invoice', ['customers[]' => $project->getCustomer()->getId(), 'projects[]' => $project->getId(), 'daterange' => '', 'exported' => TimesheetQuery::STATE_NOT_EXPORTED, 'billable' => true]);
+            $invoiceUrl = $this->generateUrl('invoice', [
+                'customers[]' => $project->getCustomer()->getId(),
+                'projects[]' => $project->getId(),
+                'daterange' => '',
+                'exported' => TimesheetQuery::STATE_NOT_EXPORTED,
+                'billable' => true,
+            ]);
         }
 
         if ($this->isGranted('edit', $project)) {
             if ($this->isGranted('create_team')) {
-                $defaultTeam = $teamRepository->findOneBy(['name' => $project->getName()]);
+                $defaultTeam = $teamRepository->findOneBy([
+                    'name' => $project->getName(),
+                ]);
             }
             $rates = $rateRepository->getRatesForProject($project);
         }
@@ -392,7 +432,10 @@ final class ProjectController extends AbstractController
         $page = $this->createPageSetup();
         $page->setActionName('project');
         $page->setActionView('project_details');
-        $page->setActionPayload(['project' => $project, 'token' => $csrfTokenManager->getToken('project.duplicate')]);
+        $page->setActionPayload([
+            'project' => $project,
+            'token' => $csrfTokenManager->getToken('project.duplicate'),
+        ]);
 
         return $this->render('project/details.html.twig', [
             'page_setup' => $page,
@@ -415,7 +458,10 @@ final class ProjectController extends AbstractController
     #[IsGranted('edit', 'project')]
     public function editRateAction(Project $project, ProjectRate $rate, Request $request, ProjectRateRepository $repository): Response
     {
-        return $this->rateFormAction($project, $rate, $request, $repository, $this->generateUrl('admin_project_rate_edit', ['id' => $project->getId(), 'rate' => $rate->getId()]));
+        return $this->rateFormAction($project, $rate, $request, $repository, $this->generateUrl('admin_project_rate_edit', [
+            'id' => $project->getId(),
+            'rate' => $rate->getId(),
+        ]));
     }
 
     #[Route(path: '/{id}/rate', name: 'admin_project_rate_add', methods: ['GET', 'POST'])]
@@ -425,34 +471,9 @@ final class ProjectController extends AbstractController
         $rate = new ProjectRate();
         $rate->setProject($project);
 
-        return $this->rateFormAction($project, $rate, $request, $repository, $this->generateUrl('admin_project_rate_add', ['id' => $project->getId()]));
-    }
-
-    private function rateFormAction(Project $project, ProjectRate $rate, Request $request, ProjectRateRepository $repository, string $formUrl): Response
-    {
-        $form = $this->createForm(ProjectRateForm::class, $rate, [
-            'action' => $formUrl,
-            'method' => 'POST',
-        ]);
-
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            try {
-                $repository->saveRate($rate);
-                $this->flashSuccess('action.update.success');
-
-                return $this->redirectToRoute('project_details', ['id' => $project->getId()]);
-            } catch (\Exception $ex) {
-                $this->flashUpdateException($ex);
-            }
-        }
-
-        return $this->render('project/rates.html.twig', [
-            'page_setup' => $this->createPageSetup(),
-            'project' => $project,
-            'form' => $form->createView()
-        ]);
+        return $this->rateFormAction($project, $rate, $request, $repository, $this->generateUrl('admin_project_rate_add', [
+            'id' => $project->getId(),
+        ]));
     }
 
     #[Route(path: '/{id}/edit', name: 'admin_project_edit', methods: ['GET', 'POST'])]
@@ -468,10 +489,12 @@ final class ProjectController extends AbstractController
                 $this->flashSuccess('action.update.success');
 
                 if ($this->isGranted('view', $project)) {
-                    return $this->redirectToRoute('project_details', ['id' => $project->getId()]);
-                } else {
-                    return new Response();
+                    return $this->redirectToRoute('project_details', [
+                        'id' => $project->getId(),
+                    ]);
                 }
+
+                return new Response();
             } catch (\Exception $ex) {
                 $this->flashUpdateException($ex);
             }
@@ -480,7 +503,7 @@ final class ProjectController extends AbstractController
         return $this->render('project/edit.html.twig', [
             'page_setup' => $this->createPageSetup(),
             'project' => $project,
-            'form' => $editForm->createView()
+            'form' => $editForm->createView(),
         ]);
     }
 
@@ -491,7 +514,9 @@ final class ProjectController extends AbstractController
         if (!$csrfTokenManager->isTokenValid(new CsrfToken('project.duplicate', $token))) {
             $this->flashError('action.csrf.error');
 
-            return $this->redirectToRoute('project_details', ['id' => $project->getId()]);
+            return $this->redirectToRoute('project_details', [
+                'id' => $project->getId(),
+            ]);
         }
 
         $csrfTokenManager->refreshToken('project.duplicate');
@@ -500,7 +525,9 @@ final class ProjectController extends AbstractController
             $newProject = $projectDuplicationService->duplicate($project, $project->getName() . ' [COPY]');
             $this->flashSuccess('action.update.success');
 
-            return $this->redirectToRoute('project_details', ['id' => $newProject->getId()]);
+            return $this->redirectToRoute('project_details', [
+                'id' => $newProject->getId(),
+            ]);
         } catch (\Exception $ex) {
             $this->logException($ex);
             $this->flashError('action.update.error', 'Failed to copy project: ' . $ex->getMessage());
@@ -516,19 +543,21 @@ final class ProjectController extends AbstractController
         $stats = $statisticService->getProjectStatistics($project);
 
         $deleteForm = $this->createFormBuilder(null, [
-                'attr' => [
-                    'data-form-event' => 'kimai.projectDelete',
-                    'data-msg-success' => 'action.delete.success',
-                    'data-msg-error' => 'action.delete.error',
-                ]
-            ])
+            'attr' => [
+                'data-form-event' => 'kimai.projectDelete',
+                'data-msg-success' => 'action.delete.success',
+                'data-msg-error' => 'action.delete.error',
+            ],
+        ])
             ->add('project', ProjectType::class, [
                 'ignore_project' => $project,
                 'customers' => $project->getCustomer(),
                 'query_builder_for_user' => true,
                 'required' => false,
             ])
-            ->setAction($this->generateUrl('admin_project_delete', ['id' => $project->getId()]))
+            ->setAction($this->generateUrl('admin_project_delete', [
+                'id' => $project->getId(),
+            ]))
             ->setMethod('POST')
             ->getForm();
 
@@ -580,6 +609,73 @@ final class ProjectController extends AbstractController
         return $writer->getFileResponse($spreadsheet);
     }
 
+    /**
+     * @return MetaTableTypeInterface[]
+     */
+    private function findMetaColumns(ProjectQuery $query): array
+    {
+        $event = new ProjectMetaDisplayEvent($query, ProjectMetaDisplayEvent::PROJECT);
+        $this->dispatcher->dispatch($event);
+
+        return $event->getFields();
+    }
+
+    private function createProject(Request $request, ?Customer $customer = null): Response
+    {
+        $project = $this->projectService->createNewProject($customer);
+
+        $editForm = $this->createEditForm($project);
+        $editForm->handleRequest($request);
+
+        if ($editForm->isSubmitted() && $editForm->isValid()) {
+            try {
+                $this->projectService->saveNewProject($project, new Context($this->getUser()));
+                $this->flashSuccess('action.update.success');
+
+                return $this->redirectToRouteAfterCreate('project_details', [
+                    'id' => $project->getId(),
+                ]);
+            } catch (\Exception $ex) {
+                $this->handleFormUpdateException($ex, $editForm);
+            }
+        }
+
+        return $this->render('project/edit.html.twig', [
+            'page_setup' => $this->createPageSetup(),
+            'project' => $project,
+            'form' => $editForm->createView(),
+        ]);
+    }
+
+    private function rateFormAction(Project $project, ProjectRate $rate, Request $request, ProjectRateRepository $repository, string $formUrl): Response
+    {
+        $form = $this->createForm(ProjectRateForm::class, $rate, [
+            'action' => $formUrl,
+            'method' => 'POST',
+        ]);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            try {
+                $repository->saveRate($rate);
+                $this->flashSuccess('action.update.success');
+
+                return $this->redirectToRoute('project_details', [
+                    'id' => $project->getId(),
+                ]);
+            } catch (\Exception $ex) {
+                $this->flashUpdateException($ex);
+            }
+        }
+
+        return $this->render('project/rates.html.twig', [
+            'page_setup' => $this->createPageSetup(),
+            'project' => $project,
+            'form' => $form->createView(),
+        ]);
+    }
+
     private function getToolbarForm(ProjectQuery $query): FormInterface
     {
         return $this->createSearchForm(ProjectToolbarForm::class, $query, [
@@ -591,12 +687,14 @@ final class ProjectController extends AbstractController
 
     private function getCommentForm(ProjectComment $comment): FormInterface
     {
-        if (null === $comment->getId()) {
+        if ($comment->getId() === null) {
             $comment->setCreatedBy($this->getUser());
         }
 
         return $this->createForm(ProjectCommentForm::class, $comment, [
-            'action' => $this->generateUrl('project_comment_add', ['id' => $comment->getProject()->getId()]),
+            'action' => $this->generateUrl('project_comment_add', [
+                'id' => $comment->getProject()->getId(),
+            ]),
             'method' => 'POST',
         ]);
     }
@@ -610,7 +708,9 @@ final class ProjectController extends AbstractController
         $url = $this->generateUrl('admin_project_create');
 
         if ($project->getId() !== null) {
-            $url = $this->generateUrl('admin_project_edit', ['id' => $project->getId()]);
+            $url = $this->generateUrl('admin_project_edit', [
+                'id' => $project->getId(),
+            ]);
             $currency = $project->getCustomer()->getCurrency();
         }
 

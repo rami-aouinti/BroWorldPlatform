@@ -24,8 +24,7 @@ final class TimesheetValidator extends ConstraintValidator
     public function __construct(
         #[TaggedIterator(TimesheetConstraint::class)]
         private iterable $constraints
-    )
-    {
+    ) {
     }
 
     public function validate(mixed $value, Constraint $constraint): void

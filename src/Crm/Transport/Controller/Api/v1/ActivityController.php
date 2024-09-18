@@ -14,33 +14,34 @@ namespace App\Crm\Transport\Controller\Api\v1;
 use App\Crm\Application\Service\Activity\ActivityService;
 use App\Crm\Application\Service\Activity\ActivityStatisticService;
 use App\Crm\Application\Service\Configuration\SystemConfiguration;
+use App\Crm\Application\Service\Export\Spreadsheet\EntityWithMetaFieldsExporter;
+use App\Crm\Application\Service\Export\Spreadsheet\Writer\BinaryFileResponseWriter;
+use App\Crm\Application\Service\Export\Spreadsheet\Writer\XlsxWriter;
+use App\Crm\Application\Service\Utils\DataTable;
+use App\Crm\Application\Service\Utils\PageSetup;
 use App\Crm\Domain\Entity\Activity;
 use App\Crm\Domain\Entity\ActivityRate;
 use App\Crm\Domain\Entity\MetaTableTypeInterface;
 use App\Crm\Domain\Entity\Project;
 use App\Crm\Domain\Entity\Team;
-use App\User\Infrastructure\Repository\UserRepository;
-use App\Crm\Transport\Event\ActivityDetailControllerEvent;
-use App\Crm\Transport\Event\ActivityMetaDefinitionEvent;
-use App\Crm\Transport\Event\ActivityMetaDisplayEvent;
-use App\Crm\Application\Service\Export\Spreadsheet\EntityWithMetaFieldsExporter;
-use App\Crm\Application\Service\Export\Spreadsheet\Writer\BinaryFileResponseWriter;
-use App\Crm\Application\Service\Export\Spreadsheet\Writer\XlsxWriter;
-use App\Crm\Transport\Form\ActivityEditForm;
-use App\Crm\Transport\Form\ActivityRateForm;
-use App\Crm\Transport\Form\ActivityTeamPermissionForm;
-use App\Crm\Transport\Form\Toolbar\ActivityToolbarForm;
-use App\Crm\Transport\Form\Type\ActivityType;
 use App\Crm\Infrastructure\Repository\ActivityRateRepository;
 use App\Crm\Infrastructure\Repository\ActivityRepository;
 use App\Crm\Infrastructure\Repository\Query\ActivityQuery;
 use App\Crm\Infrastructure\Repository\Query\TeamQuery;
 use App\Crm\Infrastructure\Repository\Query\TimesheetQuery;
 use App\Crm\Infrastructure\Repository\TeamRepository;
-use App\Crm\Application\Service\Utils\DataTable;
-use App\Crm\Application\Service\Utils\PageSetup;
+use App\Crm\Transport\Event\ActivityDetailControllerEvent;
+use App\Crm\Transport\Event\ActivityMetaDefinitionEvent;
+use App\Crm\Transport\Event\ActivityMetaDisplayEvent;
+use App\Crm\Transport\Form\ActivityEditForm;
+use App\Crm\Transport\Form\ActivityRateForm;
+use App\Crm\Transport\Form\ActivityTeamPermissionForm;
+use App\Crm\Transport\Form\Toolbar\ActivityToolbarForm;
+use App\Crm\Transport\Form\Type\ActivityType;
 use App\User\Domain\Entity\User;
+use App\User\Infrastructure\Repository\UserRepository;
 use Exception;
+use OpenApi\Attributes as OA;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
@@ -54,7 +55,6 @@ use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Authorization\Voter\AuthenticatedVoter;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
-use OpenApi\Attributes as OA;
 use Symfony\Component\Serializer\SerializerInterface;
 
 /**
@@ -71,18 +71,21 @@ final class ActivityController extends AbstractController
         private readonly SystemConfiguration $configuration,
         private readonly EventDispatcherInterface $dispatcher,
         private readonly ActivityService $activityService
-    )
-    {
+    ) {
     }
 
     /**
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    #[Route(path: '/', name: 'admin_activity', defaults: ['page' => 1], methods: ['GET'])]
-    #[Route(path: '/page/{page}', name: 'admin_activity_paginated', requirements: ['page' => '[1-9]\d*'], methods: ['GET'])]
+    #[Route(path: '/', name: 'admin_activity', defaults: [
+        'page' => 1,
+    ], methods: ['GET'])]
+    #[Route(path: '/page/{page}', name: 'admin_activity_paginated', requirements: [
+        'page' => '[1-9]\d*',
+    ], methods: ['GET'])]
     #[IsGranted(AuthenticatedVoter::IS_AUTHENTICATED_FULLY)]
-    public function indexAction(int $page, Request $request,User $loggedInUser, UserRepository $userRepository): JsonResponse|RedirectResponse
+    public function indexAction(int $page, Request $request, User $loggedInUser, UserRepository $userRepository): JsonResponse|RedirectResponse
     {
         $query = new ActivityQuery();
 
@@ -97,7 +100,6 @@ final class ActivityController extends AbstractController
         //    return $this->redirectToRoute('admin_activity');
         //}
 
-
         $entries = $this->repository->getPagerfantaForQuery($query);
         $metaColumns = $this->findMetaColumns($query);
 
@@ -106,27 +108,58 @@ final class ActivityController extends AbstractController
         //$table->setSearchForm($form);
         $table->setPaginationRoute('admin_activity_paginated');
         $table->setReloadEvents('kimai.activityUpdate kimai.activityDelete kimai.activityTeamUpdate');
-        $table->addColumn('name', ['class' => 'alwaysVisible']);
-        $table->addColumn('project', ['class' => 'd-none']);
-        $table->addColumn('comment', ['class' => 'd-none', 'title' => 'description']);
-        $table->addColumn('number', ['class' => 'd-none w-min', 'title' => 'activity_number']);
+        $table->addColumn('name', [
+            'class' => 'alwaysVisible',
+        ]);
+        $table->addColumn('project', [
+            'class' => 'd-none',
+        ]);
+        $table->addColumn('comment', [
+            'class' => 'd-none',
+            'title' => 'description',
+        ]);
+        $table->addColumn('number', [
+            'class' => 'd-none w-min',
+            'title' => 'activity_number',
+        ]);
 
         foreach ($metaColumns as $metaColumn) {
-            $table->addColumn('mf_' . $metaColumn->getName(), ['title' => $metaColumn->getLabel(), 'class' => 'd-none', 'orderBy' => false, 'data' => $metaColumn]);
+            $table->addColumn('mf_' . $metaColumn->getName(), [
+                'title' => $metaColumn->getLabel(),
+                'class' => 'd-none',
+                'orderBy' => false,
+                'data' => $metaColumn,
+            ]);
         }
 
         if ($this->isGranted('budget_money', 'activity')) {
-            $table->addColumn('budget', ['class' => 'd-none text-end w-min', 'title' => 'budget']);
+            $table->addColumn('budget', [
+                'class' => 'd-none text-end w-min',
+                'title' => 'budget',
+            ]);
         }
 
         if ($this->isGranted('budget_time', 'activity')) {
-            $table->addColumn('timeBudget', ['class' => 'd-none text-end w-min', 'title' => 'timeBudget']);
+            $table->addColumn('timeBudget', [
+                'class' => 'd-none text-end w-min',
+                'title' => 'timeBudget',
+            ]);
         }
 
-        $table->addColumn('billable', ['class' => 'd-none text-center w-min', 'orderBy' => false]);
-        $table->addColumn('team', ['class' => 'text-center w-min', 'orderBy' => false]);
-        $table->addColumn('visible', ['class' => 'd-none text-center w-min']);
-        $table->addColumn('actions', ['class' => 'actions']);
+        $table->addColumn('billable', [
+            'class' => 'd-none text-center w-min',
+            'orderBy' => false,
+        ]);
+        $table->addColumn('team', [
+            'class' => 'text-center w-min',
+            'orderBy' => false,
+        ]);
+        $table->addColumn('visible', [
+            'class' => 'd-none text-center w-min',
+        ]);
+        $table->addColumn('actions', [
+            'class' => 'actions',
+        ]);
 
         $page = $this->createPageSetup();
         $page->setDataTable($table);
@@ -140,7 +173,6 @@ final class ActivityController extends AbstractController
             'now' => $this->getDateTimeFactory($loggedInUser)->createDateTime(),
         ];
 
-
         return new JsonResponse(
             $this->serializer->serialize(
                 $data,
@@ -149,18 +181,6 @@ final class ActivityController extends AbstractController
             ),
             json: true,
         );
-    }
-
-    /**
-     * @param ActivityQuery $query
-     * @return MetaTableTypeInterface[]
-     */
-    private function findMetaColumns(ActivityQuery $query): array
-    {
-        $event = new ActivityMetaDisplayEvent($query, ActivityMetaDisplayEvent::ACTIVITY);
-        $this->dispatcher->dispatch($event);
-
-        return $event->getFields();
     }
 
     #[Route(path: '/{id}/details', name: 'activity_details', methods: ['GET', 'POST'])]
@@ -178,7 +198,14 @@ final class ActivityController extends AbstractController
 
         $exportUrl = null;
         $invoiceUrl = null;
-        $params = ['customers[]' => '', 'projects[]' => '', 'activities[]' => $activity->getId(), 'daterange' => '', 'exported' => TimesheetQuery::STATE_NOT_EXPORTED, 'billable' => true];
+        $params = [
+            'customers[]' => '',
+            'projects[]' => '',
+            'activities[]' => $activity->getId(),
+            'daterange' => '',
+            'exported' => TimesheetQuery::STATE_NOT_EXPORTED,
+            'billable' => true,
+        ];
         if ($activity->getProject() !== null) {
             $params['projects[]'] = $activity->getProject()->getId();
             if ($activity->getProject()->getCustomer() !== null) {
@@ -186,7 +213,9 @@ final class ActivityController extends AbstractController
             }
         }
         if ($this->isGranted('create_export')) {
-            $exportUrl = $this->generateUrl('export', array_merge($params, ['preview' => true]));
+            $exportUrl = $this->generateUrl('export', array_merge($params, [
+                'preview' => true,
+            ]));
         }
         if ($this->isGranted('view_invoice')) {
             $invoiceUrl = $this->generateUrl('invoice', $params);
@@ -194,7 +223,9 @@ final class ActivityController extends AbstractController
 
         if ($this->isGranted('edit', $activity)) {
             if ($this->isGranted('create_team')) {
-                $defaultTeam = $teamRepository->findOneBy(['name' => $activity->getName()]);
+                $defaultTeam = $teamRepository->findOneBy([
+                    'name' => $activity->getName(),
+                ]);
             }
             $rates = $rateRepository->getRatesForActivity($activity);
         }
@@ -217,7 +248,9 @@ final class ActivityController extends AbstractController
         $page = $this->createPageSetup();
         $page->setActionName('activity');
         $page->setActionView('activity_details');
-        $page->setActionPayload(['activity' => $activity]);
+        $page->setActionPayload([
+            'activity' => $activity,
+        ]);
 
         return $this->render('activity/details.html.twig', [
             'page_setup' => $page,
@@ -237,7 +270,10 @@ final class ActivityController extends AbstractController
     #[IsGranted('edit', 'activity')]
     public function editRateAction(Activity $activity, ActivityRate $rate, Request $request, ActivityRateRepository $repository): Response
     {
-        return $this->rateFormAction($activity, $rate, $request, $repository, $this->generateUrl('admin_activity_rate_edit', ['id' => $activity->getId(), 'rate' => $rate->getId()]));
+        return $this->rateFormAction($activity, $rate, $request, $repository, $this->generateUrl('admin_activity_rate_edit', [
+            'id' => $activity->getId(),
+            'rate' => $rate->getId(),
+        ]));
     }
 
     #[Route(path: '/{id}/rate', name: 'admin_activity_rate_add', methods: ['GET', 'POST'])]
@@ -247,38 +283,9 @@ final class ActivityController extends AbstractController
         $rate = new ActivityRate();
         $rate->setActivity($activity);
 
-        return $this->rateFormAction($activity, $rate, $request, $repository, $this->generateUrl('admin_activity_rate_add', ['id' => $activity->getId()]));
-    }
-
-    /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
-    private function rateFormAction(Activity $activity, ActivityRate $rate, Request $request, ActivityRateRepository $repository, string $formUrl): Response
-    {
-        $form = $this->createForm(ActivityRateForm::class, $rate, [
-            'action' => $formUrl,
-            'method' => 'POST',
-        ]);
-
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            try {
-                $repository->saveRate($rate);
-                $this->flashSuccess('action.update.success');
-
-                return $this->redirectToRoute('activity_details', ['id' => $activity->getId()]);
-            } catch (Exception $ex) {
-                $this->flashUpdateException($ex);
-            }
-        }
-
-        return $this->render('activity/rates.html.twig', [
-            'page_setup' => $this->createPageSetup(),
-            'activity' => $activity,
-            'form' => $form->createView()
-        ]);
+        return $this->rateFormAction($activity, $rate, $request, $repository, $this->generateUrl('admin_activity_rate_add', [
+            'id' => $activity->getId(),
+        ]));
     }
 
     #[Route(path: '/create/{project}', name: 'admin_activity_create_with_project', methods: ['GET', 'POST'])]
@@ -295,34 +302,6 @@ final class ActivityController extends AbstractController
         return $this->createActivity($request, null);
     }
 
-    private function createActivity(Request $request, ?Project $project = null): Response
-    {
-        $activity = $this->activityService->createNewActivity($project);
-
-        $event = new ActivityMetaDefinitionEvent($activity);
-        $this->dispatcher->dispatch($event);
-
-        $editForm = $this->createEditForm($activity);
-        $editForm->handleRequest($request);
-
-        if ($editForm->isSubmitted() && $editForm->isValid()) {
-            try {
-                $this->activityService->saveNewActivity($activity);
-                $this->flashSuccess('action.update.success');
-
-                return $this->redirectToRouteAfterCreate('activity_details', ['id' => $activity->getId()]);
-            } catch (Exception $ex) {
-                $this->handleFormUpdateException($ex, $editForm);
-            }
-        }
-
-        return $this->render('activity/edit.html.twig', [
-            'page_setup' => $this->createPageSetup(),
-            'activity' => $activity,
-            'form' => $editForm->createView()
-        ]);
-    }
-
     /**
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
@@ -332,7 +311,9 @@ final class ActivityController extends AbstractController
     public function teamPermissionsAction(Activity $activity, Request $request): Response
     {
         $form = $this->createForm(ActivityTeamPermissionForm::class, $activity, [
-            'action' => $this->generateUrl('admin_activity_permissions', ['id' => $activity->getId()]),
+            'action' => $this->generateUrl('admin_activity_permissions', [
+                'id' => $activity->getId(),
+            ]),
             'method' => 'POST',
         ]);
 
@@ -344,7 +325,9 @@ final class ActivityController extends AbstractController
                 $this->flashSuccess('action.update.success');
 
                 if ($this->isGranted('view', $activity)) {
-                    return $this->redirectToRoute('activity_details', ['id' => $activity->getId()]);
+                    return $this->redirectToRoute('activity_details', [
+                        'id' => $activity->getId(),
+                    ]);
                 }
 
                 return $this->redirectToRoute('admin_activity');
@@ -356,7 +339,7 @@ final class ActivityController extends AbstractController
         return $this->render('activity/permissions.html.twig', [
             'page_setup' => $this->createPageSetup(),
             'activity' => $activity,
-            'form' => $form->createView()
+            'form' => $form->createView(),
         ]);
     }
 
@@ -369,9 +352,11 @@ final class ActivityController extends AbstractController
     #[IsGranted('permissions', 'activity')]
     public function createDefaultTeamAction(Activity $activity, TeamRepository $teamRepository, User $loggedUser): Response
     {
-        $defaultTeam = $teamRepository->findOneBy(['name' => $activity->getName()]);
+        $defaultTeam = $teamRepository->findOneBy([
+            'name' => $activity->getName(),
+        ]);
 
-        if (null === $defaultTeam) {
+        if ($defaultTeam === null) {
             $defaultTeam = new Team($activity->getName());
         }
 
@@ -384,7 +369,9 @@ final class ActivityController extends AbstractController
             $this->flashUpdateException($ex);
         }
 
-        return $this->redirectToRoute('activity_details', ['id' => $activity->getId()]);
+        return $this->redirectToRoute('activity_details', [
+            'id' => $activity->getId(),
+        ]);
     }
 
     /**
@@ -407,10 +394,12 @@ final class ActivityController extends AbstractController
                 $this->flashSuccess('action.update.success');
 
                 if ($this->isGranted('view', $activity)) {
-                    return $this->redirectToRoute('activity_details', ['id' => $activity->getId()]);
-                } else {
-                    return new Response();
+                    return $this->redirectToRoute('activity_details', [
+                        'id' => $activity->getId(),
+                    ]);
                 }
+
+                return new Response();
             } catch (Exception $ex) {
                 $this->flashUpdateException($ex);
             }
@@ -419,7 +408,7 @@ final class ActivityController extends AbstractController
         return $this->render('activity/edit.html.twig', [
             'page_setup' => $this->createPageSetup(),
             'activity' => $activity,
-            'form' => $editForm->createView()
+            'form' => $editForm->createView(),
         ]);
     }
 
@@ -441,14 +430,16 @@ final class ActivityController extends AbstractController
         ];
 
         $deleteForm = $this->createFormBuilder(null, [
-                'attr' => [
-                    'data-form-event' => 'kimai.activityDelete',
-                    'data-msg-success' => 'action.delete.success',
-                    'data-msg-error' => 'action.delete.error',
-                ]
-            ])
+            'attr' => [
+                'data-form-event' => 'kimai.activityDelete',
+                'data-msg-success' => 'action.delete.success',
+                'data-msg-error' => 'action.delete.error',
+            ],
+        ])
             ->add('activity', ActivityType::class, $options)
-            ->setAction($this->generateUrl('admin_activity_delete', ['id' => $activity->getId()]))
+            ->setAction($this->generateUrl('admin_activity_delete', [
+                'id' => $activity->getId(),
+            ]))
             ->setMethod('POST')
             ->getForm();
 
@@ -505,8 +496,80 @@ final class ActivityController extends AbstractController
     }
 
     /**
-     * @param ActivityQuery $query
-     *
+     * @return MetaTableTypeInterface[]
+     */
+    private function findMetaColumns(ActivityQuery $query): array
+    {
+        $event = new ActivityMetaDisplayEvent($query, ActivityMetaDisplayEvent::ACTIVITY);
+        $this->dispatcher->dispatch($event);
+
+        return $event->getFields();
+    }
+
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    private function rateFormAction(Activity $activity, ActivityRate $rate, Request $request, ActivityRateRepository $repository, string $formUrl): Response
+    {
+        $form = $this->createForm(ActivityRateForm::class, $rate, [
+            'action' => $formUrl,
+            'method' => 'POST',
+        ]);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            try {
+                $repository->saveRate($rate);
+                $this->flashSuccess('action.update.success');
+
+                return $this->redirectToRoute('activity_details', [
+                    'id' => $activity->getId(),
+                ]);
+            } catch (Exception $ex) {
+                $this->flashUpdateException($ex);
+            }
+        }
+
+        return $this->render('activity/rates.html.twig', [
+            'page_setup' => $this->createPageSetup(),
+            'activity' => $activity,
+            'form' => $form->createView(),
+        ]);
+    }
+
+    private function createActivity(Request $request, ?Project $project = null): Response
+    {
+        $activity = $this->activityService->createNewActivity($project);
+
+        $event = new ActivityMetaDefinitionEvent($activity);
+        $this->dispatcher->dispatch($event);
+
+        $editForm = $this->createEditForm($activity);
+        $editForm->handleRequest($request);
+
+        if ($editForm->isSubmitted() && $editForm->isValid()) {
+            try {
+                $this->activityService->saveNewActivity($activity);
+                $this->flashSuccess('action.update.success');
+
+                return $this->redirectToRouteAfterCreate('activity_details', [
+                    'id' => $activity->getId(),
+                ]);
+            } catch (Exception $ex) {
+                $this->handleFormUpdateException($ex, $editForm);
+            }
+        }
+
+        return $this->render('activity/edit.html.twig', [
+            'page_setup' => $this->createPageSetup(),
+            'activity' => $activity,
+            'form' => $editForm->createView(),
+        ]);
+    }
+
+    /**
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      * @return FormInterface<ActivityQuery>
@@ -516,12 +579,11 @@ final class ActivityController extends AbstractController
         return $this->createSearchForm(ActivityToolbarForm::class, $query, [
             'action' => $this->generateUrl('admin_activity', [
                 'page' => $query->getPage(),
-            ])
+            ]),
         ]);
     }
 
     /**
-     * @param Activity $activity
      * @return FormInterface<ActivityEditForm>
      */
     private function createEditForm(Activity $activity): FormInterface
@@ -530,8 +592,10 @@ final class ActivityController extends AbstractController
         $url = $this->generateUrl('admin_activity_create');
 
         if ($activity->getId() !== null) {
-            $url = $this->generateUrl('admin_activity_edit', ['id' => $activity->getId()]);
-            if (null !== $activity->getProject()) {
+            $url = $this->generateUrl('admin_activity_edit', [
+                'id' => $activity->getId(),
+            ]);
+            if ($activity->getProject() !== null) {
                 $currency = $activity->getProject()->getCustomer()->getCurrency();
             }
         }

@@ -30,8 +30,10 @@ final class LocaleFormatExtensions extends AbstractExtension implements LocaleAw
     private ?LocaleFormatter $formatter = null;
     private ?string $locale = null;
 
-    public function __construct(private LocaleService $localeService, private Security $security)
-    {
+    public function __construct(
+        private LocaleService $localeService,
+        private Security $security
+    ) {
     }
 
     public function getFilters(): array
@@ -42,7 +44,10 @@ final class LocaleFormatExtensions extends AbstractExtension implements LocaleAw
             new TwigFilter('date_short', [$this, 'dateShort']),
             new TwigFilter('date_time', [$this, 'dateTime']),
             // cannot be deleted right now, needs to be kept for invoice and export templates
-            new TwigFilter('date_full', [$this, 'dateTime'], ['deprecated' => true, 'alternative' => 'date_time']),
+            new TwigFilter('date_full', [$this, 'dateTime'], [
+                'deprecated' => true,
+                'alternative' => 'date_time',
+            ]),
             new TwigFilter('date_format', [$this, 'dateFormat']),
             new TwigFilter('date_weekday', [$this, 'dateWeekday']),
             new TwigFilter('time', [$this, 'time']),
@@ -84,8 +89,6 @@ final class LocaleFormatExtensions extends AbstractExtension implements LocaleAw
 
     /**
      * Allows to switch the locale used for all twig filter and functions.
-     *
-     * @param string $locale
      */
     public function setLocale(string $locale): void
     {
@@ -93,18 +96,9 @@ final class LocaleFormatExtensions extends AbstractExtension implements LocaleAw
         $this->formatter = null;
     }
 
-    private function getFormatter(): LocaleFormatter
-    {
-        if (null === $this->formatter) {
-            $this->formatter = new LocaleFormatter($this->localeService, $this->getLocale());
-        }
-
-        return $this->formatter;
-    }
-
     public function getLocale(): string
     {
-        if (null === $this->locale) {
+        if ($this->locale === null) {
             $this->locale = \Locale::getDefault();
         }
 
@@ -117,7 +111,7 @@ final class LocaleFormatExtensions extends AbstractExtension implements LocaleAw
             return false;
         }
 
-        $day = (int) $dateTime->format('N');
+        $day = (int)$dateTime->format('N');
 
         /** @var User|null $tmp */
         $tmp = $user ?? $this->security->getUser();
@@ -125,17 +119,17 @@ final class LocaleFormatExtensions extends AbstractExtension implements LocaleAw
             return !$tmp->isWorkDay($dateTime);
         }
 
-        return ($day === 6 || $day === 7);
+        return $day === 6 || $day === 7;
     }
 
     public function dateShort(\DateTimeInterface|string|null $date): string
     {
-        return (string) $this->getFormatter()->dateShort($date);
+        return (string)$this->getFormatter()->dateShort($date);
     }
 
     public function dateTime(DateTimeInterface|string|null $date): string
     {
-        return (string) $this->getFormatter()->dateTime($date);
+        return (string)$this->getFormatter()->dateTime($date);
     }
 
     public function createDate(string $date, ?User $user = null): \DateTime
@@ -147,7 +141,7 @@ final class LocaleFormatExtensions extends AbstractExtension implements LocaleAw
 
     public function dateFormat(\DateTimeInterface|string|null $date, string $format): string
     {
-        return (string) $this->getFormatter()->dateFormat($date, $format);
+        return (string)$this->getFormatter()->dateFormat($date, $format);
     }
 
     public function dateWeekday(\DateTimeInterface $date): string
@@ -157,11 +151,10 @@ final class LocaleFormatExtensions extends AbstractExtension implements LocaleAw
 
     public function time(\DateTimeInterface|string|null $date): string
     {
-        return (string) $this->getFormatter()->time($date);
+        return (string)$this->getFormatter()->time($date);
     }
 
     /**
-     * @param string|null $year
      * @return string[]
      */
     public function getMonthNames(?string $year = null): array
@@ -173,7 +166,7 @@ final class LocaleFormatExtensions extends AbstractExtension implements LocaleAw
         }
         $months = [];
         for ($i = 1; $i < 13; $i++) {
-            $months[] = $this->getFormatter()->monthName(new DateTime(sprintf('%s-%s-10', $year, ($i < 10 ? '0' . $i : (string) $i))), $withYear);
+            $months[] = $this->getFormatter()->monthName(new DateTime(sprintf('%s-%s-10', $year, ($i < 10 ? '0' . $i : (string)$i))), $withYear);
         }
 
         return $months;
@@ -198,9 +191,14 @@ final class LocaleFormatExtensions extends AbstractExtension implements LocaleAw
             'formatDate' => $this->localeService->getDateFormat($this->locale),
             'defaultColor' => Constants::DEFAULT_COLOR,
             'twentyFourHours' => $this->localeService->is24Hour($this->locale),
-            'updateBrowserTitle' => (bool) $user->getPreferenceValue('update_browser_title'),
+            'updateBrowserTitle' => (bool)$user->getPreferenceValue('update_browser_title'),
             'timezone' => $user->getTimezone(),
-            'user' => ['id' => $user->getId(), 'name' => $user->getDisplayName(), 'admin' => $user->isAdmin(), 'superAdmin' => $user->isSuperAdmin()],
+            'user' => [
+                'id' => $user->getId(),
+                'name' => $user->getDisplayName(),
+                'admin' => $user->isAdmin(),
+                'superAdmin' => $user->isSuperAdmin(),
+            ],
         ];
     }
 
@@ -235,8 +233,6 @@ final class LocaleFormatExtensions extends AbstractExtension implements LocaleAw
      * Transforms seconds into a duration string.
      *
      * @param int|Timesheet|null $duration
-     * @param bool $decimal
-     * @return string
      */
     public function duration(Timesheet|int|string|null $duration, bool $decimal = false): string
     {
@@ -280,5 +276,14 @@ final class LocaleFormatExtensions extends AbstractExtension implements LocaleAw
     public function money(float|int|null $amount, ?string $currency = null, bool $withCurrency = true): string
     {
         return $this->getFormatter()->money($amount, $currency, $withCurrency);
+    }
+
+    private function getFormatter(): LocaleFormatter
+    {
+        if ($this->formatter === null) {
+            $this->formatter = new LocaleFormatter($this->localeService, $this->getLocale());
+        }
+
+        return $this->formatter;
     }
 }

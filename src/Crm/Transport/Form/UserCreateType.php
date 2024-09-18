@@ -28,7 +28,7 @@ class UserCreateType extends UserEditType
             'label' => 'username',
             'required' => true,
             'attr' => [
-                'autofocus' => 'autofocus'
+                'autofocus' => 'autofocus',
             ],
         ]);
 
@@ -37,13 +37,17 @@ class UserCreateType extends UserEditType
             'type' => PasswordType::class,
             'first_options' => [
                 'label' => 'password',
-                'attr' => ['autocomplete' => 'new-password'],
-                'block_prefix' => 'secret'
+                'attr' => [
+                    'autocomplete' => 'new-password',
+                ],
+                'block_prefix' => 'secret',
             ],
             'second_options' => [
                 'label' => 'password_repeat',
-                'attr' => ['autocomplete' => 'new-password'],
-                'block_prefix' => 'secret'
+                'attr' => [
+                    'autocomplete' => 'new-password',
+                ],
+                'block_prefix' => 'secret',
             ],
         ]);
 

@@ -9,9 +9,15 @@
 
 namespace App\Crm\Transport\Controller\Api\v1;
 
-
-use App\User\Domain\Entity\User;
+use App\Crm\Application\Service\Timesheet\TimesheetStatisticService;
+use App\Crm\Application\Service\User\UserService;
+use App\Crm\Application\Service\Utils\PageSetup;
 use App\Crm\Domain\Entity\UserPreference;
+use App\Crm\Infrastructure\Repository\AccessTokenRepository;
+use App\Crm\Infrastructure\Repository\Query\TimesheetStatisticQuery;
+use App\Crm\Infrastructure\Repository\TeamRepository;
+use App\Crm\Infrastructure\Repository\TimesheetRepository;
+use App\Crm\Infrastructure\Repository\UserRepository;
 use App\Crm\Transport\Event\PrepareUserEvent;
 use App\Crm\Transport\Form\AccessTokenForm;
 use App\Crm\Transport\Form\Model\TotpActivation;
@@ -22,20 +28,14 @@ use App\Crm\Transport\Form\UserPasswordType;
 use App\Crm\Transport\Form\UserPreferencesForm;
 use App\Crm\Transport\Form\UserRolesType;
 use App\Crm\Transport\Form\UserTeamsType;
-use App\Crm\Infrastructure\Repository\AccessTokenRepository;
-use App\Crm\Infrastructure\Repository\Query\TimesheetStatisticQuery;
-use App\Crm\Infrastructure\Repository\TeamRepository;
-use App\Crm\Infrastructure\Repository\TimesheetRepository;
-use App\Crm\Infrastructure\Repository\UserRepository;
-use App\Crm\Application\Service\Timesheet\TimesheetStatisticService;
-use App\Crm\Application\Service\User\UserService;
-use App\Crm\Application\Service\Utils\PageSetup;
+use App\User\Domain\Entity\User;
 use Doctrine\Common\Collections\ArrayCollection;
 use Endroid\QrCode\Builder\Builder;
 use Endroid\QrCode\Encoding\Encoding;
 use Endroid\QrCode\ErrorCorrectionLevel\ErrorCorrectionLevelHigh;
 use Endroid\QrCode\RoundBlockSizeMode\RoundBlockSizeModeMargin;
 use Endroid\QrCode\Writer\PngWriter;
+use OpenApi\Attributes as OA;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Scheb\TwoFactorBundle\Security\TwoFactor\Provider\Totp\TotpAuthenticatorInterface;
 use Symfony\Component\ExpressionLanguage\Expression;
@@ -45,7 +45,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
-use OpenApi\Attributes as OA;
 
 /**
  * User profile controller
@@ -59,18 +58,9 @@ final class ProfileController extends AbstractController
     #[Route(path: '/', name: 'my_profile', methods: ['GET'])]
     public function profileAction(): Response
     {
-        return $this->redirectToRoute('user_profile', ['username' => $this->getUser()->getUserIdentifier()]);
-    }
-
-    private function getPageSetup(User $profile, string $view): PageSetup
-    {
-        $page = new PageSetup('users');
-        $page->setHelp('users.html');
-        $page->setActionName('user');
-        $page->setActionView($view);
-        $page->setActionPayload(['user' => $profile]);
-
-        return $page;
+        return $this->redirectToRoute('user_profile', [
+            'username' => $this->getUser()->getUserIdentifier(),
+        ]);
     }
 
     #[Route(path: '/{username}', name: 'user_profile', methods: ['GET'])]
@@ -99,7 +89,7 @@ final class ProfileController extends AbstractController
             'user' => $profile,
             'stats' => $userStats,
             'workingSince' => $workStartingDay,
-            'workMonths' => $statisticService->getMonthlyStats($query)[0]
+            'workMonths' => $statisticService->getMonthlyStats($query)[0],
         ];
 
         return $this->render('user/stats.html.twig', $viewVars);
@@ -122,7 +112,10 @@ final class ProfileController extends AbstractController
                 $locale = $profile->getPreferenceValue('language', $locale, false);
             }
 
-            return $this->redirectToRoute('user_profile_edit', ['username' => $profile->getUserIdentifier(), '_locale' => $locale]);
+            return $this->redirectToRoute('user_profile_edit', [
+                'username' => $profile->getUserIdentifier(),
+                '_locale' => $locale,
+            ]);
         }
 
         return $this->render('user/profile.html.twig', [
@@ -146,7 +139,9 @@ final class ProfileController extends AbstractController
 
             $this->flashSuccess('action.update.success');
 
-            return $this->redirectToRoute('user_profile_password', ['username' => $profile->getUserIdentifier()]);
+            return $this->redirectToRoute('user_profile_password', [
+                'username' => $profile->getUserIdentifier(),
+            ]);
         }
 
         return $this->render('user/form.html.twig', [
@@ -165,8 +160,10 @@ final class ProfileController extends AbstractController
         $accessToken = new AccessToken($profile, substr(bin2hex(random_bytes(100)), 0, 25));
 
         $form = $this->createForm(AccessTokenForm::class, $accessToken, [
-            'action' => $this->generateUrl('user_profile_access_token', ['username' => $profile->getUserIdentifier()]),
-            'method' => 'POST'
+            'action' => $this->generateUrl('user_profile_access_token', [
+                'username' => $profile->getUserIdentifier(),
+            ]),
+            'method' => 'POST',
         ]);
         $form->handleRequest($request);
 
@@ -176,7 +173,10 @@ final class ProfileController extends AbstractController
             $this->flashSuccess('action.update.success');
             $request->getSession()->set('_show_access_token', $accessToken->getId());
 
-            return $this->redirectToRoute('user_profile_api_token', ['username' => $profile->getUserIdentifier(), 'hide-token' => '1']);
+            return $this->redirectToRoute('user_profile_api_token', [
+                'username' => $profile->getUserIdentifier(),
+                'hide-token' => '1',
+            ]);
         }
 
         return $this->render('user/access-token.html.twig', [
@@ -192,8 +192,10 @@ final class ProfileController extends AbstractController
     public function apiTokenAction(User $profile, Request $request, UserService $userService, AccessTokenRepository $accessTokenRepository): Response
     {
         $form = $this->createForm(UserApiPasswordType::class, $profile, [
-            'action' => $this->generateUrl('user_profile_api_token', ['username' => $profile->getUserIdentifier()]),
-            'method' => 'POST'
+            'action' => $this->generateUrl('user_profile_api_token', [
+                'username' => $profile->getUserIdentifier(),
+            ]),
+            'method' => 'POST',
         ]);
         $form->handleRequest($request);
 
@@ -204,7 +206,9 @@ final class ProfileController extends AbstractController
 
             $this->flashSuccess('action.update.success');
 
-            return $this->redirectToRoute('user_profile_api_token', ['username' => $profile->getUserIdentifier()]);
+            return $this->redirectToRoute('user_profile_api_token', [
+                'username' => $profile->getUserIdentifier(),
+            ]);
         }
 
         $accessTokens = $accessTokenRepository->findForUser($profile);
@@ -254,7 +258,9 @@ final class ProfileController extends AbstractController
 
             $this->flashSuccess('action.update.success');
 
-            return $this->redirectToRoute('user_profile_roles', ['username' => $profile->getUserIdentifier()]);
+            return $this->redirectToRoute('user_profile_roles', [
+                'username' => $profile->getUserIdentifier(),
+            ]);
         }
 
         return $this->render('user/form.html.twig', [
@@ -271,7 +277,9 @@ final class ProfileController extends AbstractController
     public function contractAction(User $profile, Request $request, UserRepository $userRepository): Response
     {
         $form = $this->createForm(UserContractType::class, $profile, [
-            'action' => $this->generateUrl('user_profile_contract', ['username' => $profile->getUserIdentifier()]),
+            'action' => $this->generateUrl('user_profile_contract', [
+                'username' => $profile->getUserIdentifier(),
+            ]),
             'method' => 'POST',
         ]);
 
@@ -281,7 +289,9 @@ final class ProfileController extends AbstractController
             $userRepository->saveUser($profile);
             $this->flashSuccess('action.update.success');
 
-            return $this->redirectToRoute('user_profile_contract', ['username' => $profile->getUserIdentifier()]);
+            return $this->redirectToRoute('user_profile_contract', [
+                'username' => $profile->getUserIdentifier(),
+            ]);
         }
 
         return $this->render('user/contract.html.twig', [
@@ -317,7 +327,9 @@ final class ProfileController extends AbstractController
 
             $this->flashSuccess('action.update.success');
 
-            return $this->redirectToRoute('user_profile_teams', ['username' => $profile->getUserIdentifier()]);
+            return $this->redirectToRoute('user_profile_teams', [
+                'username' => $profile->getUserIdentifier(),
+            ]);
         }
 
         return $this->render('user/form.html.twig', [
@@ -352,7 +364,7 @@ final class ProfileController extends AbstractController
 
             return $this->redirectToRoute('user_profile_preferences', [
                 '_locale' => $locale,
-                'username' => $profile->getUserIdentifier()
+                'username' => $profile->getUserIdentifier(),
             ]);
         }
 
@@ -377,75 +389,8 @@ final class ProfileController extends AbstractController
             'page_setup' => $this->getPageSetup($profile, 'settings'),
             'user' => $profile,
             'form' => $form->createView(),
-            'sections' => $sections
+            'sections' => $sections,
         ]);
-    }
-
-    private function createPreferencesForm(User $user): FormInterface
-    {
-        return $this->createForm(
-            UserPreferencesForm::class,
-            $user,
-            [
-                'action' => $this->generateUrl('user_profile_preferences', ['username' => $user->getUserIdentifier()]),
-                'method' => 'POST'
-            ]
-        );
-    }
-
-    private function createEditForm(User $user): FormInterface
-    {
-        $currentUser = $this->getUser();
-
-        return $this->createForm(
-            UserEditType::class,
-            $user,
-            [
-                'action' => $this->generateUrl('user_profile_edit', ['username' => $user->getUserIdentifier()]),
-                'method' => 'POST',
-                'include_active_flag' => $user !== $currentUser,
-                'include_preferences' => true,
-                'include_supervisor' => $this->isGranted('supervisor', $user),
-                'include_username' => $currentUser->isSuperAdmin() && $currentUser !== $user,
-                'include_password_reset' => $this->isGranted('password', $user),
-            ]
-        );
-    }
-
-    private function createRolesForm(User $user): FormInterface
-    {
-        return $this->createForm(
-            UserRolesType::class,
-            $user,
-            [
-                'action' => $this->generateUrl('user_profile_roles', ['username' => $user->getUserIdentifier()]),
-                'method' => 'POST',
-            ]
-        );
-    }
-
-    private function createTeamsForm(User $user): FormInterface
-    {
-        return $this->createForm(
-            UserTeamsType::class,
-            $user,
-            [
-                'action' => $this->generateUrl('user_profile_teams', ['username' => $user->getUserIdentifier()]),
-                'method' => 'POST',
-            ]
-        );
-    }
-
-    private function createPasswordForm(User $user): FormInterface
-    {
-        return $this->createForm(
-            UserPasswordType::class,
-            $user,
-            [
-                'action' => $this->generateUrl('user_profile_password', ['username' => $user->getUserIdentifier()]),
-                'method' => 'POST'
-            ]
-        );
     }
 
     #[Route(path: '/{username}/2fa', name: 'user_profile_2fa', methods: ['GET', 'POST'])]
@@ -461,8 +406,10 @@ final class ProfileController extends AbstractController
         $data = new TotpActivation($profile);
 
         $form = $this->createForm(UserTwoFactorType::class, $data, [
-            'action' => $this->generateUrl('user_profile_2fa', ['username' => $profile->getUserIdentifier()]),
-            'method' => 'POST'
+            'action' => $this->generateUrl('user_profile_2fa', [
+                'username' => $profile->getUserIdentifier(),
+            ]),
+            'method' => 'POST',
         ]);
 
         $form->handleRequest($request);
@@ -473,7 +420,9 @@ final class ProfileController extends AbstractController
 
             $this->flashSuccess('action.update.success');
 
-            return $this->redirectToRoute('user_profile_2fa', ['username' => $profile->getUserIdentifier()]);
+            return $this->redirectToRoute('user_profile_2fa', [
+                'username' => $profile->getUserIdentifier(),
+            ]);
         }
 
         $qrCodeContent = $totpAuthenticator->getQRContent($profile);
@@ -500,14 +449,6 @@ final class ProfileController extends AbstractController
         ]);
     }
 
-    private function getTwoFactorDeactivationForm(User $user): FormInterface
-    {
-        return $this->createFormBuilder([], [
-            'action' => $this->generateUrl('user_profile_2fa_deactivate', ['username' => $user->getUserIdentifier()]),
-            'method' => 'POST'
-        ])->getForm();
-    }
-
     #[Route(path: '/{username}/2fa_deactivate', name: 'user_profile_2fa_deactivate', methods: ['POST'])]
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
     #[IsGranted('2fa', 'profile')]
@@ -525,6 +466,108 @@ final class ProfileController extends AbstractController
             }
         }
 
-        return $this->redirectToRoute('user_profile_2fa', ['username' => $profile->getUserIdentifier()]);
+        return $this->redirectToRoute('user_profile_2fa', [
+            'username' => $profile->getUserIdentifier(),
+        ]);
+    }
+
+    private function getPageSetup(User $profile, string $view): PageSetup
+    {
+        $page = new PageSetup('users');
+        $page->setHelp('users.html');
+        $page->setActionName('user');
+        $page->setActionView($view);
+        $page->setActionPayload([
+            'user' => $profile,
+        ]);
+
+        return $page;
+    }
+
+    private function createPreferencesForm(User $user): FormInterface
+    {
+        return $this->createForm(
+            UserPreferencesForm::class,
+            $user,
+            [
+                'action' => $this->generateUrl('user_profile_preferences', [
+                    'username' => $user->getUserIdentifier(),
+                ]),
+                'method' => 'POST',
+            ]
+        );
+    }
+
+    private function createEditForm(User $user): FormInterface
+    {
+        $currentUser = $this->getUser();
+
+        return $this->createForm(
+            UserEditType::class,
+            $user,
+            [
+                'action' => $this->generateUrl('user_profile_edit', [
+                    'username' => $user->getUserIdentifier(),
+                ]),
+                'method' => 'POST',
+                'include_active_flag' => $user !== $currentUser,
+                'include_preferences' => true,
+                'include_supervisor' => $this->isGranted('supervisor', $user),
+                'include_username' => $currentUser->isSuperAdmin() && $currentUser !== $user,
+                'include_password_reset' => $this->isGranted('password', $user),
+            ]
+        );
+    }
+
+    private function createRolesForm(User $user): FormInterface
+    {
+        return $this->createForm(
+            UserRolesType::class,
+            $user,
+            [
+                'action' => $this->generateUrl('user_profile_roles', [
+                    'username' => $user->getUserIdentifier(),
+                ]),
+                'method' => 'POST',
+            ]
+        );
+    }
+
+    private function createTeamsForm(User $user): FormInterface
+    {
+        return $this->createForm(
+            UserTeamsType::class,
+            $user,
+            [
+                'action' => $this->generateUrl('user_profile_teams', [
+                    'username' => $user->getUserIdentifier(),
+                ]),
+                'method' => 'POST',
+            ]
+        );
+    }
+
+    private function createPasswordForm(User $user): FormInterface
+    {
+        return $this->createForm(
+            UserPasswordType::class,
+            $user,
+            [
+                'action' => $this->generateUrl('user_profile_password', [
+                    'username' => $user->getUserIdentifier(),
+                ]),
+                'method' => 'POST',
+            ]
+        );
+    }
+
+    private function getTwoFactorDeactivationForm(User $user): FormInterface
+    {
+        return $this->createFormBuilder([], [
+            'action' => $this->generateUrl('user_profile_2fa_deactivate', [
+                'username' => $user->getUserIdentifier(),
+            ]),
+            'method' => 'POST',
+        ])->getForm();
     }
 }

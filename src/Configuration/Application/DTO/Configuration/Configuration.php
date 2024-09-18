@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Configuration\Application\DTO\Configuration;
 
+use App\Configuration\Domain\Entity\Configuration as Entity;
 use App\General\Application\DTO\Interfaces\RestDtoInterface;
 use App\General\Application\DTO\RestDto;
 use App\General\Domain\Entity\Interfaces\EntityInterface;
-use App\Configuration\Domain\Entity\Configuration as Entity;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -19,7 +19,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class Configuration extends RestDto
 {
-
     #[Assert\NotBlank]
     #[Assert\NotNull]
     #[Assert\Length(min: 2, max: 255)]
@@ -41,11 +40,11 @@ class Configuration extends RestDto
         return $this;
     }
 
-    public  function getConfigurationEntry(): mixed
+    public function getConfigurationEntry(): mixed
     {
         return $this->configurationEntry;
     }
-    public  function setConfigurationEntry(mixed $configurationEntry):self
+    public function setConfigurationEntry(mixed $configurationEntry): self
     {
         $this->setVisited('configurationEntry');
         $this->configurationEntry = $configurationEntry;

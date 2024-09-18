@@ -12,10 +12,10 @@ namespace App\Crm\Application\Service\Customer;
 use App\Crm\Application\Service\Model\CustomerBudgetStatisticModel;
 use App\Crm\Application\Service\Model\CustomerStatistic;
 use App\Crm\Application\Service\Timesheet\DateTimeFactory;
-use App\Crm\Infrastructure\Repository\TimesheetRepository;
-use App\Crm\Transport\Event\CustomerStatisticEvent;
 use App\Crm\Domain\Entity\Customer;
 use App\Crm\Domain\Entity\Project;
+use App\Crm\Infrastructure\Repository\TimesheetRepository;
+use App\Crm\Transport\Event\CustomerStatisticEvent;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
@@ -29,8 +29,10 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  */
 class CustomerStatisticService
 {
-    public function __construct(private readonly TimesheetRepository $timesheetRepository, private readonly EventDispatcherInterface $dispatcher)
-    {
+    public function __construct(
+        private readonly TimesheetRepository $timesheetRepository,
+        private readonly EventDispatcherInterface $dispatcher
+    ) {
     }
 
     /**
@@ -79,28 +81,28 @@ class CustomerStatisticService
 
         $result = $qb->getQuery()->getResult();
 
-        if (null !== $result) {
+        if ($result !== null) {
             foreach ($result as $resultRow) {
                 $statistic = $statistics[$resultRow['id']];
-                $statistic->addDuration((int) $resultRow['duration']);
-                $statistic->addRate((float) $resultRow['rate']);
-                $statistic->addInternalRate((float) $resultRow['internalRate']);
-                $statistic->addCounter((int) $resultRow['counter']);
+                $statistic->addDuration((int)$resultRow['duration']);
+                $statistic->addRate((float)$resultRow['rate']);
+                $statistic->addInternalRate((float)$resultRow['internalRate']);
+                $statistic->addCounter((int)$resultRow['counter']);
                 if ($resultRow['billable']) {
-                    $statistic->addDurationBillable((int) $resultRow['duration']);
-                    $statistic->addRateBillable((float) $resultRow['rate']);
-                    $statistic->addInternalRateBillable((float) $resultRow['internalRate']);
-                    $statistic->addCounterBillable((int) $resultRow['counter']);
+                    $statistic->addDurationBillable((int)$resultRow['duration']);
+                    $statistic->addRateBillable((float)$resultRow['rate']);
+                    $statistic->addInternalRateBillable((float)$resultRow['internalRate']);
+                    $statistic->addCounterBillable((int)$resultRow['counter']);
                     if ($resultRow['exported']) {
-                        $statistic->addDurationBillableExported((int) $resultRow['duration']);
-                        $statistic->addRateBillableExported((float) $resultRow['rate']);
+                        $statistic->addDurationBillableExported((int)$resultRow['duration']);
+                        $statistic->addRateBillableExported((float)$resultRow['rate']);
                     }
                 }
                 if ($resultRow['exported']) {
-                    $statistic->addDurationExported((int) $resultRow['duration']);
-                    $statistic->addRateExported((float) $resultRow['rate']);
-                    $statistic->addInternalRateExported((float) $resultRow['internalRate']);
-                    $statistic->addCounterExported((int) $resultRow['counter']);
+                    $statistic->addDurationExported((int)$resultRow['duration']);
+                    $statistic->addRateExported((float)$resultRow['rate']);
+                    $statistic->addInternalRateExported((float)$resultRow['internalRate']);
+                    $statistic->addCounterExported((int)$resultRow['counter']);
                 }
             }
         }

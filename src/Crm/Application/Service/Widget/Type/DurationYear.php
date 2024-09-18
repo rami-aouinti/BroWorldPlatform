@@ -16,8 +16,10 @@ use App\Crm\Infrastructure\Repository\TimesheetRepository;
 
 final class DurationYear extends AbstractCounterYear
 {
-    public function __construct(private TimesheetRepository $repository, SystemConfiguration $systemConfiguration)
-    {
+    public function __construct(
+        private TimesheetRepository $repository,
+        SystemConfiguration $systemConfiguration
+    ) {
         parent::__construct($systemConfiguration);
     }
 
@@ -31,6 +33,21 @@ final class DurationYear extends AbstractCounterYear
             'icon' => 'duration',
             'color' => WidgetInterface::COLOR_YEAR,
         ], parent::getOptions($options));
+    }
+
+    public function getPermissions(): array
+    {
+        return ['view_other_timesheet'];
+    }
+
+    public function getTemplateName(): string
+    {
+        return 'widget/widget-counter-duration.html.twig';
+    }
+
+    public function getId(): string
+    {
+        return 'DurationYear';
     }
 
     /**
@@ -47,23 +64,8 @@ final class DurationYear extends AbstractCounterYear
         }
     }
 
-    public function getPermissions(): array
-    {
-        return ['view_other_timesheet'];
-    }
-
     protected function getFinancialYearTitle(): string
     {
         return 'stats.durationFinancialYear';
-    }
-
-    public function getTemplateName(): string
-    {
-        return 'widget/widget-counter-duration.html.twig';
-    }
-
-    public function getId(): string
-    {
-        return 'DurationYear';
     }
 }

@@ -9,8 +9,8 @@
 
 namespace App\Crm\Transport\EventSubscriber\Actions;
 
-use App\Crm\Transport\Event\PageActionsEvent;
 use App\Crm\Domain\Entity\Tag;
+use App\Crm\Transport\Event\PageActionsEvent;
 
 final class TagSubscriber extends AbstractActionsSubscriber
 {
@@ -42,16 +42,26 @@ final class TagSubscriber extends AbstractActionsSubscriber
         }
 
         if ($this->isGranted('manage_tag')) {
-            $event->addEdit($this->path('tags_edit', ['id' => $id]));
+            $event->addEdit($this->path('tags_edit', [
+                'id' => $id,
+            ]));
         }
 
         if ($this->isGranted('view_other_timesheet')) {
-            $event->addActionToSubmenu('filter', 'timesheet', ['title' => 'timesheet.filter', 'translation_domain' => 'actions', 'url' => $this->path('admin_timesheet', ['tags' => $name])]);
+            $event->addActionToSubmenu('filter', 'timesheet', [
+                'title' => 'timesheet.filter',
+                'translation_domain' => 'actions',
+                'url' => $this->path('admin_timesheet', [
+                    'tags' => $name,
+                ]),
+            ]);
         }
 
         if ($event->isIndexView() && $this->isGranted('delete_tag')) {
             $event->addAction('trash', [
-                'url' => $this->path('delete_tag', ['id' => $id]),
+                'url' => $this->path('delete_tag', [
+                    'id' => $id,
+                ]),
                 'class' => 'api-link text-red',
                 'translation_domain' => 'actions',
                 'attr' => [
@@ -59,8 +69,8 @@ final class TagSubscriber extends AbstractActionsSubscriber
                     'data-method' => 'DELETE',
                     'data-question' => 'confirm.delete',
                     'data-msg-error' => 'action.delete.error',
-                    'data-msg-success' => 'action.delete.success'
-                ]
+                    'data-msg-success' => 'action.delete.success',
+                ],
             ]);
         }
     }

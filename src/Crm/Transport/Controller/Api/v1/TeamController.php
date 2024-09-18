@@ -11,16 +11,16 @@ declare(strict_types=1);
 
 namespace App\Crm\Transport\Controller\Api\v1;
 
-
+use App\Crm\Application\Service\Utils\DataTable;
+use App\Crm\Application\Service\Utils\PageSetup;
 use App\Crm\Domain\Entity\Team;
+use App\Crm\Infrastructure\Repository\Query\TeamQuery;
+use App\Crm\Infrastructure\Repository\TeamRepository;
 use App\Crm\Transport\Form\TeamEditForm;
 use App\Crm\Transport\Form\Toolbar\TeamToolbarForm;
 use App\Crm\Transport\Form\Type\CustomerType;
 use App\Crm\Transport\Form\Type\ProjectType;
-use App\Crm\Infrastructure\Repository\Query\TeamQuery;
-use App\Crm\Infrastructure\Repository\TeamRepository;
-use App\Crm\Application\Service\Utils\DataTable;
-use App\Crm\Application\Service\Utils\PageSetup;
+use OpenApi\Attributes as OA;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
@@ -30,11 +30,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
-use OpenApi\Attributes as OA;
 
 /**
- * Class TeamController
- *
  * @package App\Crm\Transport\Controller\Api\v1
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
@@ -44,21 +41,23 @@ use OpenApi\Attributes as OA;
 #[OA\Tag(name: 'Crm Team Management')]
 final class TeamController extends AbstractController
 {
-    public function __construct(private readonly TeamRepository $repository)
-    {
+    public function __construct(
+        private readonly TeamRepository $repository
+    ) {
     }
 
     /**
-     * @param TeamRepository $repository
-     * @param Request        $request
      * @param int            $page
      *
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
-     * @return Response
      */
-    #[Route(path: '/', name: 'admin_team', defaults: ['page' => 1], methods: ['GET'])]
-    #[Route(path: '/page/{page}', name: 'admin_team_paginated', requirements: ['page' => '[1-9]\d*'], methods: ['GET'])]
+    #[Route(path: '/', name: 'admin_team', defaults: [
+        'page' => 1,
+    ], methods: ['GET'])]
+    #[Route(path: '/page/{page}', name: 'admin_team_paginated', requirements: [
+        'page' => '[1-9]\d*',
+    ], methods: ['GET'])]
     public function listTeams(TeamRepository $repository, Request $request, $page): Response
     {
         $query = new TeamQuery();
@@ -78,11 +77,27 @@ final class TeamController extends AbstractController
         $table->setPaginationRoute('admin_team_paginated');
         $table->setReloadEvents('kimai.teamUpdate');
 
-        $table->addColumn('name', ['class' => 'alwaysVisible']);
-        $table->addColumn('teamlead', ['class' => 'd-none badges', 'orderBy' => false]);
-        $table->addColumn('teamlead_avatar', ['title' => 'team.member', 'translation_domain' => 'teams', 'class' => 'd-none d-lg-table-cell avatars avatar-list avatar-list-stacked', 'orderBy' => false]);
-        $table->addColumn('user', ['class' => 'd-none badges', 'orderBy' => false, 'title' => 'user']);
-        $table->addColumn('actions', ['class' => 'actions']);
+        $table->addColumn('name', [
+            'class' => 'alwaysVisible',
+        ]);
+        $table->addColumn('teamlead', [
+            'class' => 'd-none badges',
+            'orderBy' => false,
+        ]);
+        $table->addColumn('teamlead_avatar', [
+            'title' => 'team.member',
+            'translation_domain' => 'teams',
+            'class' => 'd-none d-lg-table-cell avatars avatar-list avatar-list-stacked',
+            'orderBy' => false,
+        ]);
+        $table->addColumn('user', [
+            'class' => 'd-none badges',
+            'orderBy' => false,
+            'title' => 'user',
+        ]);
+        $table->addColumn('actions', [
+            'class' => 'actions',
+        ]);
 
         $page = new PageSetup('teams');
         $page->setActionName('teams');
@@ -95,10 +110,6 @@ final class TeamController extends AbstractController
         ]);
     }
 
-    /**
-     * @param Request $request
-     * @return Response
-     */
     #[Route(path: '/create', name: 'admin_team_create', methods: ['GET', 'POST'])]
     #[IsGranted('create_team')]
     public function createTeam(Request $request): Response
@@ -116,7 +127,9 @@ final class TeamController extends AbstractController
         $i = 1;
         do {
             $newName = sprintf('%s (%s)', $team->getName(), $i++);
-        } while ($this->repository->count(['name' => $newName]) > 0 && $i < 10);
+        } while ($this->repository->count([
+            'name' => $newName,
+        ]) > 0 && $i < 10);
         $newTeam->setName($newName);
 
         return $this->renderEditScreen($newTeam, $request, true);
@@ -134,7 +147,9 @@ final class TeamController extends AbstractController
     public function editMemberAction(Team $team, Request $request): Response
     {
         $editForm = $this->createForm(TeamEditForm::class, $team, [
-            'action' => $this->generateUrl('admin_team_member', ['id' => $team->getId()]),
+            'action' => $this->generateUrl('admin_team_member', [
+                'id' => $team->getId(),
+            ]),
             'method' => 'POST',
         ]);
 
@@ -145,7 +160,9 @@ final class TeamController extends AbstractController
                 $this->repository->saveTeam($team);
                 $this->flashSuccess('action.update.success');
 
-                return $this->redirectToRoute('admin_team_edit', ['id' => $team->getId()]);
+                return $this->redirectToRoute('admin_team_edit', [
+                    'id' => $team->getId(),
+                ]);
             } catch (\Exception $ex) {
                 $this->flashUpdateException($ex);
             }
@@ -169,7 +186,9 @@ final class TeamController extends AbstractController
         if ($team->getId() === null) {
             $url = $this->generateUrl('admin_team_create');
         } else {
-            $url = $this->generateUrl('admin_team_edit', ['id' => $team->getId()]);
+            $url = $this->generateUrl('admin_team_edit', [
+                'id' => $team->getId(),
+            ]);
         }
 
         $editForm = $this->createForm(TeamEditForm::class, $team, [
@@ -185,16 +204,20 @@ final class TeamController extends AbstractController
                 $this->flashSuccess('action.update.success');
 
                 if ($create) {
-                    return $this->redirectToRouteAfterCreate('admin_team_edit', ['id' => $team->getId()]);
+                    return $this->redirectToRouteAfterCreate('admin_team_edit', [
+                        'id' => $team->getId(),
+                    ]);
                 }
 
-                return $this->redirectToRoute('admin_team_edit', ['id' => $team->getId()]);
+                return $this->redirectToRoute('admin_team_edit', [
+                    'id' => $team->getId(),
+                ]);
             } catch (\Exception $ex) {
                 $this->handleFormUpdateException($ex, $editForm);
             }
         }
 
-        if (null !== $team->getId()) {
+        if ($team->getId() !== null) {
             $customerForm = $this->createFormWithName('team_customer_form', FormType::class, $team)
                 ->add('customers', CustomerType::class, [
                     'label' => false,

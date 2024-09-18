@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Blog\Application\DTO\Post;
 
+use App\Blog\Domain\Entity\Post as Entity;
 use App\General\Application\DTO\Interfaces\RestDtoInterface;
 use App\General\Application\DTO\RestDto;
 use App\General\Domain\Entity\Interfaces\EntityInterface;
-use App\Blog\Domain\Entity\Post as Entity;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -19,7 +19,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class Post extends RestDto
 {
-
     #[Assert\NotBlank]
     #[Assert\NotNull]
     #[Assert\Length(min: 2, max: 255)]
@@ -48,7 +47,6 @@ class Post extends RestDto
 
         return $this;
     }
-
 
     public function getSlug(): string
     {

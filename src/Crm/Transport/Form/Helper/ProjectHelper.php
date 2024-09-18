@@ -37,8 +37,7 @@ final class ProjectHelper
         private readonly SystemConfiguration $configuration,
         private readonly LocaleService $localeService,
         private readonly TranslatorInterface $translator
-    )
-    {
+    ) {
     }
 
     public function getLocale(): string

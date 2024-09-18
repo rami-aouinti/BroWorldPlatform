@@ -23,8 +23,9 @@ use Symfony\Component\Form\FormBuilderInterface;
 
 final class ToolbarFormExtension extends AbstractTypeExtension
 {
-    public function __construct(private ToolbarHelper $toolbarHelper)
-    {
+    public function __construct(
+        private ToolbarHelper $toolbarHelper
+    ) {
     }
 
     public static function getExtendedTypes(): iterable

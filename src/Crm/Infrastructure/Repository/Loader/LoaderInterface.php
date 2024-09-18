@@ -13,8 +13,6 @@ interface LoaderInterface
 {
     /**
      * Prepares the given database results, to prevent lazy loading.
-     *
-     * @param array $results
      */
     public function loadResults(array $results): void;
 }

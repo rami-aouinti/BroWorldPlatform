@@ -12,19 +12,18 @@ declare(strict_types=1);
 namespace App\Crm\Application\Service\Calendar;
 
 /**
- * Class Google
- *
  * @package App\Calendar
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 final class Google
 {
     /**
-     * @param string $apiKey
      * @param GoogleSource[] $sources
      */
-    public function __construct(private string $apiKey, private array $sources = [])
-    {
+    public function __construct(
+        private string $apiKey,
+        private array $sources = []
+    ) {
     }
 
     /**

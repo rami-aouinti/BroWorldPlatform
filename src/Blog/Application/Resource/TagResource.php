@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Blog\Application\Resource;
 
+use App\Blog\Domain\Entity\Tag as Entity;
+use App\Blog\Domain\Repository\Interfaces\TagRepositoryInterface as Repository;
 use App\General\Application\DTO\Interfaces\RestDtoInterface;
 use App\General\Application\Rest\RestResource;
 use App\General\Domain\Entity\Interfaces\EntityInterface;
-use App\Blog\Domain\Entity\Tag as Entity;
-use App\Blog\Domain\Repository\Interfaces\TagRepositoryInterface as Repository;
 
 /**
  * @package App\Tag

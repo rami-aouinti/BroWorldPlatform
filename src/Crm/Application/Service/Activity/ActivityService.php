@@ -35,8 +35,7 @@ class ActivityService
         private readonly SystemConfiguration $configuration,
         private readonly EventDispatcherInterface $dispatcher,
         private readonly ValidatorInterface $validator
-    )
-    {
+    ) {
     }
 
     public function createNewActivity(?Project $project = null): Activity
@@ -56,7 +55,7 @@ class ActivityService
 
     public function saveNewActivity(Activity $activity): Activity
     {
-        if (null !== $activity->getId()) {
+        if ($activity->getId() !== null) {
             throw new InvalidArgumentException('Cannot create activity, already persisted');
         }
 
@@ -67,20 +66,6 @@ class ActivityService
         $this->dispatcher->dispatch(new ActivityCreatePostEvent($activity));
 
         return $activity;
-    }
-
-    /**
-     * @param Activity $activity
-     * @param string[] $groups
-     * @throws ValidationFailedException
-     */
-    private function validateActivity(Activity $activity, array $groups = []): void
-    {
-        $errors = $this->validator->validate($activity, null, $groups);
-
-        if ($errors->count() > 0) {
-            throw new ValidationFailedException($errors, 'Validation Failed');
-        }
     }
 
     public function updateActivity(Activity $activity): Activity
@@ -96,12 +81,30 @@ class ActivityService
 
     public function findActivityByName(string $name, ?Project $project = null): ?Activity
     {
-        return $this->repository->findOneBy(['project' => $project?->getId(), 'name' => $name]);
+        return $this->repository->findOneBy([
+            'project' => $project?->getId(),
+            'name' => $name,
+        ]);
     }
 
     public function findActivityByNumber(string $number): ?Activity
     {
-        return $this->repository->findOneBy(['number' => $number]);
+        return $this->repository->findOneBy([
+            'number' => $number,
+        ]);
+    }
+
+    /**
+     * @param string[] $groups
+     * @throws ValidationFailedException
+     */
+    private function validateActivity(Activity $activity, array $groups = []): void
+    {
+        $errors = $this->validator->validate($activity, null, $groups);
+
+        if ($errors->count() > 0) {
+            throw new ValidationFailedException($errors, 'Validation Failed');
+        }
     }
 
     private function calculateNextActivityNumber(): ?string

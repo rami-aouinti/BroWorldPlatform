@@ -37,6 +37,7 @@ class RoleRepository extends EntityRepository
             $em->commit();
         } catch (ORMException $ex) {
             $em->rollback();
+
             throw $ex;
         }
     }

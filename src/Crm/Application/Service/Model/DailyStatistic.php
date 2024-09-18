@@ -22,8 +22,11 @@ final class DailyStatistic implements DateStatisticInterface
     private DateTimeInterface $begin;
     private DateTimeInterface $end;
 
-    public function __construct(DateTimeInterface $begin, DateTimeInterface $end, private User $user)
-    {
+    public function __construct(
+        DateTimeInterface $begin,
+        DateTimeInterface $end,
+        private User $user
+    ) {
         $this->begin = clone $begin;
         $this->end = clone $end;
     }
@@ -31,21 +34,6 @@ final class DailyStatistic implements DateStatisticInterface
     public function getUser(): User
     {
         return $this->user;
-    }
-
-    private function setupDays(): void
-    {
-        if (!empty($this->days)) {
-            return;
-        }
-
-        $tmp = \DateTime::createFromInterface($this->begin);
-        $tmp->setTime(0, 0, 0);
-        while ($tmp < $this->end) {
-            $id = $tmp->format('Y-m-d');
-            $this->days[$id] = new StatisticDate(clone $tmp);
-            $tmp->modify('+1 day');
-        }
     }
 
     /**
@@ -91,12 +79,12 @@ final class DailyStatistic implements DateStatisticInterface
 
     public function getDay(string $year, string $month, string $day): ?StatisticDate
     {
-        if ((int) $month < 10) {
-            $month = '0' . (int) $month;
+        if ((int)$month < 10) {
+            $month = '0' . (int)$month;
         }
 
-        if ((int) $day < 10) {
-            $day = '0' . (int) $day;
+        if ((int)$day < 10) {
+            $day = '0' . (int)$day;
         }
 
         $date = $year . '-' . $month . '-' . $day;
@@ -117,5 +105,20 @@ final class DailyStatistic implements DateStatisticInterface
         }
 
         return $all;
+    }
+
+    private function setupDays(): void
+    {
+        if (!empty($this->days)) {
+            return;
+        }
+
+        $tmp = \DateTime::createFromInterface($this->begin);
+        $tmp->setTime(0, 0, 0);
+        while ($tmp < $this->end) {
+            $id = $tmp->format('Y-m-d');
+            $this->days[$id] = new StatisticDate(clone $tmp);
+            $tmp->modify('+1 day');
+        }
     }
 }

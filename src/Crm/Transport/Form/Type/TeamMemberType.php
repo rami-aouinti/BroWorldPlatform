@@ -27,7 +27,7 @@ final class TeamMemberType extends AbstractType
         ]);
 
         $builder->add('teamlead', YesNoType::class, [
-            'label' => 'teamlead'
+            'label' => 'teamlead',
         ]);
     }
 

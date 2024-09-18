@@ -11,16 +11,18 @@ namespace App\Crm\Application\Service\Widget\Type;
 
 use App\Crm\Application\Service\Project\ProjectStatisticService;
 use App\Crm\Application\Service\Widget\WidgetInterface;
-use App\Crm\Infrastructure\Repository\Loader\ProjectLoader;
-use App\Crm\Infrastructure\Repository\Loader\TeamLoader;
 use App\Crm\Domain\Entity\Project;
 use App\Crm\Domain\Entity\Team;
+use App\Crm\Infrastructure\Repository\Loader\ProjectLoader;
+use App\Crm\Infrastructure\Repository\Loader\TeamLoader;
 use Doctrine\ORM\EntityManagerInterface;
 
 final class UserTeamProjects extends AbstractWidget
 {
-    public function __construct(private ProjectStatisticService $statisticService, private EntityManagerInterface $entityManager)
-    {
+    public function __construct(
+        private ProjectStatisticService $statisticService,
+        private EntityManagerInterface $entityManager
+    ) {
     }
 
     public function getWidth(): int

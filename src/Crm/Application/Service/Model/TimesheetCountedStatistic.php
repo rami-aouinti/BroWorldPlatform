@@ -34,8 +34,6 @@ class TimesheetCountedStatistic implements \JsonSerializable
 
     /**
      * For unified access, used in frontend.
-     *
-     * @return int
      */
     public function getCounter(): int
     {
@@ -84,8 +82,6 @@ class TimesheetCountedStatistic implements \JsonSerializable
 
     /**
      * For unified access, used in frontend.
-     *
-     * @return int
      */
     public function getValue(): int
     {
@@ -104,8 +100,6 @@ class TimesheetCountedStatistic implements \JsonSerializable
 
     /**
      * For unified access, used in frontend.
-     *
-     * @return int
      */
     public function getDuration(): int
     {
@@ -114,8 +108,6 @@ class TimesheetCountedStatistic implements \JsonSerializable
 
     /**
      * For unified access, used in frontend.
-     *
-     * @return float
      */
     public function getRate(): float
     {
@@ -134,8 +126,6 @@ class TimesheetCountedStatistic implements \JsonSerializable
 
     /**
      * Returns the total internal rate of all included timesheet records.
-     *
-     * @return float
      */
     public function getInternalRate(): float
     {

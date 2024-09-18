@@ -30,25 +30,11 @@ class PDFRenderer implements DispositionInlineInterface
     private string $template = 'default.pdf.twig';
     private array $pdfOptions = [];
 
-    public function __construct(private Environment $twig, private HtmlToPdfConverter $converter, private ProjectStatisticService $projectStatisticService)
-    {
-    }
-
-    protected function getTemplate(): string
-    {
-        return '@export/' . $this->template;
-    }
-
-    protected function getOptions(TimesheetQuery $query): array
-    {
-        $decimal = false;
-        if (null !== $query->getCurrentUser()) {
-            $decimal = $query->getCurrentUser()->isExportDecimal();
-        } elseif (null !== $query->getUser()) {
-            $decimal = $query->getUser()->isExportDecimal();
-        }
-
-        return ['decimal' => $decimal];
+    public function __construct(
+        private Environment $twig,
+        private HtmlToPdfConverter $converter,
+        private ProjectStatisticService $projectStatisticService
+    ) {
     }
 
     public function getPdfOptions(): array
@@ -56,7 +42,7 @@ class PDFRenderer implements DispositionInlineInterface
         return $this->pdfOptions;
     }
 
-    public function setPdfOption(string $key, string $value): PDFRenderer
+    public function setPdfOption(string $key, string $value): self
     {
         $this->pdfOptions[$key] = $value;
 
@@ -65,8 +51,6 @@ class PDFRenderer implements DispositionInlineInterface
 
     /**
      * @param ExportableItem[] $timesheets
-     * @param TimesheetQuery $query
-     * @return Response
      * @throws \Twig\Error\LoaderError
      * @throws \Twig\Error\RuntimeError
      * @throws \Twig\Error\SyntaxError
@@ -90,7 +74,7 @@ class PDFRenderer implements DispositionInlineInterface
             'summaries' => $summary,
             'budgets' => $this->calculateProjectBudget($timesheets, $query, $this->projectStatisticService),
             'decimal' => false,
-            'pdfContext' => $context
+            'pdfContext' => $context,
         ], $this->getOptions($query)));
 
         $pdfOptions = array_merge($context->getOptions(), $this->getPdfOptions());
@@ -100,14 +84,14 @@ class PDFRenderer implements DispositionInlineInterface
         return $this->createPdfResponse($content, $context);
     }
 
-    public function setTemplate(string $filename): PDFRenderer
+    public function setTemplate(string $filename): self
     {
         $this->template = $filename;
 
         return $this;
     }
 
-    public function setId(string $id): PDFRenderer
+    public function setId(string $id): self
     {
         $this->id = $id;
 
@@ -117,5 +101,24 @@ class PDFRenderer implements DispositionInlineInterface
     public function getId(): string
     {
         return $this->id;
+    }
+
+    protected function getTemplate(): string
+    {
+        return '@export/' . $this->template;
+    }
+
+    protected function getOptions(TimesheetQuery $query): array
+    {
+        $decimal = false;
+        if ($query->getCurrentUser() !== null) {
+            $decimal = $query->getCurrentUser()->isExportDecimal();
+        } elseif ($query->getUser() !== null) {
+            $decimal = $query->getUser()->isExportDecimal();
+        }
+
+        return [
+            'decimal' => $decimal,
+        ];
     }
 }

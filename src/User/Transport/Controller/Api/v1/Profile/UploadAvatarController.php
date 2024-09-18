@@ -5,12 +5,9 @@ declare(strict_types=1);
 namespace App\User\Transport\Controller\Api\v1\Profile;
 
 use App\General\Domain\Utils\JSON;
-use App\Messenger\Domain\Entity\Message;
 use App\User\Domain\Entity\Profile;
 use App\User\Domain\Entity\User;
-use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Exception\NotSupported;
 use JsonException;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Attributes as OA;
@@ -21,12 +18,10 @@ use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\AsController;
-use Symfony\Component\Mercure\HubInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Authorization\Voter\AuthenticatedVoter;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\Mercure\Update;
 
 /**
  * @package App\Profile
@@ -44,13 +39,7 @@ class UploadAvatarController extends AbstractController
     /**
      * Get current user profile data, accessible only for 'IS_AUTHENTICATED_FULLY' users.
      *
-     * @param User         $loggedInUser
-     * @param User         $receiver
-     * @param Request      $request
-     * @param HubInterface $hub
-     *
      * @throws JsonException
-     * @return JsonResponse
      */
     #[Route(
         path: '/v1/profile/upload',
@@ -101,16 +90,17 @@ class UploadAvatarController extends AbstractController
     public function __invoke(
         User $loggedInUser,
         Request $request
-    ): JsonResponse
-    {
+    ): JsonResponse {
         $file = $request->files->get('photo');
 
         if (!$file) {
-            return new JsonResponse(['error' => 'No file uploaded'], 400);
+            return new JsonResponse([
+                'error' => 'No file uploaded',
+            ], 400);
         }
         $uploadDir = $this->getParameter('uploads_directory');
-        try {
 
+        try {
             $filename = md5(uniqid()) . '.' . $file->guessExtension();
 
             $file->move($uploadDir, $filename);
@@ -120,17 +110,19 @@ class UploadAvatarController extends AbstractController
 
             /** @var array<string, string|array<string, string>> $output */
             $output = JSON::decode(
-            $this->serializer->serialize(
-                'avatar uploaded',
-                'json',
-                []
-            ),
-            true,
-        );
+                $this->serializer->serialize(
+                    'avatar uploaded',
+                    'json',
+                    []
+                ),
+                true,
+            );
 
-        return new JsonResponse($output);
+            return new JsonResponse($output);
         } catch (FileException $e) {
-            return new JsonResponse(['error' => 'Failed to upload file'], 500);
+            return new JsonResponse([
+                'error' => 'Failed to upload file',
+            ], 500);
         }
     }
 }

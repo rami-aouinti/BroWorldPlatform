@@ -14,8 +14,9 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 class EmailEvent extends Event
 {
-    public function __construct(private Email $email)
-    {
+    public function __construct(
+        private Email $email
+    ) {
     }
 
     public function getEmail(): Email

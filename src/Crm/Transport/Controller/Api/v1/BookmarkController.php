@@ -11,10 +11,10 @@ declare(strict_types=1);
 
 namespace App\Crm\Transport\Controller\Api\v1;
 
-
+use App\Crm\Application\Service\Utils\ProfileManager;
 use App\Crm\Domain\Entity\Bookmark;
 use App\Crm\Infrastructure\Repository\BookmarkRepository;
-use App\Crm\Application\Service\Utils\ProfileManager;
+use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
@@ -22,7 +22,6 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Exception\RuntimeException;
 use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
-use OpenApi\Attributes as OA;
 
 /**
  * This does not go into the API, because it is ONLY related to the Web UI.
@@ -40,8 +39,7 @@ final class BookmarkController extends AbstractController
     public function __construct(
         private readonly BookmarkRepository $bookmarkRepository,
         private readonly ProfileManager $profileManager
-    )
-    {
+    ) {
     }
 
     #[Route(path: '/datatable/profile', name: 'bookmark_profile', methods: ['POST'])]

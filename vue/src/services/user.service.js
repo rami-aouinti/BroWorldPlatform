@@ -25,6 +25,14 @@ class UserService {
     return axios.get(API_URL + "mod", { headers: authHeader() });
   }
 
+    followUser(user) {
+        return axios.get(API_URL + "unfollow/" + user, { headers: authHeader() });
+    }
+
+    unfollowUser(user) {
+        return axios.get(API_URL + "follow/" + user, { headers: authHeader() });
+    }
+
   getAdminBoard() {
     return axios.get(API_URL + "admin", { headers: authHeader() });
   }

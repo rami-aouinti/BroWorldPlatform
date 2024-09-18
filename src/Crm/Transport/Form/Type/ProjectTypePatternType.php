@@ -23,8 +23,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  */
 final class ProjectTypePatternType extends AbstractType
 {
-    public function __construct(private readonly TranslatorInterface $translator)
-    {
+    public function __construct(
+        private readonly TranslatorInterface $translator
+    ) {
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -52,7 +53,7 @@ final class ProjectTypePatternType extends AbstractType
                 $comment => ProjectHelper::PATTERN_COMMENT,
                 $customer => ProjectHelper::PATTERN_CUSTOMER,
                 $projectStart . '-' . $projectEnd => ProjectHelper::PATTERN_DATERANGE,
-            ]
+            ],
         ]);
     }
 

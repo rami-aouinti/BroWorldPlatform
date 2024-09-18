@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Configuration\Application\Resource;
 
+use App\Configuration\Domain\Entity\Configuration as Entity;
+use App\Configuration\Domain\Repository\Interfaces\ConfigurationRepositoryInterface as Repository;
 use App\General\Application\DTO\Interfaces\RestDtoInterface;
 use App\General\Application\Rest\RestResource;
 use App\General\Domain\Entity\Interfaces\EntityInterface;
-use App\Configuration\Domain\Entity\Configuration as Entity;
-use App\Configuration\Domain\Repository\Interfaces\ConfigurationRepositoryInterface as Repository;
 
 /**
  * @package App\Configuration

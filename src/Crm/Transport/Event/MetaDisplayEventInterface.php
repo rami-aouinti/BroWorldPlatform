@@ -9,8 +9,8 @@
 
 namespace App\Crm\Transport\Event;
 
-use App\Crm\Infrastructure\Repository\Query\BaseQuery;
 use App\Crm\Domain\Entity\MetaTableTypeInterface;
+use App\Crm\Infrastructure\Repository\Query\BaseQuery;
 
 interface MetaDisplayEventInterface
 {

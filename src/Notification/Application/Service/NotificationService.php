@@ -9,8 +9,6 @@ use Symfony\Component\Mercure\HubInterface;
 use Symfony\Component\Mercure\Update;
 
 /**
- * Class NotificationService
- *
  * @package App\Notification\Application\Service
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
@@ -23,17 +21,13 @@ class NotificationService
         $this->hub = $hub;
     }
 
-    /**
-     * @param User $user
-     * @param      $message
-     *
-     * @return void
-     */
     public function sendNotification(User $user, $message): void
     {
         $update = new Update(
             '/user/notification/' . $user->getUsername(),
-            json_encode(['message' => $message])
+            json_encode([
+                'message' => $message,
+            ])
         );
         $this->hub->publish($update);
     }

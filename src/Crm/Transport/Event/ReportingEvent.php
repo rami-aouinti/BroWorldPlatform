@@ -20,8 +20,9 @@ final class ReportingEvent extends Event
      */
     private array $reports = [];
 
-    public function __construct(private User $user)
-    {
+    public function __construct(
+        private User $user
+    ) {
     }
 
     public function getUser(): User
@@ -29,7 +30,7 @@ final class ReportingEvent extends Event
         return $this->user;
     }
 
-    public function addReport(ReportInterface $report): ReportingEvent
+    public function addReport(ReportInterface $report): self
     {
         $this->reports[$report->getId()] = $report;
 

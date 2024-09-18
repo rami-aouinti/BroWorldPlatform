@@ -17,17 +17,18 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 
 final class UserExporter
 {
-    public function __construct(private SpreadsheetExporter $exporter, private AnnotationExtractor $annotationExtractor, private UserPreferenceExtractor $userPreferenceExtractor)
-    {
+    public function __construct(
+        private SpreadsheetExporter $exporter,
+        private AnnotationExtractor $annotationExtractor,
+        private UserPreferenceExtractor $userPreferenceExtractor
+    ) {
     }
 
     /**
      * @param User[] $entries
-     * @param UserPreferenceDisplayEvent $event
      *
      * @throws \App\Crm\Application\Service\Export\Spreadsheet\Extractor\ExtractorException
      * @throws \PhpOffice\PhpSpreadsheet\Exception
-     *@return Spreadsheet
      */
     public function export(array $entries, UserPreferenceDisplayEvent $event): Spreadsheet
     {

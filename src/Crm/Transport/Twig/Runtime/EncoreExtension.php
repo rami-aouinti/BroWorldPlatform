@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 /*
  * This file is part of the Kimai time-tracking app.
  *
@@ -16,8 +17,6 @@ use Symfony\WebpackEncoreBundle\Asset\EntrypointLookupInterface;
 use Twig\Extension\RuntimeExtensionInterface;
 
 /**
- * Class EncoreExtension
- *
  * @package App\Crm\Transport\Twig\Runtime
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
@@ -26,8 +25,7 @@ final class EncoreExtension implements RuntimeExtensionInterface, ServiceSubscri
     public function __construct(
         private readonly ContainerInterface $container,
         private readonly string $projectDirectory
-    )
-    {
+    ) {
     }
 
     public static function getSubscribedServices(): array

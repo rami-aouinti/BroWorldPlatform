@@ -18,8 +18,9 @@ final class DurationFixedBeginMode implements TrackingModeInterface
 {
     use TrackingModeTrait;
 
-    public function __construct(private SystemConfiguration $configuration)
-    {
+    public function __construct(
+        private SystemConfiguration $configuration
+    ) {
     }
 
     public function canEditBegin(): bool
@@ -44,7 +45,7 @@ final class DurationFixedBeginMode implements TrackingModeInterface
 
     public function create(Timesheet $timesheet, ?Request $request = null): void
     {
-        if (null === $timesheet->getBegin()) {
+        if ($timesheet->getBegin() === null) {
             $timesheet->setBegin(new DateTime('now', $this->getTimezone($timesheet)));
         }
 
@@ -53,7 +54,7 @@ final class DurationFixedBeginMode implements TrackingModeInterface
 
         // this prevents the problem that "now" is being ignored in modify()
         $beginTime = new DateTime($this->configuration->getTimesheetDefaultBeginTime(), $newBegin->getTimezone());
-        $newBegin->setTime((int) $beginTime->format('H'), (int) $beginTime->format('i'), 0, 0);
+        $newBegin->setTime((int)$beginTime->format('H'), (int)$beginTime->format('i'), 0, 0);
 
         $timesheet->setBegin($newBegin);
     }

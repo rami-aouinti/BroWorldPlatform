@@ -17,8 +17,6 @@ use DateTime;
 use DateTimeInterface;
 
 /**
- * Class ActivityStatisticEvent
- *
  * @package App\Crm\Transport\Event
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
@@ -32,8 +30,7 @@ final class ActivityStatisticEvent extends AbstractActivityEvent
         private readonly ActivityStatistic $statistic,
         ?DateTimeInterface $begin = null,
         ?DateTimeInterface $end = null
-    )
-    {
+    ) {
         parent::__construct($activity);
 
         if ($begin !== null) {

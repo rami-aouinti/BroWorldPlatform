@@ -16,8 +16,10 @@ use App\Crm\Infrastructure\Repository\TimesheetRepository;
 
 final class UserDurationYear extends AbstractCounterYear
 {
-    public function __construct(private TimesheetRepository $repository, SystemConfiguration $systemConfiguration)
-    {
+    public function __construct(
+        private TimesheetRepository $repository,
+        SystemConfiguration $systemConfiguration
+    ) {
         parent::__construct($systemConfiguration);
     }
 

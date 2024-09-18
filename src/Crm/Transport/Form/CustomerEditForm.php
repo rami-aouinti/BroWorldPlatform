@@ -9,11 +9,11 @@
 
 namespace App\Crm\Transport\Form;
 
+use App\Crm\Domain\Entity\Customer;
 use App\Crm\Transport\Form\Type\InvoiceTemplateType;
 use App\Crm\Transport\Form\Type\MailType;
 use App\Crm\Transport\Form\Type\TeamType;
 use App\Crm\Transport\Form\Type\TimezoneType;
-use App\Crm\Domain\Entity\Customer;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CountryType;
 use Symfony\Component\Form\Extension\Core\Type\CurrencyType;
@@ -46,7 +46,7 @@ class CustomerEditForm extends AbstractType
             ->add('name', TextType::class, [
                 'label' => 'name',
                 'attr' => [
-                    'autofocus' => 'autofocus'
+                    'autofocus' => 'autofocus',
                 ],
             ])
             ->add('number', TextType::class, [
@@ -87,13 +87,17 @@ class CustomerEditForm extends AbstractType
             ->add('fax', TelType::class, [
                 'label' => 'fax',
                 'required' => false,
-                'attr' => ['icon' => 'fax'],
+                'attr' => [
+                    'icon' => 'fax',
+                ],
                 'block_prefix' => 'phone',
             ])
             ->add('mobile', TelType::class, [
                 'label' => 'mobile',
                 'required' => false,
-                'attr' => ['icon' => 'mobile'],
+                'attr' => [
+                    'icon' => 'mobile',
+                ],
                 'block_prefix' => 'phone',
             ])
             ->add('email', MailType::class, [
@@ -144,7 +148,7 @@ class CustomerEditForm extends AbstractType
             'include_budget' => false,
             'include_time' => false,
             'attr' => [
-                'data-form-event' => 'kimai.customerUpdate'
+                'data-form-event' => 'kimai.customerUpdate',
             ],
         ]);
     }

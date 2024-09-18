@@ -26,11 +26,15 @@ final class InvoiceDocumentUploadForm extends AbstractType
     public const EXTENSIONS_NO_TWIG = ['.docx', '.xlsx', '.ods'];
     public const FILENAME_RULE = 'Any-Latin; Latin-ASCII; [^A-Za-z0-9_\-] remove; Lower()';
 
-    /** @var array<string> */
+    /**
+     * @var array<string>
+     */
     private array $extensions = [];
 
-    public function __construct(private InvoiceDocumentRepository $repository, private SystemConfiguration $systemConfiguration)
-    {
+    public function __construct(
+        private InvoiceDocumentRepository $repository,
+        private SystemConfiguration $systemConfiguration
+    ) {
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -43,7 +47,7 @@ final class InvoiceDocumentUploadForm extends AbstractType
             'application/vnd.oasis.opendocument.spreadsheet',
         ];
 
-        if ((bool) $this->systemConfiguration->find('invoice.upload_twig') === true) {
+        if ((bool)$this->systemConfiguration->find('invoice.upload_twig') === true) {
             $this->extensions = self::EXTENSIONS;
             $extensions = 'DOCX, ODS, XLSX, TWIG (PDF & HTML)';
             $mimetypes = array_merge($mimetypes, [
@@ -58,7 +62,9 @@ final class InvoiceDocumentUploadForm extends AbstractType
                 'label' => 'invoice_renderer',
                 'translation_domain' => 'invoice-renderer',
                 'help' => 'help.upload',
-                'help_translation_parameters' => ['%extensions%' => $extensions],
+                'help_translation_parameters' => [
+                    '%extensions%' => $extensions,
+                ],
                 'mapped' => false,
                 'required' => true,
                 'constraints' => [
@@ -67,7 +73,7 @@ final class InvoiceDocumentUploadForm extends AbstractType
                         'mimeTypesMessage' => 'This file type is not allowed',
                         'maxSize' => '1024k',
                     ]),
-                    new Callback([$this, 'validateDocument'])
+                    new Callback([$this, 'validateDocument']),
                 ],
             ])
         ;
@@ -108,7 +114,9 @@ final class InvoiceDocumentUploadForm extends AbstractType
 
         if ($extension === null || $nameWithoutExtension === null) {
             $context->buildViolation('This invoice document cannot be used, allowed file extensions are: %extensions%')
-                ->setParameters(['%extensions%' => implode(', ', $this->extensions)])
+                ->setParameters([
+                    '%extensions%' => implode(', ', $this->extensions),
+                ])
                 ->setTranslationDomain('validators')
                 ->setCode('kimai-invoice-document-upload-02')
                 ->addViolation();
@@ -120,7 +128,9 @@ final class InvoiceDocumentUploadForm extends AbstractType
 
         if ($safeFilename === false || strtolower($safeFilename) !== strtolower($nameWithoutExtension)) {
             $context->buildViolation('This invoice document cannot be used, filename may only contain the following ascii character: %character%')
-                ->setParameters(['%character%' => 'A-Z a-z 0-9 _ -'])
+                ->setParameters([
+                    '%character%' => 'A-Z a-z 0-9 _ -',
+                ])
                 ->setTranslationDomain('validators')
                 ->setCode('kimai-invoice-document-upload-03')
                 ->addViolation();
@@ -128,7 +138,9 @@ final class InvoiceDocumentUploadForm extends AbstractType
 
         if (mb_strlen($nameWithoutExtension) > 20) {
             $context->buildViolation('This invoice document cannot be used, allowed filename length without extension is %character% character.')
-                ->setParameters(['%character%' => 20])
+                ->setParameters([
+                    '%character%' => 20,
+                ])
                 ->setTranslationDomain('validators')
                 ->setCode('kimai-invoice-document-upload-04')
                 ->addViolation();

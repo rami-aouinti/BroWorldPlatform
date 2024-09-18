@@ -7,7 +7,6 @@ namespace App\Blog\Transport\Controller\Api\v1\Blog;
 use App\Blog\Domain\Entity\Comment;
 use App\User\Domain\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
-use Exception;
 use OpenApi\Attributes as OA;
 use OpenApi\Attributes\JsonContent;
 use OpenApi\Attributes\Property;
@@ -26,7 +25,6 @@ use Symfony\Component\Serializer\SerializerInterface;
 #[OA\Tag(name: 'Blog')]
 readonly class LikeCommentController
 {
-
     public function __construct(
         private SerializerInterface $serializer,
         private EntityManagerInterface $entityManager
@@ -35,12 +33,6 @@ readonly class LikeCommentController
 
     /**
      * Get current user roles as an array, accessible only for 'IS_AUTHENTICATED_FULLY' users.
-     *
-     * @param Request $request
-     * @param User    $loggedInUser
-     * @param Comment $comment
-     *
-     * @return JsonResponse
      */
     #[Route(
         path: '/v1/comment/{comment}/like',

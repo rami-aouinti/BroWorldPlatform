@@ -21,8 +21,6 @@ use function array_key_exists;
 use function count;
 
 /**
- * Class InvoiceModelProjectHydrator
- *
  * @package App\Crm\Application\Service\Invoice\Hydrator
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
@@ -30,8 +28,9 @@ final class InvoiceModelProjectHydrator implements InvoiceModelHydrator
 {
     use BudgetHydratorTrait;
 
-    public function __construct(private readonly ProjectStatisticService $projectStatistic)
-    {
+    public function __construct(
+        private readonly ProjectStatisticService $projectStatistic
+    ) {
     }
 
     /**
@@ -88,15 +87,15 @@ final class InvoiceModelProjectHydrator implements InvoiceModelHydrator
             $prefix . 'name' => $project->getName() ?? '',
             $prefix . 'comment' => $project->getComment() ?? '',
             $prefix . 'order_number' => $project->getOrderNumber(),
-            $prefix . 'start_date' => null !== $project->getStart() ? $formatter->getFormattedDateTime($project->getStart()) : '',
-            $prefix . 'end_date' => null !== $project->getEnd() ? $formatter->getFormattedDateTime($project->getEnd()) : '',
-            $prefix . 'order_date' => null !== $project->getOrderDate() ? $formatter->getFormattedDateTime($project->getOrderDate()) : '',
+            $prefix . 'start_date' => $project->getStart() !== null ? $formatter->getFormattedDateTime($project->getStart()) : '',
+            $prefix . 'end_date' => $project->getEnd() !== null ? $formatter->getFormattedDateTime($project->getEnd()) : '',
+            $prefix . 'order_date' => $project->getOrderDate() !== null ? $formatter->getFormattedDateTime($project->getOrderDate()) : '',
             $prefix . 'budget_money' => $formatter->getFormattedMoney($project->getBudget(), $currency),
             $prefix . 'budget_money_nc' => $formatter->getFormattedMoney($project->getBudget(), $currency, false),
             $prefix . 'budget_money_plain' => $project->getBudget(),
             $prefix . 'budget_time' => $project->getTimeBudget(),
             $prefix . 'budget_time_decimal' => $formatter->getFormattedDecimalDuration($project->getTimeBudget()),
-            $prefix . 'budget_time_minutes' => (int) ($project->getTimeBudget() / 60),
+            $prefix . 'budget_time_minutes' => (int)($project->getTimeBudget() / 60),
             $prefix . 'number' => $project->getNumber() ?? '',
             $prefix . 'invoice_text' => $project->getInvoiceText() ?? '',
         ];

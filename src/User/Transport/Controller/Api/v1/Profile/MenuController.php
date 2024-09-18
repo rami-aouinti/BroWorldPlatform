@@ -24,7 +24,6 @@ use Symfony\Component\Serializer\SerializerInterface;
 #[OA\Tag(name: 'Profile')]
 class MenuController
 {
-
     public function __construct(
         private readonly SerializerInterface $serializer,
     ) {
@@ -79,7 +78,6 @@ class MenuController
     )]
     public function __invoke(User $loggedInUser): JsonResponse
     {
-
         return new JsonResponse(
             $this->serializer->serialize(
                 $this->manageMenu($loggedInUser->getMenus()->toArray()),
@@ -91,7 +89,6 @@ class MenuController
             json: true,
         );
     }
-
 
     private function manageMenu(array $menuItems): array
     {
@@ -108,11 +105,6 @@ class MenuController
         return $rootItems;
     }
 
-    /**
-     * @param $menuItem
-     *
-     * @return array
-     */
     private function formatMenuItem($menuItem): array
     {
         $children = $menuItem->getChildren();
@@ -129,7 +121,7 @@ class MenuController
             'link' => $menuItem->getLink(),
             'active' => $menuItem->isActive(),
             'action' => $menuItem->getAction(),
-            'items' => $subItems
+            'items' => $subItems,
         ];
     }
 }

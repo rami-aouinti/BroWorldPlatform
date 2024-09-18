@@ -35,15 +35,6 @@ final class CustomerService
     ) {
     }
 
-    private function getDefaultTimezone(): string
-    {
-        if (null === ($timezone = $this->configuration->getCustomerDefaultTimezone())) {
-            $timezone = date_default_timezone_get();
-        }
-
-        return $timezone;
-    }
-
     public function createNewCustomer(string $name): Customer
     {
         $customer = new Customer($name);
@@ -60,7 +51,7 @@ final class CustomerService
 
     public function saveNewCustomer(Customer $customer): Customer
     {
-        if (null !== $customer->getId()) {
+        if ($customer->getId() !== null) {
             throw new InvalidArgumentException('Cannot create customer, already persisted');
         }
 
@@ -71,19 +62,6 @@ final class CustomerService
         $this->dispatcher->dispatch(new CustomerCreatePostEvent($customer));
 
         return $customer;
-    }
-
-    /**
-     * @param string[] $groups
-     * @throws ValidationFailedException
-     */
-    private function validateCustomer(Customer $customer, array $groups = []): void
-    {
-        $errors = $this->validator->validate($customer, null, $groups);
-
-        if ($errors->count() > 0) {
-            throw new ValidationFailedException($errors, 'Validation Failed');
-        }
     }
 
     public function updateCustomer(Customer $customer): Customer
@@ -99,12 +77,16 @@ final class CustomerService
 
     public function findCustomerByName(string $name): ?Customer
     {
-        return $this->repository->findOneBy(['name' => $name]);
+        return $this->repository->findOneBy([
+            'name' => $name,
+        ]);
     }
 
     public function findCustomerByNumber(string $number): ?Customer
     {
-        return $this->repository->findOneBy(['number' => $number]);
+        return $this->repository->findOneBy([
+            'number' => $number,
+        ]);
     }
 
     /**
@@ -118,6 +100,28 @@ final class CustomerService
     public function countCustomer(bool $visible = true): int
     {
         return $this->repository->countCustomer($visible);
+    }
+
+    private function getDefaultTimezone(): string
+    {
+        if (null === ($timezone = $this->configuration->getCustomerDefaultTimezone())) {
+            $timezone = date_default_timezone_get();
+        }
+
+        return $timezone;
+    }
+
+    /**
+     * @param string[] $groups
+     * @throws ValidationFailedException
+     */
+    private function validateCustomer(Customer $customer, array $groups = []): void
+    {
+        $errors = $this->validator->validate($customer, null, $groups);
+
+        if ($errors->count() > 0) {
+            throw new ValidationFailedException($errors, 'Validation Failed');
+        }
     }
 
     private function calculateNextCustomerNumber(): ?string

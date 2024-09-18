@@ -20,7 +20,9 @@ final class CalendarForm extends AbstractType
     {
         $builder->add('user', UserType::class, [
             'required' => false,
-            'attr' => ['onchange' => 'this.form.submit()']
+            'attr' => [
+                'onchange' => 'this.form.submit()',
+            ],
         ]);
     }
 

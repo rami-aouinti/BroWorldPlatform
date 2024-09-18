@@ -31,8 +31,9 @@ class UserEditType extends AbstractType
 {
     use ColorTrait;
 
-    public function __construct(private SystemConfiguration $configuration)
-    {
+    public function __construct(
+        private SystemConfiguration $configuration
+    ) {
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -93,7 +94,7 @@ class UserEditType extends AbstractType
         if ($options['include_active_flag']) {
             $builder->add('enabled', YesNoType::class, [
                 'label' => 'active',
-                'help' => 'active.help'
+                'help' => 'active.help',
             ]);
 
             $builder->add('systemAccount', YesNoType::class, [

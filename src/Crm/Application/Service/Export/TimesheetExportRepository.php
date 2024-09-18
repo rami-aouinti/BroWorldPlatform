@@ -9,14 +9,15 @@
 
 namespace App\Crm\Application\Service\Export;
 
+use App\Crm\Domain\Entity\Timesheet;
 use App\Crm\Infrastructure\Repository\Query\ExportQuery;
 use App\Crm\Infrastructure\Repository\TimesheetRepository;
-use App\Crm\Domain\Entity\Timesheet;
 
 final class TimesheetExportRepository implements ExportRepositoryInterface
 {
-    public function __construct(private TimesheetRepository $repository)
-    {
+    public function __construct(
+        private TimesheetRepository $repository
+    ) {
     }
 
     /**

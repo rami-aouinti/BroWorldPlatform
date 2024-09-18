@@ -14,8 +14,6 @@ namespace App\Crm\Application\Plugin;
 use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
 
 /**
- * Class PluginManager
- *
  * @package App\Crm\Application\Plugin
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
@@ -32,8 +30,7 @@ final class PluginManager
     public function __construct(
         #[TaggedIterator(PluginInterface::class)]
         private readonly iterable $bundles
-    )
-    {
+    ) {
     }
 
     /**

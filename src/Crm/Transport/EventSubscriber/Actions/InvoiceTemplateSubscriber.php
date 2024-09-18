@@ -9,8 +9,8 @@
 
 namespace App\Crm\Transport\EventSubscriber\Actions;
 
-use App\Crm\Transport\Event\PageActionsEvent;
 use App\Crm\Domain\Entity\InvoiceTemplate;
+use App\Crm\Transport\Event\PageActionsEvent;
 
 final class InvoiceTemplateSubscriber extends AbstractActionsSubscriber
 {
@@ -31,9 +31,19 @@ final class InvoiceTemplateSubscriber extends AbstractActionsSubscriber
         }
 
         if ($this->isGranted('manage_invoice_template')) {
-            $event->addEdit($this->path('admin_invoice_template_edit', ['id' => $template->getId()]));
-            $event->addAction('copy', ['url' => $this->path('admin_invoice_template_copy', ['id' => $template->getId()]), 'class' => 'modal-ajax-form']);
-            $event->addDelete($this->path('admin_invoice_template_delete', ['id' => $template->getId(), 'csrfToken' => $payload['token']]), false);
+            $event->addEdit($this->path('admin_invoice_template_edit', [
+                'id' => $template->getId(),
+            ]));
+            $event->addAction('copy', [
+                'url' => $this->path('admin_invoice_template_copy', [
+                    'id' => $template->getId(),
+                ]),
+                'class' => 'modal-ajax-form',
+            ]);
+            $event->addDelete($this->path('admin_invoice_template_delete', [
+                'id' => $template->getId(),
+                'csrfToken' => $payload['token'],
+            ]), false);
         }
     }
 }

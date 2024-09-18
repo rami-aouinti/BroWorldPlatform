@@ -4,13 +4,11 @@ declare(strict_types=1);
 
 namespace App\Quiz\Domain\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Class Quiz
- *
  * @package App\Quiz\Domain\Entity
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
@@ -41,45 +39,44 @@ class Quiz
         $this->questions = new ArrayCollection();
     }
 
-    public  function getId(): int
+    public function getId(): int
     {
         return $this->id;
     }
-    public  function setId(int $id):void
+    public function setId(int $id): void
     {
         $this->id = $id;
     }
-    public  function getTitle(): string
+    public function getTitle(): string
     {
         return $this->title;
     }
-    public  function setTitle(string $title):void
+    public function setTitle(string $title): void
     {
         $this->title = $title;
     }
-    public  function getCategory(): Category
+    public function getCategory(): Category
     {
         return $this->category;
     }
-    public  function setCategory(Category $category):void
+    public function setCategory(Category $category): void
     {
         $this->category = $category;
     }
-    public  function getDifficulty(): Difficulty
+    public function getDifficulty(): Difficulty
     {
         return $this->difficulty;
     }
-    public  function setDifficulty(Difficulty $difficulty):void
+    public function setDifficulty(Difficulty $difficulty): void
     {
         $this->difficulty = $difficulty;
     }
-    public  function getQuestions(): Collection
+    public function getQuestions(): Collection
     {
         return $this->questions;
     }
-    public  function setQuestions(Collection $questions):void
+    public function setQuestions(Collection $questions): void
     {
         $this->questions = $questions;
     }
-
 }

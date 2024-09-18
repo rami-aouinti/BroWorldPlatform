@@ -38,18 +38,15 @@ class MessageRepository extends BaseRepository implements MessageRepositoryInter
     protected static string $entityName = Entity::class;
 
     public function __construct(
-        protected ManagerRegistry $managerRegistry) {
+        protected ManagerRegistry $managerRegistry
+    ) {
     }
 
     /**
-     * @param User $sender
-     * @param User $receiver
-     *
      * @return float|int|mixed|string
      */
     public function findByUsers(User $sender, User $receiver): mixed
     {
-
         return $this->createQueryBuilder('m')
             ->where('(m.sender = :sender AND m.receiver = :receiver) OR (m.sender = :receiver AND m.receiver = :sender)')
             ->setParameter('sender', $sender)

@@ -48,7 +48,7 @@ final class ColorPickerType extends AbstractType implements DataTransformerInter
 
     public function reverseTransform(mixed $value): mixed
     {
-        return null === $value ? self::DEFAULT_COLOR : $value;
+        return $value === null ? self::DEFAULT_COLOR : $value;
     }
 
     public function getParent(): string

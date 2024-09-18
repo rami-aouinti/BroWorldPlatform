@@ -51,7 +51,7 @@ final readonly class TagArrayToStringTransformer implements DataTransformerInter
      */
     public function reverseTransform($string): array
     {
-        if (null === $string || u($string)->isEmpty()) {
+        if ($string === null || u($string)->isEmpty()) {
             return [];
         }
 

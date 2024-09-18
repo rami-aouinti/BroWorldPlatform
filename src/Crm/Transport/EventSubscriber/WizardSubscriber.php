@@ -30,7 +30,7 @@ class WizardSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            KernelEvents::REQUEST => ['onKernelRequest']
+            KernelEvents::REQUEST => ['onKernelRequest'],
         ];
     }
 
@@ -65,7 +65,9 @@ class WizardSubscriber implements EventSubscriberInterface
 
         foreach (User::WIZARDS as $wizard) {
             if (!$user->hasSeenWizard($wizard)) {
-                $response = new RedirectResponse($this->urlGenerator->generate('wizard', ['wizard' => $wizard]));
+                $response = new RedirectResponse($this->urlGenerator->generate('wizard', [
+                    'wizard' => $wizard,
+                ]));
                 $event->setResponse($response);
 
                 return;
@@ -73,7 +75,9 @@ class WizardSubscriber implements EventSubscriberInterface
         }
 
         if ($user->requiresPasswordReset()) {
-            $response = new RedirectResponse($this->urlGenerator->generate('wizard', ['wizard' => 'password']));
+            $response = new RedirectResponse($this->urlGenerator->generate('wizard', [
+                'wizard' => 'password',
+            ]));
             $event->setResponse($response);
         }
     }

@@ -24,7 +24,6 @@ use Symfony\Component\Serializer\SerializerInterface;
 #[OA\Tag(name: 'Profile')]
 readonly class ConfigurationsController
 {
-
     public function __construct(
         private SerializerInterface $serializer,
     ) {
@@ -79,7 +78,6 @@ readonly class ConfigurationsController
     )]
     public function __invoke(User $loggedInUser): JsonResponse
     {
-
         return new JsonResponse(
             $this->serializer->serialize(
                 $loggedInUser->getConfigurations()->toArray(),

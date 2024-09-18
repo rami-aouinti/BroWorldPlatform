@@ -20,8 +20,9 @@ final class CalendarSourceEvent extends Event
      */
     private array $sources = [];
 
-    public function __construct(private User $user)
-    {
+    public function __construct(
+        private User $user
+    ) {
     }
 
     public function getUser(): User

@@ -12,14 +12,9 @@ declare(strict_types=1);
 namespace App\Crm\Domain\Entity;
 
 use App\Crm\Constants;
-use App\Crm\Application\Service\Export\Annotation as Exporter;
-use App\Crm\Application\Service\Validator\Constraints as Constraints;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 
-/**
- *
- */
 trait ColorTrait
 {
     /**
@@ -43,7 +38,7 @@ trait ColorTrait
 
     public function hasColor(): bool
     {
-        return null !== $this->color && $this->color !== Constants::DEFAULT_COLOR;
+        return $this->color !== null && $this->color !== Constants::DEFAULT_COLOR;
     }
 
     public function setColor(?string $color = null): void

@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 /*
  * This file is part of the Kimai time-tracking app.
  *
@@ -10,9 +11,9 @@ declare(strict_types=1);
 
 namespace App\Crm\Transport\Twig\Runtime;
 
-use App\User\Domain\Entity\User;
 use App\Crm\Application\Service\Widget\WidgetInterface;
 use App\Crm\Application\Service\Widget\WidgetService;
+use App\User\Domain\Entity\User;
 use InvalidArgumentException;
 use Symfony\Bundle\SecurityBundle\Security;
 use Twig\Environment;
@@ -24,26 +25,23 @@ use Twig\Extension\RuntimeExtensionInterface;
 use function is_string;
 
 /**
- * Class WidgetExtension
- *
  * @package App\Crm\Transport\Twig\Runtime
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 final class WidgetExtension implements RuntimeExtensionInterface
 {
-    public function __construct(private WidgetService $service, private Security $security)
-    {
+    public function __construct(
+        private WidgetService $service,
+        private Security $security
+    ) {
     }
 
     /**
-     * @param Environment            $environment
      * @param WidgetInterface|string $widget
-     * @param array                  $options
      *
      * @throws LoaderError
      * @throws RuntimeError
      * @throws SyntaxError
-     * @return string
      */
     public function renderWidget(Environment $environment, $widget, array $options = []): string
     {

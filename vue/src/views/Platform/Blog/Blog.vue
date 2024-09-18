@@ -238,14 +238,18 @@
                                 <div class="text-end ms-auto">
                                     <v-btn
                                         outlined
-                                        color="#fff"
+                                        :color="isUserFollowed(user.id) ? 'grey' : '#fff'"
                                         class="font-weight-bolder bg-gradient-primary py-4 px-7"
                                         small
+                                        @click="toggleFollow(user)"
+                                        :loading="loadingUsers.includes(user.id)"
+                                        :disabled="loadingUsers.includes(user.id)"
+                                        v-if="!user.hasFollowed"
                                     >
-                                        <v-icon size="8" class="material-icons-round pe-2"
-                                        >add</v-icon
-                                        >
-                                        Follow
+                                        <v-icon size="8" class="material-icons-round pe-2">
+                                            {{ isUserFollowed(user.id) ? 'remove' : 'add' }}
+                                        </v-icon>
+                                        {{ isUserFollowed(user.id) ? 'Unfollow' : 'Follow' }}
                                     </v-btn>
                                 </div>
                             </div>
@@ -635,6 +639,8 @@
 
 import {mapGetters, mapActions} from "vuex";
 import BlogService from "../../../services/blog.service";
+import UserService from "../../../services/user.service";
+
 export default {
   name: "Blog",
     data: function () {
@@ -792,9 +798,11 @@ export default {
             ],
             newComment: '',
             isExpanded: [],
+            loadingUsers: [],
         };
     },
     computed: {
+        ...mapGetters('user', ['user']),
         ...mapGetters('blog', ['blog']),
         ...mapActions('blog', ['addComment']),
     },
@@ -810,6 +818,50 @@ export default {
         },
     },
     methods: {
+        isUserFollowed(userId) {
+            if (this.user) {
+                console.log(this.user);
+                let following = this.user.following;
+                if (Array.isArray(this.user.following) && this.user.following.length > 0) {
+                    return following.some((followedUser) => followedUser.id === userId);
+                }
+            }
+        },
+        async toggleFollow(user) {
+            this.loadingUsers.push(user.id);
+
+            if (user.isFollowing) {
+                UserService.followUser(user.id).then(
+                    (response) => {
+                        user.isFollowing = !user.isFollowing;
+                        user.hasFollowed = user.isFollowing;
+                        this.loadingUsers = this.loadingUsers.filter((id) => id !== user.id);
+                        return response.data
+                    },
+                    (error) => {
+                        this.content =
+                            (error.response && error.response.data) ||
+                            error.message ||
+                            error.toString();
+                    }
+                );
+            } else {
+                UserService.unfollowUser(user.id).then(
+                    (response) => {
+                        user.isFollowing = !user.isFollowing;
+                        user.hasFollowed = user.isFollowing;
+                        this.loadingUsers = this.loadingUsers.filter((id) => id !== user.id);
+                        return response.data
+                    },
+                    (error) => {
+                        this.content =
+                            (error.response && error.response.data) ||
+                            error.message ||
+                            error.toString();
+                    }
+                );
+            }
+        },
         addNewComment(postId) {
             if (this.newComment.trim()) {
                 BlogService.addComment(postId, this.newComment)

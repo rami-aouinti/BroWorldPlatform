@@ -203,12 +203,7 @@ final class InvoicePolicy implements SecurityPolicyInterface
     }
 
     /**
-     * @param $tags
-     * @param $filters
-     * @param $functions
-     *
      * @throws SecurityError
-     * @return void
      */
     public function checkSecurity($tags, $filters, $functions): void
     {
@@ -216,11 +211,7 @@ final class InvoicePolicy implements SecurityPolicyInterface
     }
 
     /**
-     * @param $obj
-     * @param $method
-     *
      * @throws SecurityNotAllowedMethodError
-     * @return void
      */
     public function checkMethodAllowed($obj, $method): void
     {
@@ -242,11 +233,7 @@ final class InvoicePolicy implements SecurityPolicyInterface
     }
 
     /**
-     * @param $obj
-     * @param $property
-     *
      * @throws SecurityNotAllowedPropertyError
-     * @return void
      */
     public function checkPropertyAllowed($obj, $property): void
     {

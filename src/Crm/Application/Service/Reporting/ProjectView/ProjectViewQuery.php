@@ -19,8 +19,10 @@ final class ProjectViewQuery
     private bool $includeNoWork = false;
     private ?bool $budgetType = true;
 
-    public function __construct(private DateTime $today, private User $user)
-    {
+    public function __construct(
+        private DateTime $today,
+        private User $user
+    ) {
     }
 
     public function getUser(): User

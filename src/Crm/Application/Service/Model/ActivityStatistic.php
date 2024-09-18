@@ -31,8 +31,6 @@ class ActivityStatistic extends BudgetStatistic implements \JsonSerializable
 
     /**
      * Added for simpler re-use in frontend (charts).
-     *
-     * @return string|null
      */
     public function getColor(): ?string
     {
@@ -45,8 +43,6 @@ class ActivityStatistic extends BudgetStatistic implements \JsonSerializable
 
     /**
      * Added for simpler re-use in frontend (charts).
-     *
-     * @return string|null
      */
     public function getName(): ?string
     {

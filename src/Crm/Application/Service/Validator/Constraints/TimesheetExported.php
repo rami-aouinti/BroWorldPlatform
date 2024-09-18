@@ -19,9 +19,6 @@ final class TimesheetExported extends TimesheetConstraint
 
     public string $message = 'This timesheet is already exported.';
 
-    /**
-     * @var \DateTime|string|null
-     */
     public null|\DateTime|string $now;
 
     public function getTargets(): string

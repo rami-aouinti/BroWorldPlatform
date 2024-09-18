@@ -19,8 +19,9 @@ use Psr\EventDispatcher\EventDispatcherInterface;
  */
 final class UserPreferenceExtractor implements ExtractorInterface
 {
-    public function __construct(private EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        private EventDispatcherInterface $eventDispatcher
+    ) {
     }
 
     /**
@@ -48,7 +49,7 @@ final class UserPreferenceExtractor implements ExtractorInterface
                 'string',
                 function (User $user) use ($field) {
                     $meta = $user->getPreference($field->getName());
-                    if (null === $meta) {
+                    if ($meta === null) {
                         return null;
                     }
 

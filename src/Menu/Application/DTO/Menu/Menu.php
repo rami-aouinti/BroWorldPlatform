@@ -38,44 +38,48 @@ class Menu extends RestDto
     {
         return $this->title;
     }
-    public function setTitle(string $title):self
+    public function setTitle(string $title): self
     {
         $this->setVisited('title');
 
         $this->title = $title;
+
         return $this;
     }
     public function getPrefix(): ?string
     {
         return $this->prefix;
     }
-    public function setPrefix(?string $prefix):self
+    public function setPrefix(?string $prefix): self
     {
         $this->setVisited('prefix');
 
         $this->prefix = $prefix;
+
         return $this;
     }
     public function getLink(): ?string
     {
         return $this->link;
     }
-    public function setLink(?string $link):self
+    public function setLink(?string $link): self
     {
         $this->setVisited('link');
 
         $this->link = $link;
+
         return $this;
     }
-    public  function isActive(): bool
+    public function isActive(): bool
     {
         return $this->active;
     }
-    public function setActive(bool $active):self
+    public function setActive(bool $active): self
     {
         $this->setVisited('active');
 
         $this->active = $active;
+
         return $this;
     }
     public function getAction(): string
@@ -83,23 +87,25 @@ class Menu extends RestDto
         return $this->action;
     }
 
-    public  function setAction(string $action):self
+    public function setAction(string $action): self
     {
         $this->setVisited('action');
 
         $this->action = $action;
+
         return $this;
     }
 
-    public  function getLevel(): ?int
+    public function getLevel(): ?int
     {
         return $this->level;
     }
-    public  function setLevel(?int $level):self
+    public function setLevel(?int $level): self
     {
         $this->setVisited('level');
 
         $this->level = $level;
+
         return $this;
     }
 

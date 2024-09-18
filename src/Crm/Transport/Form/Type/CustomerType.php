@@ -9,11 +9,11 @@
 
 namespace App\Crm\Transport\Form\Type;
 
+use App\Crm\Domain\Entity\Customer;
 use App\Crm\Infrastructure\Repository\CustomerRepository;
 use App\Crm\Infrastructure\Repository\Query\CustomerFormTypeQuery;
 use App\Crm\Infrastructure\Repository\Query\ProjectQuery;
 use App\Crm\Transport\Form\Helper\CustomerHelper;
-use App\Crm\Domain\Entity\Customer;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormInterface;
@@ -26,8 +26,9 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  */
 final class CustomerType extends AbstractType
 {
-    public function __construct(private CustomerHelper $customerHelper)
-    {
+    public function __construct(
+        private CustomerHelper $customerHelper
+    ) {
     }
 
     public function getChoiceLabel(Customer $customer): string
@@ -37,7 +38,9 @@ final class CustomerType extends AbstractType
 
     public function getChoiceAttributes(Customer $customer, $key, $value): array
     {
-        return ['data-currency' => $customer->getCurrency()];
+        return [
+            'data-currency' => $customer->getCurrency(),
+        ];
     }
 
     public function configureOptions(OptionsResolver $resolver): void
@@ -70,15 +73,15 @@ final class CustomerType extends AbstractType
             return function (CustomerRepository $repo) use ($options) {
                 $query = new CustomerFormTypeQuery($options['customers']);
 
-                if (true === $options['pre_select_customer']) {
+                if ($options['pre_select_customer'] === true) {
                     $query->setAllowCustomerPreselect(true);
                 }
 
-                if (true === $options['query_builder_for_user']) {
+                if ($options['query_builder_for_user'] === true) {
                     $query->setUser($options['user']);
                 }
 
-                if (null !== $options['ignore_customer']) {
+                if ($options['ignore_customer'] !== null) {
                     $query->setCustomerToIgnore($options['ignore_customer']);
                 }
 
@@ -87,10 +90,15 @@ final class CustomerType extends AbstractType
         });
 
         $resolver->setDefault('api_data', function (Options $options) {
-            if (false !== $options['project_enabled']) {
+            if ($options['project_enabled'] !== false) {
                 $name = \is_string($options['project_enabled']) ? $options['project_enabled'] : 'customer';
-                $routeParams = [$name => '%' . $name . '%', 'visible' => $options['project_visibility']];
-                $emptyRouteParams = ['visible' => $options['project_visibility']];
+                $routeParams = [
+                    $name => '%' . $name . '%',
+                    'visible' => $options['project_visibility'],
+                ];
+                $emptyRouteParams = [
+                    'visible' => $options['project_visibility'],
+                ];
 
                 if (!$options['ignore_date']) {
                     if (!empty($options['start_date_param'])) {

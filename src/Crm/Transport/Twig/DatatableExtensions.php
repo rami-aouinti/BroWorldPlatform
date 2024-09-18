@@ -11,10 +11,10 @@ declare(strict_types=1);
 
 namespace App\Crm\Transport\Twig;
 
-use App\Crm\Domain\Entity\Bookmark;
-use App\User\Domain\Entity\User;
-use App\Crm\Infrastructure\Repository\BookmarkRepository;
 use App\Crm\Application\Service\Utils\ProfileManager;
+use App\Crm\Domain\Entity\Bookmark;
+use App\Crm\Infrastructure\Repository\BookmarkRepository;
+use App\User\Domain\Entity\User;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
@@ -24,8 +24,6 @@ use function is_array;
 use function is_string;
 
 /**
- * Class DatatableExtensions
- *
  * @package App\Crm\Transport\Twig
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
@@ -38,8 +36,10 @@ final class DatatableExtensions extends AbstractExtension
     private array $tableNames = [];
     private ?string $prefix = null;
 
-    public function __construct(private BookmarkRepository $bookmarkRepository, private ProfileManager $profileManager)
-    {
+    public function __construct(
+        private BookmarkRepository $bookmarkRepository,
+        private ProfileManager $profileManager
+    ) {
     }
 
     public function getFunctions(): array
@@ -48,15 +48,6 @@ final class DatatableExtensions extends AbstractExtension
             new TwigFunction('initialize_datatable', [$this, 'initializeDatatable']),
             new TwigFunction('datatable_column_class', [$this, 'getDatatableColumnClass']),
         ];
-    }
-
-    private function getDatatableName(string $dataTable): string
-    {
-        if (!array_key_exists($dataTable, $this->tableNames)) {
-            $this->tableNames[$dataTable] = $this->profileManager->getDatatableName($dataTable, $this->prefix);
-        }
-
-        return $this->tableNames[$dataTable];
     }
 
     public function initializeDatatable(User $user, Session $session, string $dataTable, array $defaultColumns): array
@@ -71,7 +62,7 @@ final class DatatableExtensions extends AbstractExtension
             foreach ($defaultColumns as $key => $settings) {
                 $columns[$key] = [
                     'visible' => $this->checkInColumDefinition($defaultColumns, $key),
-                    'class' => array_key_exists($key, $defaultColumns) ? $this->getClass($settings) : ''
+                    'class' => array_key_exists($key, $defaultColumns) ? $this->getClass($settings) : '',
                 ];
                 // add an auto-generated class
                 $columns[$key]['class'] = trim($columns[$key]['class'] . ' col_' . $key);
@@ -86,7 +77,7 @@ final class DatatableExtensions extends AbstractExtension
                         // be raised while accessing the visible/class keys
                         continue;
                     }
-                    $columns[$key]['visible'] = (bool) $value;
+                    $columns[$key]['visible'] = (bool)$value;
                 }
 
                 // disable all columns, which were not bookmarked as visible
@@ -125,6 +116,15 @@ final class DatatableExtensions extends AbstractExtension
         }
 
         return $this->dataTables[$dataTable][$column]['class'];
+    }
+
+    private function getDatatableName(string $dataTable): string
+    {
+        if (!array_key_exists($dataTable, $this->tableNames)) {
+            $this->tableNames[$dataTable] = $this->profileManager->getDatatableName($dataTable, $this->prefix);
+        }
+
+        return $this->tableNames[$dataTable];
     }
 
     private function checkInColumDefinition(array $columns, string $column): bool

@@ -16,8 +16,6 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Class InvoiceTemplate
- *
  * @package App\Crm\Domain\Entity
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
@@ -80,12 +78,24 @@ class InvoiceTemplate
     #[Assert\NotBlank]
     private ?string $language = 'en';
 
+    public function __toString(): string
+    {
+        return $this->getName();
+    }
+
+    public function __clone()
+    {
+        if ($this->id) {
+            $this->id = null;
+        }
+    }
+
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function setName(string $name): InvoiceTemplate
+    public function setName(string $name): self
     {
         $this->name = $name;
 
@@ -104,7 +114,7 @@ class InvoiceTemplate
         return $this->title;
     }
 
-    public function setTitle(?string $title): InvoiceTemplate
+    public function setTitle(?string $title): self
     {
         $this->title = $title;
 
@@ -116,7 +126,7 @@ class InvoiceTemplate
         return $this->address;
     }
 
-    public function setAddress(?string $address): InvoiceTemplate
+    public function setAddress(?string $address): self
     {
         $this->address = $address;
 
@@ -128,7 +138,7 @@ class InvoiceTemplate
         return $this->numberGenerator;
     }
 
-    public function setNumberGenerator(string $numberGenerator): InvoiceTemplate
+    public function setNumberGenerator(string $numberGenerator): self
     {
         $this->numberGenerator = $numberGenerator;
 
@@ -140,7 +150,7 @@ class InvoiceTemplate
         return $this->dueDays;
     }
 
-    public function setDueDays(?int $dueDays): InvoiceTemplate
+    public function setDueDays(?int $dueDays): self
     {
         $this->dueDays = $dueDays;
 
@@ -152,7 +162,7 @@ class InvoiceTemplate
         return $this->vat;
     }
 
-    public function setVat(?float $vat): InvoiceTemplate
+    public function setVat(?float $vat): self
     {
         $this->vat = $vat;
 
@@ -164,7 +174,7 @@ class InvoiceTemplate
         return $this->company;
     }
 
-    public function setCompany(?string $company): InvoiceTemplate
+    public function setCompany(?string $company): self
     {
         $this->company = $company;
 
@@ -176,7 +186,7 @@ class InvoiceTemplate
         return $this->renderer;
     }
 
-    public function setRenderer(string $renderer): InvoiceTemplate
+    public function setRenderer(string $renderer): self
     {
         $this->renderer = $renderer;
 
@@ -188,7 +198,7 @@ class InvoiceTemplate
         return $this->calculator;
     }
 
-    public function setCalculator(string $calculator): InvoiceTemplate
+    public function setCalculator(string $calculator): self
     {
         $this->calculator = $calculator;
 
@@ -200,7 +210,7 @@ class InvoiceTemplate
         return $this->paymentTerms;
     }
 
-    public function setPaymentTerms(?string $paymentTerms): InvoiceTemplate
+    public function setPaymentTerms(?string $paymentTerms): self
     {
         $this->paymentTerms = $paymentTerms;
 
@@ -212,7 +222,7 @@ class InvoiceTemplate
         return $this->vatId;
     }
 
-    public function setVatId(?string $vatId): InvoiceTemplate
+    public function setVatId(?string $vatId): self
     {
         $this->vatId = $vatId;
 
@@ -224,7 +234,7 @@ class InvoiceTemplate
         return $this->contact;
     }
 
-    public function setContact(?string $contact): InvoiceTemplate
+    public function setContact(?string $contact): self
     {
         $this->contact = $contact;
 
@@ -236,7 +246,7 @@ class InvoiceTemplate
         return $this->paymentDetails;
     }
 
-    public function setPaymentDetails(?string $paymentDetails): InvoiceTemplate
+    public function setPaymentDetails(?string $paymentDetails): self
     {
         $this->paymentDetails = $paymentDetails;
 
@@ -256,22 +266,10 @@ class InvoiceTemplate
         return $this->language;
     }
 
-    public function setLanguage(?string $language): InvoiceTemplate
+    public function setLanguage(?string $language): self
     {
         $this->language = $language;
 
         return $this;
-    }
-
-    public function __toString(): string
-    {
-        return $this->getName();
-    }
-
-    public function __clone()
-    {
-        if ($this->id) {
-            $this->id = null;
-        }
     }
 }

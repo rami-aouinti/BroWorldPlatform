@@ -24,19 +24,19 @@ use Exception;
 use Psr\EventDispatcher\EventDispatcherInterface;
 
 /**
- * Class CalendarService
- *
  * @package App\Calendar
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 final class CalendarService
 {
-    public function __construct(private SystemConfiguration $configuration, private TimesheetRepository $repository, private EventDispatcherInterface $dispatcher)
-    {
+    public function __construct(
+        private SystemConfiguration $configuration,
+        private TimesheetRepository $repository,
+        private EventDispatcherInterface $dispatcher
+    ) {
     }
 
     /**
-     * @param User $user
      * @return DragAndDropSource[]
      * @throws Exception
      */

@@ -15,8 +15,12 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 final class WorkingTimeApproveMonthEvent extends Event
 {
-    public function __construct(private User $user, private Month $month, private \DateTimeInterface $approvalDate, private User $approver)
-    {
+    public function __construct(
+        private User $user,
+        private Month $month,
+        private \DateTimeInterface $approvalDate,
+        private User $approver
+    ) {
     }
 
     public function getUser(): User

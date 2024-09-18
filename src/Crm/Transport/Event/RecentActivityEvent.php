@@ -16,11 +16,12 @@ use Symfony\Contracts\EventDispatcher\Event;
 final class RecentActivityEvent extends Event
 {
     /**
-     * @param User $user
      * @param Timesheet[] $recentActivities
      */
-    public function __construct(private User $user, private array $recentActivities)
-    {
+    public function __construct(
+        private User $user,
+        private array $recentActivities
+    ) {
     }
 
     public function getUser(): User
@@ -36,7 +37,7 @@ final class RecentActivityEvent extends Event
         return array_values($this->recentActivities);
     }
 
-    public function addRecentActivity(Timesheet $recentActivity): RecentActivityEvent
+    public function addRecentActivity(Timesheet $recentActivity): self
     {
         $this->recentActivities[] = $recentActivity;
 
@@ -46,7 +47,7 @@ final class RecentActivityEvent extends Event
     public function removeRecentActivity(Timesheet $recentActivity): bool
     {
         $key = array_search($recentActivity, $this->recentActivities, true);
-        if (false === $key) {
+        if ($key === false) {
             return false;
         }
 

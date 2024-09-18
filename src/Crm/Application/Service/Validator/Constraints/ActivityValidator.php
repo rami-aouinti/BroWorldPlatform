@@ -21,8 +21,7 @@ final class ActivityValidator extends ConstraintValidator
     public function __construct(
         private readonly SystemConfiguration $systemConfiguration,
         private readonly ActivityRepository $activityRepository
-    )
-    {
+    ) {
     }
 
     /**
@@ -38,8 +37,10 @@ final class ActivityValidator extends ConstraintValidator
             throw new UnexpectedTypeException($value, ActivityEntity::class);
         }
 
-        if ((bool) $this->systemConfiguration->find('activity.allow_duplicate_number') === false && (($number = $value->getNumber()) !== null)) {
-            foreach ($this->activityRepository->findBy(['number' => $number]) as $tmp) {
+        if ((bool)$this->systemConfiguration->find('activity.allow_duplicate_number') === false && (($number = $value->getNumber()) !== null)) {
+            foreach ($this->activityRepository->findBy([
+                'number' => $number,
+            ]) as $tmp) {
                 if ($tmp->getId() !== $value->getId()) {
                     $this->context->buildViolation(Activity::getErrorName(Activity::ACTIVITY_NUMBER_EXISTING))
                         ->setParameter('%number%', $number)

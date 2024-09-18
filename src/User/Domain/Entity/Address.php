@@ -66,57 +66,56 @@ class Address implements EntityInterface, AddressInterface
         $this->id = $this->createUuid();
     }
 
-
     public function getId(): string
     {
         return $this->id->toString();
     }
 
-    public  function getStreet(): string
+    public function getStreet(): string
     {
         return $this->street;
     }
-    public  function setStreet(string $street):self
+    public function setStreet(string $street): self
     {
         $this->street = $street;
 
         return $this;
     }
-    public  function getCity(): string
+    public function getCity(): string
     {
         return $this->city;
     }
-    public  function setCity(string $city):self
+    public function setCity(string $city): self
     {
         $this->city = $city;
 
         return $this;
     }
-    public  function getCountry(): string
+    public function getCountry(): string
     {
         return $this->country;
     }
-    public  function setCountry(string $country):self
+    public function setCountry(string $country): self
     {
         $this->country = $country;
 
         return $this;
     }
-    public  function getHousenumber(): string
+    public function getHousenumber(): string
     {
         return $this->housenumber;
     }
-    public  function setHousenumber(string $housenumber):self
+    public function setHousenumber(string $housenumber): self
     {
         $this->housenumber = $housenumber;
 
         return $this;
     }
-    public  function getPostcode(): string
+    public function getPostcode(): string
     {
         return $this->postcode;
     }
-    public  function setPostcode(string $postcode):self
+    public function setPostcode(string $postcode): self
     {
         $this->postcode = $postcode;
 

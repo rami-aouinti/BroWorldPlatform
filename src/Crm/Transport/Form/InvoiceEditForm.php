@@ -9,9 +9,9 @@
 
 namespace App\Crm\Transport\Form;
 
+use App\Crm\Domain\Entity\Invoice;
 use App\Crm\Transport\Form\Type\DatePickerType;
 use App\Crm\Transport\Form\Type\MetaFieldsCollectionType;
-use App\Crm\Domain\Entity\Invoice;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -56,7 +56,7 @@ final class InvoiceEditForm extends AbstractType
             'data_class' => Invoice::class,
             'timezone' => date_default_timezone_get(),
             'attr' => [
-                'data-form-event' => 'kimai.invoiceUpdate'
+                'data-form-event' => 'kimai.invoiceUpdate',
             ],
         ]);
     }

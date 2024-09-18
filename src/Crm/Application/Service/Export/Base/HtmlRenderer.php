@@ -49,32 +49,7 @@ class HtmlRenderer
     }
 
     /**
-     * @param MetaDisplayEventInterface $event
-     * @return MetaTableTypeInterface[]
-     */
-    protected function findMetaColumns(MetaDisplayEventInterface $event): array
-    {
-        $this->dispatcher->dispatch($event);
-
-        return $event->getFields();
-    }
-
-    protected function getOptions(TimesheetQuery $query): array
-    {
-        $decimal = false;
-        if (null !== $query->getCurrentUser()) {
-            $decimal = $query->getCurrentUser()->isExportDecimal();
-        } elseif (null !== $query->getUser()) {
-            $decimal = $query->getUser()->isExportDecimal();
-        }
-
-        return ['decimal' => $decimal];
-    }
-
-    /**
      * @param ExportableItem[] $timesheets
-     * @param TimesheetQuery $query
-     * @return Response
      * @throws \Twig\Error\LoaderError
      * @throws \Twig\Error\RuntimeError
      * @throws \Twig\Error\SyntaxError
@@ -119,19 +94,14 @@ class HtmlRenderer
         return $response;
     }
 
-    protected function getTemplate(): string
-    {
-        return '@export/' . $this->template;
-    }
-
-    public function setTemplate(string $filename): HtmlRenderer
+    public function setTemplate(string $filename): self
     {
         $this->template = $filename;
 
         return $this;
     }
 
-    public function setId(string $id): HtmlRenderer
+    public function setId(string $id): self
     {
         $this->id = $id;
 
@@ -141,5 +111,34 @@ class HtmlRenderer
     public function getId(): string
     {
         return $this->id;
+    }
+
+    /**
+     * @return MetaTableTypeInterface[]
+     */
+    protected function findMetaColumns(MetaDisplayEventInterface $event): array
+    {
+        $this->dispatcher->dispatch($event);
+
+        return $event->getFields();
+    }
+
+    protected function getOptions(TimesheetQuery $query): array
+    {
+        $decimal = false;
+        if ($query->getCurrentUser() !== null) {
+            $decimal = $query->getCurrentUser()->isExportDecimal();
+        } elseif ($query->getUser() !== null) {
+            $decimal = $query->getUser()->isExportDecimal();
+        }
+
+        return [
+            'decimal' => $decimal,
+        ];
+    }
+
+    protected function getTemplate(): string
+    {
+        return '@export/' . $this->template;
     }
 }

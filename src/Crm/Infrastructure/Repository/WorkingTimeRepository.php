@@ -9,8 +9,8 @@
 
 namespace App\Crm\Infrastructure\Repository;
 
-use App\User\Domain\Entity\User;
 use App\Crm\Domain\Entity\WorkingTime;
+use App\User\Domain\Entity\User;
 use Doctrine\ORM\EntityRepository;
 
 /**

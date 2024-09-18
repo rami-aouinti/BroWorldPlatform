@@ -20,7 +20,9 @@ class AccessTokenRepository extends EntityRepository
 {
     public function findByToken(string $token): ?AccessToken
     {
-        return $this->findOneBy(['token' => $token]);
+        return $this->findOneBy([
+            'token' => $token,
+        ]);
     }
 
     /**
@@ -28,7 +30,9 @@ class AccessTokenRepository extends EntityRepository
      */
     public function findForUser(User $user): array
     {
-        return $this->findBy(['user' => $user]);
+        return $this->findBy([
+            'user' => $user,
+        ]);
     }
 
     public function saveAccessToken(AccessToken $accessToken): void

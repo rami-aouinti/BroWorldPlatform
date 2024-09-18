@@ -12,7 +12,8 @@ namespace App\Crm\Application\Service\Export\Annotation;
 #[\Attribute(\Attribute::TARGET_CLASS)]
 final class Order
 {
-    public function __construct(public array $order = [])
-    {
+    public function __construct(
+        public array $order = []
+    ) {
     }
 }

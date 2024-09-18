@@ -12,7 +12,6 @@ declare(strict_types=1);
 namespace App\Crm\Domain\Entity;
 
 use App\Crm\Application\Service\Invoice\InvoiceModel;
-use App\Crm\Application\Service\Export\Annotation as Exporter;
 use App\User\Domain\Entity\User;
 use DateTime;
 use DateTimeZone;
@@ -28,8 +27,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 use function in_array;
 
 /**
- * Class Invoice
- *
  * @package App\Crm\Domain\Entity
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
@@ -137,6 +134,22 @@ class Invoice implements EntityWithMetaFields
         $this->meta = new ArrayCollection();
     }
 
+    public function __clone()
+    {
+        if ($this->id) {
+            $this->id = null;
+        }
+
+        $currentMeta = $this->meta;
+        $this->meta = new ArrayCollection();
+        /** @var InvoiceMeta $meta */
+        foreach ($currentMeta as $meta) {
+            $newMeta = clone $meta;
+            $newMeta->setEntity($this);
+            $this->setMetaField($newMeta);
+        }
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -168,7 +181,7 @@ class Invoice implements EntityWithMetaFields
     public function getCreatedAt(): ?DateTime
     {
         if (!$this->localized) {
-            if (null !== $this->createdAt && null !== $this->timezone) {
+            if ($this->createdAt !== null && $this->timezone !== null) {
                 $this->createdAt->setTimezone(new DateTimeZone($this->timezone));
             }
 
@@ -183,7 +196,7 @@ class Invoice implements EntityWithMetaFields
      */
     public function getDueDate(): ?DateTime
     {
-        if (null === $this->getCreatedAt()) {
+        if ($this->getCreatedAt() === null) {
             return null;
         }
 
@@ -198,21 +211,21 @@ class Invoice implements EntityWithMetaFields
      */
     public function isOverdue(): bool
     {
-        if (null === $this->getDueDate()) {
+        if ($this->getDueDate() === null) {
             return false;
         }
 
         return $this->getDueDate()->getTimestamp() < (new DateTime('now', new DateTimeZone($this->timezone)))->getTimestamp();
     }
 
-    public function setFilename(string $filename): Invoice
+    public function setFilename(string $filename): self
     {
         $this->invoiceFilename = $filename;
 
         return $this;
     }
 
-    public function setModel(InvoiceModel $model): Invoice
+    public function setModel(InvoiceModel $model): self
     {
         $template = $model->getTemplate();
 
@@ -246,7 +259,7 @@ class Invoice implements EntityWithMetaFields
         return $this->status === self::STATUS_NEW;
     }
 
-    public function setIsNew(): Invoice
+    public function setIsNew(): self
     {
         $this->setPaymentDate(null);
         $this->status = self::STATUS_NEW;
@@ -259,7 +272,7 @@ class Invoice implements EntityWithMetaFields
         return $this->status === self::STATUS_PENDING;
     }
 
-    public function setIsPending(): Invoice
+    public function setIsPending(): self
     {
         $this->setPaymentDate(null);
         $this->status = self::STATUS_PENDING;
@@ -272,7 +285,7 @@ class Invoice implements EntityWithMetaFields
         return $this->status === self::STATUS_PAID;
     }
 
-    public function setIsPaid(): Invoice
+    public function setIsPaid(): self
     {
         $this->status = self::STATUS_PAID;
 
@@ -339,7 +352,7 @@ class Invoice implements EntityWithMetaFields
         return $this->paymentDate;
     }
 
-    public function setPaymentDate(?DateTime $paymentDate): Invoice
+    public function setPaymentDate(?DateTime $paymentDate): self
     {
         $this->paymentDate = $paymentDate;
 
@@ -356,9 +369,6 @@ class Invoice implements EntityWithMetaFields
         return $this->comment;
     }
 
-    /**
-     * @return Collection
-     */
     public function getMetaFields(): Collection
     {
         return $this->meta;
@@ -403,21 +413,5 @@ class Invoice implements EntityWithMetaFields
         $current->merge($meta);
 
         return $this;
-    }
-
-    public function __clone()
-    {
-        if ($this->id) {
-            $this->id = null;
-        }
-
-        $currentMeta = $this->meta;
-        $this->meta = new ArrayCollection();
-        /** @var InvoiceMeta $meta */
-        foreach ($currentMeta as $meta) {
-            $newMeta = clone $meta;
-            $newMeta->setEntity($this);
-            $this->setMetaField($newMeta);
-        }
     }
 }

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Blog\Application\DTO\Comment;
 
+use App\Blog\Domain\Entity\Comment as Entity;
 use App\General\Application\DTO\Interfaces\RestDtoInterface;
 use App\General\Application\DTO\RestDto;
 use App\General\Domain\Entity\Interfaces\EntityInterface;
-use App\Blog\Domain\Entity\Comment as Entity;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -19,12 +19,10 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class Comment extends RestDto
 {
-
     #[Assert\NotBlank]
     #[Assert\NotNull]
     #[Assert\Length(min: 2, max: 255)]
     protected string $content = '';
-
 
     public function getContent(): string
     {

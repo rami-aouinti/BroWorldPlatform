@@ -22,8 +22,9 @@ final class ProjectViewModel
     private int $durationMonth = 0;
     private ?DateTime $lastRecord = null;
 
-    public function __construct(private ProjectBudgetStatisticModel $budgetStatisticModel)
-    {
+    public function __construct(
+        private ProjectBudgetStatisticModel $budgetStatisticModel
+    ) {
     }
 
     public function getProject(): Project
@@ -59,15 +60,6 @@ final class ProjectViewModel
     public function setDurationMonth(int $durationMonth): void
     {
         $this->durationMonth = $durationMonth;
-    }
-
-    private function getTotals(): BudgetStatistic
-    {
-        if ($this->budgetStatisticModel->getStatisticTotal() === null) {
-            throw new \InvalidArgumentException('Totals must not be null');
-        }
-
-        return $this->budgetStatisticModel->getStatisticTotal();
     }
 
     public function getDurationTotal(): int
@@ -117,5 +109,14 @@ final class ProjectViewModel
     public function getBudgetStatisticModel(): BudgetStatisticModelInterface
     {
         return $this->budgetStatisticModel;
+    }
+
+    private function getTotals(): BudgetStatistic
+    {
+        if ($this->budgetStatisticModel->getStatisticTotal() === null) {
+            throw new \InvalidArgumentException('Totals must not be null');
+        }
+
+        return $this->budgetStatisticModel->getStatisticTotal();
     }
 }

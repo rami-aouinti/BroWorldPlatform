@@ -19,8 +19,11 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 
 final class AmountYear extends AbstractCounterYear
 {
-    public function __construct(private TimesheetRepository $repository, SystemConfiguration $systemConfiguration, private EventDispatcherInterface $dispatcher)
-    {
+    public function __construct(
+        private TimesheetRepository $repository,
+        SystemConfiguration $systemConfiguration,
+        private EventDispatcherInterface $dispatcher
+    ) {
         parent::__construct($systemConfiguration);
     }
 
@@ -34,6 +37,21 @@ final class AmountYear extends AbstractCounterYear
             'icon' => 'money',
             'color' => WidgetInterface::COLOR_YEAR,
         ], parent::getOptions($options));
+    }
+
+    public function getId(): string
+    {
+        return 'AmountYear';
+    }
+
+    public function getTemplateName(): string
+    {
+        return 'widget/widget-counter-money.html.twig';
+    }
+
+    public function getPermissions(): array
+    {
+        return ['view_all_data'];
     }
 
     /**
@@ -59,23 +77,8 @@ final class AmountYear extends AbstractCounterYear
         }
     }
 
-    public function getId(): string
-    {
-        return 'AmountYear';
-    }
-
     protected function getFinancialYearTitle(): string
     {
         return 'stats.amountFinancialYear';
-    }
-
-    public function getTemplateName(): string
-    {
-        return 'widget/widget-counter-money.html.twig';
-    }
-
-    public function getPermissions(): array
-    {
-        return ['view_all_data'];
     }
 }

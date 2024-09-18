@@ -16,8 +16,10 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 final class WorkingTimeYearSummaryEvent extends Event
 {
-    public function __construct(private YearPerUserSummary $yearPerUserSummary, private \DateTimeInterface $until)
-    {
+    public function __construct(
+        private YearPerUserSummary $yearPerUserSummary,
+        private \DateTimeInterface $until
+    ) {
     }
 
     public function getYear(): Year

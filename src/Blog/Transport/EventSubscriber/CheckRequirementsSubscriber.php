@@ -62,8 +62,6 @@ final readonly class CheckRequirementsSubscriber implements EventSubscriberInter
      * the database and then, it checks if the 'sqlite3' PHP extension is enabled
      * or not to display a better error message.
      *
-     * @param ConsoleErrorEvent $event
-     *
      * @throws Exception
      */
     public function handleConsoleError(ConsoleErrorEvent $event): void
@@ -81,8 +79,6 @@ final readonly class CheckRequirementsSubscriber implements EventSubscriberInter
     /**
      * This method checks if the triggered exception is related to the database
      * and then, it checks if the required 'sqlite3' PHP extension is enabled.
-     *
-     * @param ExceptionEvent $event
      *
      * @throws Exception
      */
@@ -106,7 +102,6 @@ final readonly class CheckRequirementsSubscriber implements EventSubscriberInter
      * Checks if the application is using SQLite as its database.
      *
      * @throws Exception
-     * @return bool
      */
     private function isSQLitePlatform(): bool
     {

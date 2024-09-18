@@ -11,8 +11,10 @@ namespace App\Crm\Application\Service\Model;
 
 final class Revenue
 {
-    public function __construct(private readonly string $currency, private readonly float $amount)
-    {
+    public function __construct(
+        private readonly string $currency,
+        private readonly float $amount
+    ) {
     }
 
     public function getCurrency(): string

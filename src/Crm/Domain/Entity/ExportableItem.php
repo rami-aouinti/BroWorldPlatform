@@ -15,9 +15,6 @@ use App\User\Domain\Entity\User;
 use DateTime;
 use Doctrine\Common\Collections\Collection;
 
-/**
- *
- */
 interface ExportableItem
 {
     public function getId(): ?int;

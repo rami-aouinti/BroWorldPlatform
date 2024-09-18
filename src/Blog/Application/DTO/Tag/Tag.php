@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Blog\Application\DTO\Tag;
 
+use App\Blog\Domain\Entity\Tag as Entity;
 use App\General\Application\DTO\Interfaces\RestDtoInterface;
 use App\General\Application\DTO\RestDto;
 use App\General\Domain\Entity\Interfaces\EntityInterface;
-use App\Blog\Domain\Entity\Tag as Entity;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -19,12 +19,10 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class Tag extends RestDto
 {
-
     #[Assert\NotBlank]
     #[Assert\NotNull]
     #[Assert\Length(min: 2, max: 255)]
     protected string $name = '';
-
 
     public function getName(): string
     {
@@ -38,7 +36,6 @@ class Tag extends RestDto
 
         return $this;
     }
-
 
     /**
      * {@inheritdoc}

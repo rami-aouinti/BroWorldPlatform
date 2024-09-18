@@ -16,7 +16,7 @@ final class StringHelper
 
     public static function ensureMaxLength(?string $string, int $length): ?string
     {
-        if (null === $string) {
+        if ($string === null) {
             return null;
         }
 

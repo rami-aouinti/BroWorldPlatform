@@ -16,8 +16,9 @@ final class Year
      */
     private array $months = [];
 
-    public function __construct(private string $year)
-    {
+    public function __construct(
+        private string $year
+    ) {
     }
 
     public function getYear(): string
@@ -25,7 +26,7 @@ final class Year
         return $this->year;
     }
 
-    public function setMonth(Month $month): Year
+    public function setMonth(Month $month): self
     {
         $this->months[$month->getMonthNumber()] = $month;
 

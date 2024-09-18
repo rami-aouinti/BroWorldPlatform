@@ -4,15 +4,11 @@ declare(strict_types=1);
 
 namespace App\Quiz\Transport\Controller\Api\v1;
 
-use App\Menu\Domain\Entity\Menu;
 use App\Quiz\Domain\Entity\Quiz;
 use App\Quiz\Domain\Entity\Score;
-use App\Quiz\Infrastructure\Repository\QuizRepository;
 use App\User\Domain\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use OpenApi\Attributes as OA;
-use OpenApi\Attributes\JsonContent;
-use OpenApi\Attributes\Property;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\AsController;
@@ -28,7 +24,6 @@ use Symfony\Component\Serializer\SerializerInterface;
 #[OA\Tag(name: 'Quiz')]
 class CreateScoreController
 {
-
     public function __construct(
         private readonly SerializerInterface $serializer,
         private readonly EntityManagerInterface $entityManager

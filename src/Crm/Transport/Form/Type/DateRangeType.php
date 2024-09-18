@@ -33,8 +33,9 @@ final class DateRangeType extends AbstractType
 {
     public const DATE_SPACER = ' - ';
 
-    public function __construct(private readonly LocaleService $localeService)
-    {
+    public function __construct(
+        private readonly LocaleService $localeService
+    ) {
     }
 
     public function configureOptions(OptionsResolver $resolver): void
@@ -66,7 +67,9 @@ final class DateRangeType extends AbstractType
             $formFormat = $converter->convert($format);
             $pattern = $converter->convertToPattern($formFormat);
 
-            return ['pattern' => $pattern . self::DATE_SPACER . $pattern];
+            return [
+                'pattern' => $pattern . self::DATE_SPACER . $pattern,
+            ];
         });
     }
 
@@ -88,7 +91,7 @@ final class DateRangeType extends AbstractType
                 'daterangepicker.thisYearUntilNow' => [$factory->createStartOfYear(), $factory->createDateTime('23:59:59')],
             ];
 
-            $thisYear = (int) $factory->createStartOfYear()->format('Y');
+            $thisYear = (int)$factory->createStartOfYear()->format('Y');
             for ($i = 0; $i < 3; $i++) {
                 $year = $thisYear - $i;
                 $ranges[$year] = [$year . '-01-01', $year . '-12-31'];
@@ -134,7 +137,7 @@ final class DateRangeType extends AbstractType
                     $formatDate
                 );
 
-                if (null === $range) {
+                if ($range === null) {
                     return '';
                 }
 
@@ -142,12 +145,12 @@ final class DateRangeType extends AbstractType
                     throw new \InvalidArgumentException('Invalid DateRange given');
                 }
 
-                if (null === $range->getBegin()) {
+                if ($range->getBegin() === null) {
                     return '';
                 }
 
                 $display = $dateFormatter->format($range->getBegin());
-                if (null !== $range->getEnd()) {
+                if ($range->getEnd() !== null) {
                     $display .= $separator . $dateFormatter->format($range->getEnd());
                 }
 

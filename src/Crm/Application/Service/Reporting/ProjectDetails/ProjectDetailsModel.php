@@ -35,13 +35,11 @@ final class ProjectDetailsModel
      * @var ActivityStatistic[]
      */
     private array $activities = [];
-    /**
-     * @var BudgetStatisticModel
-     */
     private ?BudgetStatisticModel $budgetStatisticModel = null;
 
-    public function __construct(private Project $project)
-    {
+    public function __construct(
+        private Project $project
+    ) {
     }
 
     public function getProject(): Project
@@ -68,7 +66,6 @@ final class ProjectDetailsModel
     }
 
     /**
-     * @param string $year
      * @return ActivityStatistic[]
      */
     public function getYearActivities(string $year): array
@@ -119,7 +116,6 @@ final class ProjectDetailsModel
     }
 
     /**
-     * @param string $year
      * @return UserYear[]
      */
     public function getUserYears(string $year): array

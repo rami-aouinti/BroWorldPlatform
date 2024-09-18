@@ -11,10 +11,5 @@ use App\User\Domain\Entity\User;
  */
 interface MessageRepositoryInterface
 {
-    /**
-        * @param User $sender
-        * @param User $receiver
-        * @return mixed
-     */
     public function findByUsers(User $sender, User $receiver): mixed;
 }

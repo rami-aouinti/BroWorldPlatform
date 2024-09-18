@@ -16,12 +16,13 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 final class ReportingService
 {
-    public function __construct(private EventDispatcherInterface $dispatcher, private AuthorizationCheckerInterface $security)
-    {
+    public function __construct(
+        private EventDispatcherInterface $dispatcher,
+        private AuthorizationCheckerInterface $security
+    ) {
     }
 
     /**
-     * @param User $user
      * @return ReportInterface[]
      */
     public function getAvailableReports(User $user): array

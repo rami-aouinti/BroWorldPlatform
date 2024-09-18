@@ -4,14 +4,11 @@ declare(strict_types=1);
 
 namespace App\Blog\Transport\Controller\Api\v1\Blog;
 
-use App\Blog\Domain\Entity\Comment;
 use App\Blog\Domain\Entity\Like;
 use App\Blog\Domain\Entity\Post;
-use App\Blog\Infrastructure\Repository\LikeRepository;
 use App\Notification\Domain\Entity\Notification;
 use App\User\Domain\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Exception\NotSupported;
 use Exception;
 use OpenApi\Attributes as OA;
 use OpenApi\Attributes\JsonContent;
@@ -31,7 +28,6 @@ use Symfony\Component\Serializer\SerializerInterface;
 #[OA\Tag(name: 'Blog')]
 readonly class LikePostController
 {
-
     public function __construct(
         private SerializerInterface $serializer,
         private EntityManagerInterface $entityManager
@@ -41,12 +37,7 @@ readonly class LikePostController
     /**
      * Get current user roles as an array, accessible only for 'IS_AUTHENTICATED_FULLY' users.
      *
-     * @param Request $request
-     * @param User    $loggedInUser
-     * @param Post    $post
-     *
      * @throws Exception
-     * @return JsonResponse
      */
     #[Route(
         path: '/v1/post/{post}/like',
@@ -96,7 +87,7 @@ readonly class LikePostController
     {
         $like = $this->entityManager->getRepository(Like::class)->findOneBy([
             'post' => $post,
-            'user' => $loggedInUser
+            'user' => $loggedInUser,
         ]);
 
         if ($like) {
@@ -111,7 +102,7 @@ readonly class LikePostController
                 $this->serializer->serialize(
                     [
                         'likesCount' => $post->getLikesCount(),
-                        'isLikedByUser' => false
+                        'isLikedByUser' => false,
                     ],
                     'json',
                     [],
@@ -135,7 +126,7 @@ readonly class LikePostController
             $this->serializer->serialize(
                 [
                     'likesCount' => $post->getLikesCount(),
-                    'isLikedByUser' => true
+                    'isLikedByUser' => true,
                 ],
                 'json',
                 [],

@@ -25,8 +25,9 @@ use Symfony\Component\Validator\Constraints\Valid;
 
 final class QuickEntryForm extends AbstractType
 {
-    public function __construct(private SystemConfiguration $configuration)
-    {
+    public function __construct(
+        private SystemConfiguration $configuration
+    ) {
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -81,7 +82,9 @@ final class QuickEntryForm extends AbstractType
             'allow_add' => true,
             'constraints' => [
                 new Valid(),
-                new All(['constraints' => [new QuickEntryModel()]])
+                new All([
+                    'constraints' => [new QuickEntryModel()],
+                ]),
             ],
         ]);
     }

@@ -8,8 +8,6 @@ use App\Menu\Domain\Entity\Menu;
 use App\Quiz\Infrastructure\Repository\QuizRepository;
 use App\User\Domain\Entity\User;
 use OpenApi\Attributes as OA;
-use OpenApi\Attributes\JsonContent;
-use OpenApi\Attributes\Property;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\AsController;
@@ -25,7 +23,6 @@ use Symfony\Component\Serializer\SerializerInterface;
 #[OA\Tag(name: 'Quiz')]
 class QuizController
 {
-
     public function __construct(
         private readonly SerializerInterface $serializer,
     ) {
@@ -60,15 +57,14 @@ class QuizController
                 'id' => $question->getId(),
                 'text' => $question->getText(), // Assume que text est la même chose que question
                 'answer' => 0,
-                'choices' => array_map(function($choice) {
+                'choices' => array_map(function ($choice) {
                     return [
                         'id' => $choice->getId(),
-                        'text' => $choice->getText()
+                        'text' => $choice->getText(),
                     ];
-                }, $question->getChoices()->toArray())
+                }, $question->getChoices()->toArray()),
             ];
         }
-
 
         $randomKeys = array_rand($data, 5);
 
@@ -81,7 +77,6 @@ class QuizController
         foreach ($randomKeys as $key) {
             $randomObjects[] = $data[$key];
         }
-
 
         return new JsonResponse(
             $this->serializer->serialize(

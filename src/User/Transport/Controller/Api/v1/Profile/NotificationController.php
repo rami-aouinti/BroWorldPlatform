@@ -27,7 +27,6 @@ use Symfony\Component\Serializer\SerializerInterface;
 #[OA\Tag(name: 'Profile')]
 readonly class NotificationController
 {
-
     public function __construct(
         private SerializerInterface $serializer,
         private EntityManagerInterface $entityManager,
@@ -37,11 +36,7 @@ readonly class NotificationController
     /**
      * Get current user roles as an array, accessible only for 'IS_AUTHENTICATED_FULLY' users.
      *
-     * @param User                   $loggedInUser
-     * @param NotificationRepository $notificationRepository
-     *
      * @throws NotSupported
-     * @return JsonResponse
      */
     #[Route(
         path: '/v1/profile/notifications',
@@ -91,8 +86,7 @@ readonly class NotificationController
     {
         $notifications = $notificationRepository->findBy(
             [
-                'user' => $loggedInUser
-
+                'user' => $loggedInUser,
             ]
         );
 

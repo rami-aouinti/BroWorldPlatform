@@ -12,9 +12,9 @@ namespace App\Crm\Application\Service\Invoice;
 use App\Crm\Application\Service\Activity\ActivityStatisticService;
 use App\Crm\Application\Service\Customer\CustomerStatisticService;
 use App\Crm\Application\Service\Project\ProjectStatisticService;
-use App\Crm\Infrastructure\Repository\Query\InvoiceQuery;
 use App\Crm\Domain\Entity\Customer;
 use App\Crm\Domain\Entity\InvoiceTemplate;
+use App\Crm\Infrastructure\Repository\Query\InvoiceQuery;
 
 final class InvoiceModelFactory
 {

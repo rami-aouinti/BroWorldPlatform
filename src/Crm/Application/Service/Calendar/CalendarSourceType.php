@@ -12,8 +12,6 @@ declare(strict_types=1);
 namespace App\Crm\Application\Service\Calendar;
 
 /**
- * Class CalendarSourceType
- *
  * @package App\Calendar
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */

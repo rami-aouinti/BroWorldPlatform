@@ -22,14 +22,14 @@ final class ActivityFormTypeQuery extends BaseFormTypeQuery
      */
     public function __construct(Activity|array|int|null $activity = null, Project|array|int|null $project = null)
     {
-        if (null !== $activity) {
+        if ($activity !== null) {
             if (!\is_array($activity)) {
                 $activity = [$activity];
             }
             $this->setActivities($activity);
         }
 
-        if (null !== $project) {
+        if ($project !== null) {
             if (!\is_array($project)) {
                 $project = [$project];
             }
@@ -37,15 +37,12 @@ final class ActivityFormTypeQuery extends BaseFormTypeQuery
         }
     }
 
-    /**
-     * @return Activity|null
-     */
     public function getActivityToIgnore(): ?Activity
     {
         return $this->activityToIgnore;
     }
 
-    public function setActivityToIgnore(Activity $activityToIgnore): ActivityFormTypeQuery
+    public function setActivityToIgnore(Activity $activityToIgnore): self
     {
         $this->activityToIgnore = $activityToIgnore;
 

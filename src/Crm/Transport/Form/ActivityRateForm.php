@@ -23,7 +23,7 @@ class ActivityRateForm extends AbstractRateForm
             /** @var ActivityRate $rate */
             $rate = $options['data'];
 
-            if (null !== $rate->getActivity() && !$rate->getActivity()->isGlobal()) {
+            if ($rate->getActivity() !== null && !$rate->getActivity()->isGlobal()) {
                 $currency = $rate->getActivity()->getProject()->getCustomer()->getCurrency();
             }
         }
@@ -39,7 +39,7 @@ class ActivityRateForm extends AbstractRateForm
             'csrf_field_name' => '_token',
             'csrf_token_id' => 'admin_customer_rate_edit',
             'attr' => [
-                'data-form-event' => 'kimai.activityUpdate'
+                'data-form-event' => 'kimai.activityUpdate',
             ],
         ]);
     }

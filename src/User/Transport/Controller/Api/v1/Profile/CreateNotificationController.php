@@ -5,21 +5,17 @@ declare(strict_types=1);
 namespace App\User\Transport\Controller\Api\v1\Profile;
 
 use App\General\Domain\Utils\JSON;
-use App\Messenger\Domain\Entity\Message;
 use App\Notification\Application\Service\NotificationService;
 use App\Notification\Domain\Entity\Notification;
 use App\User\Domain\Entity\Profile;
 use App\User\Domain\Entity\User;
-use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Exception\NotSupported;
 use JsonException;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Attributes as OA;
 use OpenApi\Attributes\JsonContent;
 use OpenApi\Attributes\Property;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\AsController;
@@ -28,7 +24,6 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Authorization\Voter\AuthenticatedVoter;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\Mercure\Update;
 
 /**
  * @package App\Profile
@@ -47,12 +42,7 @@ class CreateNotificationController extends AbstractController
     /**
      * Get current user profile data, accessible only for 'IS_AUTHENTICATED_FULLY' users.
      *
-     * @param User         $loggedInUser
-     * @param Request      $request
-     * @param HubInterface $hub
-     *
      * @throws JsonException
-     * @return JsonResponse
      */
     #[Route(
         path: '/v1/notification',
@@ -104,8 +94,7 @@ class CreateNotificationController extends AbstractController
         User $loggedInUser,
         Request $request,
         HubInterface $hub
-    ): JsonResponse
-    {
+    ): JsonResponse {
         $data = $request->request->get('content');
         $notification = new Notification();
         $notification->setUser($loggedInUser);
@@ -115,8 +104,6 @@ class CreateNotificationController extends AbstractController
         $this->entityManager->flush();
 
         $this->notificationService->sendNotification($loggedInUser, $notification);
-
-
 
         /** @var array<string, string|array<string, string>> $output */
         $output = JSON::decode(

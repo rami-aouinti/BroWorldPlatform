@@ -14,8 +14,9 @@ final class RecentActivitiesSource implements DragAndDropSource
     /**
      * @param DragAndDropEntry[] $entries
      */
-    public function __construct(private array $entries)
-    {
+    public function __construct(
+        private array $entries
+    ) {
     }
 
     public function getTitle(): string
@@ -43,7 +44,9 @@ final class RecentActivitiesSource implements DragAndDropSource
      */
     public function getRouteParams(): array
     {
-        return ['full' => 'true'];
+        return [
+            'full' => 'true',
+        ];
     }
 
     /**

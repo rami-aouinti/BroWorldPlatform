@@ -15,7 +15,9 @@ use App\Crm\Domain\Entity\WorkingTime;
 final class Day extends BaseDay
 {
     private ?WorkingTime $workingTime = null;
-    /** @var array<DayAddon> */
+    /**
+     * @var array<DayAddon>
+     */
     private array $addons = [];
 
     public function isLocked(): bool

@@ -11,9 +11,9 @@ declare(strict_types=1);
 
 namespace App\Crm\Transport\Controller\Api\v1;
 
-
 use App\Crm\Application\Plugin\PluginManager;
 use App\Crm\Application\Service\Utils\PageSetup;
+use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
@@ -21,11 +21,8 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
-use OpenApi\Attributes as OA;
 
 /**
- * Class PluginController
- *
  * @package App\Crm\Transport\Controller\Api\v1
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
@@ -51,7 +48,7 @@ final class PluginController extends AbstractController
             'page_setup' => $page,
             'plugins' => $plugins,
             'installed' => $installed,
-            'extensions' => $this->getPluginInformation($client, $cache)
+            'extensions' => $this->getPluginInformation($client, $cache),
         ]);
     }
 

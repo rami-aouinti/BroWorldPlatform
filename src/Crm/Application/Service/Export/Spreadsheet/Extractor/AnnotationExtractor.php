@@ -73,7 +73,9 @@ final class AnnotationExtractor implements ExtractorInterface
                 $arguments['label'],
                 $arguments['type'] ?? 'string',
                 function ($obj) use ($parsed) {
-                    return $parsed->getNodes()->evaluate([], ['object' => $obj]);
+                    return $parsed->getNodes()->evaluate([], [
+                        'object' => $obj,
+                    ]);
                 }
             );
 
@@ -155,7 +157,7 @@ final class AnnotationExtractor implements ExtractorInterface
         }
 
         foreach ($columns as $name => $definition) {
-            if (null === $definition) {
+            if ($definition === null) {
                 unset($columns[$name]);
             }
         }

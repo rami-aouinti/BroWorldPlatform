@@ -4,13 +4,11 @@ declare(strict_types=1);
 
 namespace App\Quiz\Domain\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Class Question
- *
  * @package App\Quiz\Domain\Entity
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
@@ -43,53 +41,52 @@ class Question
         $this->choices = new ArrayCollection();
     }
 
-    public  function getId(): int
+    public function getId(): int
     {
         return $this->id;
     }
-    public  function setId(int $id):void
+    public function setId(int $id): void
     {
         $this->id = $id;
     }
-    public  function getText(): string
+    public function getText(): string
     {
         return $this->text;
     }
-    public  function setText(string $text):void
+    public function setText(string $text): void
     {
         $this->text = $text;
     }
-    public  function getCorrectAnswer(): string
+    public function getCorrectAnswer(): string
     {
         return $this->correctAnswer;
     }
-    public  function setCorrectAnswer(string $correctAnswer):void
+    public function setCorrectAnswer(string $correctAnswer): void
     {
         $this->correctAnswer = $correctAnswer;
     }
-    public  function getIncorrectAnswers(): array
+    public function getIncorrectAnswers(): array
     {
         return $this->incorrectAnswers;
     }
-    public  function setIncorrectAnswers(array $incorrectAnswers):void
+    public function setIncorrectAnswers(array $incorrectAnswers): void
     {
         $this->incorrectAnswers = $incorrectAnswers;
     }
-    public  function getQuiz(): Quiz
+    public function getQuiz(): Quiz
     {
         return $this->quiz;
     }
-    public  function setQuiz(Quiz $quiz):void
+    public function setQuiz(Quiz $quiz): void
     {
         $this->quiz = $quiz;
     }
-    public  function getChoices(): Collection
+    public function getChoices(): Collection
     {
         return $this->choices;
     }
-    public  function setChoices(Collection $choices):void
+    public function setChoices(Collection $choices): void
     {
         $this->choices = $choices;
     }
-
 }

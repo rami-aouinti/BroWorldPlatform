@@ -15,8 +15,6 @@ interface PaginatorInterface extends AdapterInterface
 {
     /**
      * Returns all available results without pagination.
-     *
-     * @return iterable
      */
     public function getAll(): iterable;
 }

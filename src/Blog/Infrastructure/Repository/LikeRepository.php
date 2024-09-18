@@ -13,18 +13,9 @@ declare(strict_types=1);
 
 namespace App\Blog\Infrastructure\Repository;
 
-use App\Blog\Application\Pagination\Paginator;
 use App\Blog\Domain\Entity\Like;
-use App\Blog\Domain\Repository\Interfaces\PostRepositoryInterface;
 use App\General\Infrastructure\Repository\BaseRepository;
-use App\User\Domain\Entity\User;
-use DateTimeImmutable;
 use Doctrine\Persistence\ManagerRegistry;
-
-use Exception;
-
-use function count;
-use function Symfony\Component\String\u;
 
 /**
  * @package App\Like

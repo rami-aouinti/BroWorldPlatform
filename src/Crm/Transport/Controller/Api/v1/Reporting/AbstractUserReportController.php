@@ -11,27 +11,27 @@ declare(strict_types=1);
 
 namespace App\Crm\Transport\Controller\Api\v1\Reporting;
 
-
-use App\Crm\Transport\Controller\Api\v1\AbstractController;
-use App\User\Domain\Entity\User;
 use App\Crm\Application\Service\Model\DailyStatistic;
 use App\Crm\Application\Service\Model\DateStatisticInterface;
 use App\Crm\Application\Service\Model\Statistic\StatisticDate;
+use App\Crm\Application\Service\Timesheet\TimesheetStatisticService;
 use App\Crm\Infrastructure\Repository\ActivityRepository;
 use App\Crm\Infrastructure\Repository\ProjectRepository;
-use App\Crm\Application\Service\Timesheet\TimesheetStatisticService;
+use App\Crm\Transport\Controller\Api\v1\AbstractController;
+use App\User\Domain\Entity\User;
 use DateTimeInterface;
 
 /**
- * Class AbstractUserReportController
- *
  * @package App\Crm\Transport\Controller\Api\v1\Reporting
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 abstract class AbstractUserReportController extends AbstractController
 {
-    public function __construct(protected TimesheetStatisticService $statisticService, private ProjectRepository $projectRepository, private ActivityRepository $activityRepository)
-    {
+    public function __construct(
+        protected TimesheetStatisticService $statisticService,
+        private ProjectRepository $projectRepository,
+        private ActivityRepository $activityRepository
+    ) {
     }
 
     protected function canSelectUser(): bool
@@ -124,7 +124,7 @@ abstract class AbstractUserReportController extends AbstractController
 
         $customers = [];
         foreach ($data as $id => $row) {
-            $customerId = (string) $row['project']->getCustomer()->getId();
+            $customerId = (string)$row['project']->getCustomer()->getId();
             if (!\array_key_exists($customerId, $customers)) {
                 $customers[$customerId] = [
                     'customer' => $row['project']->getCustomer(),

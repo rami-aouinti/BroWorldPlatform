@@ -22,8 +22,6 @@ use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Class UserPreference
- *
  * @package App\Crm\Domain\Entity
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
@@ -82,7 +80,6 @@ class UserPreference
     private array $constraints = [];
     /**
      * An array of options for the form element
-     * @var array
      */
     private array $options = [];
     private int $order = 1000;
@@ -99,7 +96,7 @@ class UserPreference
         return $this->id;
     }
 
-    public function setId(int $id): UserPreference
+    public function setId(int $id): self
     {
         $this->id = $id;
 
@@ -111,7 +108,7 @@ class UserPreference
         return $this->user;
     }
 
-    public function setUser(User $user): UserPreference
+    public function setUser(User $user): self
     {
         $this->user = $user;
 
@@ -134,17 +131,12 @@ class UserPreference
         return $this->sanitizeName($name) === $this->getName();
     }
 
-    private function sanitizeName(?string $name): string
-    {
-        return str_replace(['.', '-'], '_', $name);
-    }
-
     public function getValue(): bool|int|float|string|null
     {
         return match ($this->type) {
-            YesNoType::class, CheckboxType::class => (bool) $this->value,
-            IntegerType::class => (int) $this->value,
-            NumberType::class => (float) $this->value,
+            YesNoType::class, CheckboxType::class => (bool)$this->value,
+            IntegerType::class => (int)$this->value,
+            NumberType::class => (float)$this->value,
             default => $this->value,
         };
     }
@@ -152,11 +144,8 @@ class UserPreference
     /**
      * Given $value will not be serialized before its stored, so it should be one of the types:
      * integer, float, string, boolean or null
-     *
-     * @param mixed $value
-     * @return UserPreference
      */
-    public function setValue(mixed $value): UserPreference
+    public function setValue(mixed $value): self
     {
         $this->value = $value;
 
@@ -166,7 +155,7 @@ class UserPreference
     /**
      * Sets the form type to edit that setting.
      */
-    public function setType(string $type): UserPreference
+    public function setType(string $type): self
     {
         $this->type = $type;
 
@@ -183,7 +172,7 @@ class UserPreference
         return $this->enabled;
     }
 
-    public function setEnabled(bool $enabled): UserPreference
+    public function setEnabled(bool $enabled): self
     {
         $this->enabled = $enabled;
 
@@ -206,7 +195,6 @@ class UserPreference
     /**
      * Adds a constraint which is used for validation of the value.
      *
-     * @param Constraint $constraint
      * @return $this
      */
     public function addConstraint(Constraint $constraint): static
@@ -226,11 +214,8 @@ class UserPreference
 
     /**
      * Set an array of options for the FormType.
-     *
-     * @param array $options
-     * @return UserPreference
      */
-    public function setOptions(array $options): UserPreference
+    public function setOptions(array $options): self
     {
         $this->options = $options;
 
@@ -239,8 +224,6 @@ class UserPreference
 
     /**
      * Returns an array with options for the FormType.
-     *
-     * @return array
      */
     public function getOptions(): array
     {
@@ -261,14 +244,14 @@ class UserPreference
         return $this->order;
     }
 
-    public function setOrder(int $order): UserPreference
+    public function setOrder(int $order): self
     {
         $this->order = $order;
 
         return $this;
     }
 
-    public function setSection(string $section): UserPreference
+    public function setSection(string $section): self
     {
         $this->section = $section;
 
@@ -278,5 +261,10 @@ class UserPreference
     public function getSection(): string
     {
         return $this->section;
+    }
+
+    private function sanitizeName(?string $name): string
+    {
+        return str_replace(['.', '-'], '_', $name);
     }
 }

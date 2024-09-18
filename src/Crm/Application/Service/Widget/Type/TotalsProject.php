@@ -15,8 +15,9 @@ use App\Crm\Infrastructure\Repository\Query\ProjectQuery;
 
 final class TotalsProject extends AbstractWidget
 {
-    public function __construct(private ProjectRepository $project)
-    {
+    public function __construct(
+        private ProjectRepository $project
+    ) {
     }
 
     public function getTitle(): string

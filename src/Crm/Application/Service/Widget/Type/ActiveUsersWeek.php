@@ -15,8 +15,9 @@ use App\Crm\Infrastructure\Repository\TimesheetRepository;
 
 final class ActiveUsersWeek extends AbstractActiveUsers
 {
-    public function __construct(private TimesheetRepository $repository)
-    {
+    public function __construct(
+        private TimesheetRepository $repository
+    ) {
     }
 
     /**
@@ -25,7 +26,9 @@ final class ActiveUsersWeek extends AbstractActiveUsers
      */
     public function getOptions(array $options = []): array
     {
-        return array_merge(['color' => WidgetInterface::COLOR_WEEK], parent::getOptions($options));
+        return array_merge([
+            'color' => WidgetInterface::COLOR_WEEK,
+        ], parent::getOptions($options));
     }
 
     public function getId(): string

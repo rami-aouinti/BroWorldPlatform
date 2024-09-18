@@ -18,8 +18,10 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 final class WorkingTimeYearEvent extends Event
 {
-    public function __construct(private Year $year, private \DateTimeInterface $until)
-    {
+    public function __construct(
+        private Year $year,
+        private \DateTimeInterface $until
+    ) {
     }
 
     public function getUntil(): \DateTimeInterface

@@ -19,8 +19,10 @@ final class ProjectDateRangeQuery
     private bool $includeNoWork = false;
     private ?string $budgetType = null;
 
-    public function __construct(\DateTime $month, private User $user)
-    {
+    public function __construct(
+        \DateTime $month,
+        private User $user
+    ) {
         $this->month = clone $month;
     }
 

@@ -25,7 +25,6 @@ use Throwable;
 #[ORM\Table(name: 'configuration')]
 class Configuration implements EntityInterface, ConfigurationInterface
 {
-
     use Blameable;
     use Timestampable;
     use Uuid;
@@ -77,7 +76,7 @@ class Configuration implements EntityInterface, ConfigurationInterface
     #[Assert\NotNull]
     private mixed $configurationEntry = null;
 
-    #[ORM\ManyToOne(targetEntity: User::class, cascade: ['persist'] , inversedBy: 'configurations')]
+    #[ORM\ManyToOne(targetEntity: User::class, cascade: ['persist'], inversedBy: 'configurations')]
     #[ORM\JoinColumn(nullable: true)]
     private ?User $user = null;
 
@@ -94,22 +93,22 @@ class Configuration implements EntityInterface, ConfigurationInterface
         return $this->id->toString();
     }
 
-    public  function getConfigurationKey(): string
+    public function getConfigurationKey(): string
     {
         return $this->configurationKey;
     }
-    public  function setConfigurationKey(string $configurationKey):self
+    public function setConfigurationKey(string $configurationKey): self
     {
         $this->configurationKey = $configurationKey;
 
         return $this;
     }
 
-    public  function getConfigurationEntry(): mixed
+    public function getConfigurationEntry(): mixed
     {
         return $this->configurationEntry;
     }
-    public  function setConfigurationEntry(mixed $configurationEntry):self
+    public function setConfigurationEntry(mixed $configurationEntry): self
     {
         $this->configurationEntry = $configurationEntry;
 
@@ -127,5 +126,4 @@ class Configuration implements EntityInterface, ConfigurationInterface
 
         return $this;
     }
-
 }

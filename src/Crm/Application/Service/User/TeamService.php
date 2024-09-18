@@ -14,8 +14,6 @@ namespace App\Crm\Application\Service\User;
 use App\Crm\Infrastructure\Repository\TeamRepository;
 
 /**
- * Class TeamService
- *
  * @package App\Crm\Application\Service\User
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
@@ -26,8 +24,9 @@ final class TeamService
      */
     private array $cache = [];
 
-    public function __construct(private TeamRepository $repository)
-    {
+    public function __construct(
+        private TeamRepository $repository
+    ) {
     }
 
     public function countTeams(): int

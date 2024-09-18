@@ -90,16 +90,14 @@ class IndexController
     )]
     public function __invoke(User $loggedInUser, User $receiver, MessageRepository $messageRepository): JsonResponse
     {
-
         $messagesSentByUserToUser = $messageRepository->findBy([
             'sender' => $loggedInUser,
-            'receiver' => $receiver
+            'receiver' => $receiver,
         ]);
-
 
         $messagesSentByUserToUserReverse = $messageRepository->findBy([
             'sender' => $receiver,
-            'receiver' => $loggedInUser
+            'receiver' => $loggedInUser,
         ]);
 
         $allMessages = array_merge($messagesSentByUserToUser, $messagesSentByUserToUserReverse);
@@ -129,7 +127,7 @@ class IndexController
             $this->serializer->serialize(
                 [
                     'messages' => $messages,
-                    'listUserConversations' => $listUserConversations
+                    'listUserConversations' => $listUserConversations,
                 ],
                 'json',
                 [
@@ -142,11 +140,6 @@ class IndexController
         return new JsonResponse($output);
     }
 
-    /**
-     * @param $date
-     *
-     * @return string
-     */
     private function getMessageDate($date): string
     {
         $now = new DateTime();
@@ -161,6 +154,7 @@ class IndexController
         } else {
             $formattedDate = $date->format('F j, Y'); // Format par défaut
         }
-    return $formattedDate;
+
+        return $formattedDate;
     }
 }

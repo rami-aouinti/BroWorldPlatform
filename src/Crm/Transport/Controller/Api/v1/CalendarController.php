@@ -13,11 +13,11 @@ namespace App\Crm\Transport\Controller\Api\v1;
 
 use App\Crm\Application\Service\Calendar\CalendarService;
 use App\Crm\Application\Service\Configuration\SystemConfiguration;
-
-use App\User\Domain\Entity\User;
-use App\Crm\Transport\Form\CalendarForm;
 use App\Crm\Application\Service\Timesheet\TrackingModeService;
 use App\Crm\Application\Service\Utils\PageSetup;
+use App\Crm\Transport\Form\CalendarForm;
+use App\User\Domain\Entity\User;
+use OpenApi\Attributes as OA;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,7 +25,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
-use OpenApi\Attributes as OA;
 
 /**
  * Controller used to display calendars.
@@ -40,8 +39,7 @@ final class CalendarController extends AbstractController
         private readonly CalendarService $calendarService,
         private readonly SystemConfiguration $configuration,
         private readonly TrackingModeService $service
-    )
-    {
+    ) {
     }
 
     /**
@@ -56,7 +54,9 @@ final class CalendarController extends AbstractController
         $profile = $this->getUser();
 
         if ($this->isGranted('view_other_timesheet')) {
-            $form = $this->createFormForGetRequest(CalendarForm::class, ['user' => $profile], [
+            $form = $this->createFormForGetRequest(CalendarForm::class, [
+                'user' => $profile,
+            ], [
                 'action' => $this->generateUrl('calendar'),
             ]);
 

@@ -19,8 +19,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 use function get_class;
 
 /**
- * Class ProjectMeta
- *
  * @package App\Crm\Domain\Entity
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */

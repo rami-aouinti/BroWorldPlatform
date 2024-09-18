@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Configuration\Transport\AutoMapper\Configuration;
 
-use App\General\Transport\AutoMapper\RestAutoMapperConfiguration;
 use App\Configuration\Application\DTO\Configuration\ConfigurationCreate;
 use App\Configuration\Application\DTO\Configuration\ConfigurationPatch;
 use App\Configuration\Application\DTO\Configuration\ConfigurationUpdate;
+use App\General\Transport\AutoMapper\RestAutoMapperConfiguration;
 
 /**
  * @package App\Configuration

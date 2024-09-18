@@ -15,8 +15,10 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 
 abstract class AbstractUserRevenuePeriod extends AbstractWidget
 {
-    public function __construct(private TimesheetRepository $repository, private EventDispatcherInterface $dispatcher)
-    {
+    public function __construct(
+        private TimesheetRepository $repository,
+        private EventDispatcherInterface $dispatcher
+    ) {
     }
 
     public function getTitle(): string

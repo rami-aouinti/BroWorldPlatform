@@ -22,8 +22,9 @@ class BudgetStatisticModel implements BudgetStatisticModelInterface
     private ?BudgetStatistic $statistic = null;
     private ?BudgetStatistic $statisticTotal = null;
 
-    public function __construct(private EntityWithBudget $entity)
-    {
+    public function __construct(
+        private EntityWithBudget $entity
+    ) {
     }
 
     public function getEntity(): EntityWithBudget

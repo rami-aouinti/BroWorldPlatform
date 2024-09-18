@@ -16,8 +16,9 @@ use App\Crm\Infrastructure\Repository\TimesheetRepository;
 
 final class ActiveTimesheets extends AbstractWidgetType
 {
-    public function __construct(private TimesheetRepository $repository)
-    {
+    public function __construct(
+        private TimesheetRepository $repository
+    ) {
     }
 
     /**
@@ -33,7 +34,9 @@ final class ActiveTimesheets extends AbstractWidgetType
             'color' => WidgetInterface::COLOR_TOTAL,
             'icon' => 'duration',
             'route' => $route,
-            'routeOptions' => ['state' => TimesheetQuery::STATE_RUNNING],
+            'routeOptions' => [
+                'state' => TimesheetQuery::STATE_RUNNING,
+            ],
         ], parent::getOptions($options));
     }
 

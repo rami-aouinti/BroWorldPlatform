@@ -18,8 +18,9 @@ final class InvoiceModelActivityHydrator implements InvoiceModelHydrator
 {
     use BudgetHydratorTrait;
 
-    public function __construct(private ActivityStatisticService $activityStatistic)
-    {
+    public function __construct(
+        private ActivityStatisticService $activityStatistic
+    ) {
     }
 
     public function hydrate(InvoiceModel $model): array

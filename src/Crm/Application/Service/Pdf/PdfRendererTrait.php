@@ -16,9 +16,6 @@ use Exception;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
-/**
- *
- */
 trait PdfRendererTrait
 {
     private bool $inline = false;

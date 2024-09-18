@@ -18,10 +18,10 @@ use App\Crm\Application\Service\Invoice\Hydrator\InvoiceModelDefaultHydrator;
 use App\Crm\Application\Service\Invoice\Hydrator\InvoiceModelProjectHydrator;
 use App\Crm\Application\Service\Invoice\Hydrator\InvoiceModelUserHydrator;
 use App\Crm\Application\Service\Project\ProjectStatisticService;
-use App\Crm\Infrastructure\Repository\Query\InvoiceQuery;
 use App\Crm\Domain\Entity\Customer;
 use App\Crm\Domain\Entity\ExportableItem;
 use App\Crm\Domain\Entity\InvoiceTemplate;
+use App\Crm\Infrastructure\Repository\Query\InvoiceQuery;
 use App\User\Domain\Entity\User;
 
 /**
@@ -92,23 +92,22 @@ final class InvoiceModel
 
     /**
      * @param ExportableItem[] $entries
-     * @return InvoiceModel
      */
-    public function addEntries(array $entries): InvoiceModel
+    public function addEntries(array $entries): self
     {
         $this->entries = array_merge($this->entries, $entries);
 
         return $this;
     }
 
-    public function addModelHydrator(InvoiceModelHydrator $hydrator): InvoiceModel
+    public function addModelHydrator(InvoiceModelHydrator $hydrator): self
     {
         $this->modelHydrator[] = $hydrator;
 
         return $this;
     }
 
-    public function addItemHydrator(InvoiceItemHydrator $hydrator): InvoiceModel
+    public function addItemHydrator(InvoiceItemHydrator $hydrator): self
     {
         $hydrator->setInvoiceModel($this);
 
@@ -164,18 +163,18 @@ final class InvoiceModel
 
     public function getInvoiceNumber(): string
     {
-        if (null === $this->generator) {
+        if ($this->generator === null) {
             throw new \Exception('InvoiceModel::getInvoiceNumber() cannot be called before calling setNumberGenerator()');
         }
 
-        if (null === $this->invoiceNumber) {
+        if ($this->invoiceNumber === null) {
             $this->invoiceNumber = $this->generator->getInvoiceNumber();
         }
 
         return $this->invoiceNumber;
     }
 
-    public function setNumberGenerator(NumberGeneratorInterface $generator): InvoiceModel
+    public function setNumberGenerator(NumberGeneratorInterface $generator): self
     {
         $this->generator = $generator;
         $this->generator->setModel($this);
@@ -183,7 +182,7 @@ final class InvoiceModel
         return $this;
     }
 
-    public function setCalculator(CalculatorInterface $calculator): InvoiceModel
+    public function setCalculator(CalculatorInterface $calculator): self
     {
         $this->calculator = $calculator;
         $this->calculator->setModel($this);
@@ -198,15 +197,13 @@ final class InvoiceModel
 
     /**
      * Returns the user who is currently creating the invoice.
-     *
-     * @return User|null
      */
     public function getUser(): ?User
     {
         return $this->user;
     }
 
-    public function setUser(User $user): InvoiceModel
+    public function setUser(User $user): self
     {
         $this->user = $user;
 
@@ -218,7 +215,7 @@ final class InvoiceModel
         return $this->formatter;
     }
 
-    public function setFormatter(InvoiceFormatter $formatter): InvoiceModel
+    public function setFormatter(InvoiceFormatter $formatter): self
     {
         $this->formatter = $formatter;
 
@@ -227,7 +224,7 @@ final class InvoiceModel
 
     public function getCurrency(): string
     {
-        if (null !== $this->getCustomer() && $this->getCustomer()->getCurrency() !== null) {
+        if ($this->getCustomer() !== null && $this->getCustomer()->getCurrency() !== null) {
             return $this->getCustomer()->getCurrency();
         }
 

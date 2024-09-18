@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Quiz\Infrastructure\DataFixtures\ORM;
 
-
 use App\Quiz\Domain\Entity\Category;
 use App\Quiz\Domain\Entity\Choice;
 use App\Quiz\Domain\Entity\Difficulty;
@@ -13,7 +12,6 @@ use App\Quiz\Domain\Entity\Quiz;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Faker\Factory;
-
 
 /**
  * @package App\Quiz
@@ -35,7 +33,6 @@ final class LoadQuizData extends Fixture
             $categoriesList[] = $category;
         }
 
-
         // Création de niveaux de difficulté
         $difficulties = ['easy', 'medium', 'hard'];
         foreach ($difficulties as $level) {
@@ -44,7 +41,6 @@ final class LoadQuizData extends Fixture
             $manager->persist($difficulty);
             $difficultiesList[] = $difficulty;
         }
-
 
         // Création de Quiz, Questions et Choices
         for ($i = 0; $i < 10; $i++) {
@@ -98,7 +94,6 @@ final class LoadQuizData extends Fixture
                 }
             }
         }
-
 
         for ($s = 0; $s < 10; $s++) {
             $quiz = new Quiz();

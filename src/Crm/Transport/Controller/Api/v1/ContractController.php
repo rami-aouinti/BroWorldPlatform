@@ -9,20 +9,19 @@
 
 namespace App\Crm\Transport\Controller\Api\v1;
 
-
-use App\User\Domain\Entity\User;
-use App\Crm\Transport\Event\WorkContractDetailControllerEvent;
-use App\Crm\Transport\Form\ContractByUserForm;
 use App\Crm\Application\Service\Reporting\YearByUser\YearByUser;
 use App\Crm\Application\Service\Utils\PageSetup;
 use App\Crm\Application\Service\WorkingTime\Model\BoxConfiguration;
 use App\Crm\Application\Service\WorkingTime\WorkingTimeService;
+use App\Crm\Transport\Event\WorkContractDetailControllerEvent;
+use App\Crm\Transport\Form\ContractByUserForm;
+use App\User\Domain\Entity\User;
+use OpenApi\Attributes as OA;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
-use OpenApi\Attributes as OA;
 
 /**
  * Users can control their working time statistics
@@ -73,7 +72,10 @@ final class ContractController extends AbstractController
         $page = new PageSetup('work_times');
         $page->setHelp('contract.html');
         $page->setActionName('contract');
-        $page->setActionPayload(['profile' => $profile, 'year' => $yearDate]);
+        $page->setActionPayload([
+            'profile' => $profile,
+            'year' => $yearDate,
+        ]);
         $page->setPaginationForm($form);
 
         // additional boxes by plugins

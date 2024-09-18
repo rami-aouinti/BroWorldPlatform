@@ -19,10 +19,6 @@ interface WriterInterface
 
     /**
      * Save the given spreadsheet
-     *
-     * @param Spreadsheet $spreadsheet
-     * @param array $options
-     * @return \SplFileInfo
      */
     public function save(Spreadsheet $spreadsheet, array $options = []): \SplFileInfo;
 }

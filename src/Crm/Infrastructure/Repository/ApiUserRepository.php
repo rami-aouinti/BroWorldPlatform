@@ -20,8 +20,9 @@ use Symfony\Component\Security\Core\User\UserInterface;
  */
 class ApiUserRepository implements UserLoaderInterface, PasswordUpgraderInterface
 {
-    public function __construct(private UserRepository $userRepository)
-    {
+    public function __construct(
+        private UserRepository $userRepository
+    ) {
     }
 
     public function loadUserByIdentifier(string $identifier): ?UserInterface

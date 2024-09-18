@@ -17,8 +17,12 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 final class InvoicePostRenderEvent extends Event
 {
-    public function __construct(private InvoiceModel $model, private InvoiceDocument $document, private RendererInterface $renderer, private Response $response)
-    {
+    public function __construct(
+        private InvoiceModel $model,
+        private InvoiceDocument $document,
+        private RendererInterface $renderer,
+        private Response $response
+    ) {
     }
 
     public function getModel(): InvoiceModel

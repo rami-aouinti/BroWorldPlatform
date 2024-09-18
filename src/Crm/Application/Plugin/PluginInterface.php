@@ -13,9 +13,6 @@ namespace App\Crm\Application\Plugin;
 
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
-/**
- *
- */
 #[AutoconfigureTag]
 interface PluginInterface
 {

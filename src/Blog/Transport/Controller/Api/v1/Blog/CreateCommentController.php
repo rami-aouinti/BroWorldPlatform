@@ -9,7 +9,6 @@ use App\Blog\Domain\Entity\Post;
 use App\Notification\Domain\Entity\Notification;
 use App\User\Domain\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
-use Exception;
 use OpenApi\Attributes as OA;
 use OpenApi\Attributes\JsonContent;
 use OpenApi\Attributes\Property;
@@ -28,7 +27,6 @@ use Symfony\Component\Serializer\SerializerInterface;
 #[OA\Tag(name: 'Blog')]
 readonly class CreateCommentController
 {
-
     public function __construct(
         private SerializerInterface $serializer,
         private EntityManagerInterface $entityManager
@@ -37,12 +35,6 @@ readonly class CreateCommentController
 
     /**
      * Get current user roles as an array, accessible only for 'IS_AUTHENTICATED_FULLY' users.
-     *
-     * @param Request $request
-     * @param User    $loggedInUser
-     * @param Post    $post
-     *
-     * @return JsonResponse
      */
     #[Route(
         path: '/v1/blog/post/comment/{post}',

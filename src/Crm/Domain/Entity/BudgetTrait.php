@@ -11,14 +11,10 @@ declare(strict_types=1);
 
 namespace App\Crm\Domain\Entity;
 
-use App\Crm\Application\Service\Export\Annotation as Exporter;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- *
- */
 trait BudgetTrait
 {
     /**
@@ -107,6 +103,6 @@ trait BudgetTrait
 
     public function hasBudgets(): bool
     {
-        return ($this->hasTimeBudget() || $this->hasBudget());
+        return $this->hasTimeBudget() || $this->hasBudget();
     }
 }

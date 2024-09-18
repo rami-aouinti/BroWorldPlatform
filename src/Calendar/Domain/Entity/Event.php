@@ -10,8 +10,6 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- * Class Event
- *
  * @package App\Calendar\Domain\Entity
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
@@ -20,9 +18,6 @@ class Event
 {
     final public const string SET_USER_EVENT = 'set.UserEvent';
 
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
@@ -55,11 +50,11 @@ class Event
     ])]
     private string $className;
 
-    #[ORM\ManyToOne(targetEntity: User::class, cascade: ['persist'] , inversedBy: 'events')]
+    #[ORM\ManyToOne(targetEntity: User::class, cascade: ['persist'], inversedBy: 'events')]
     #[ORM\JoinColumn(nullable: true)]
     private ?User $user = null;
 
-    public  function getId(): int
+    public function getId(): int
     {
         return $this->id;
     }
@@ -72,6 +67,7 @@ class Event
     public function setTitle(string $title): self
     {
         $this->title = $title;
+
         return $this;
     }
 
@@ -83,6 +79,7 @@ class Event
     public function setStart(\DateTimeInterface $start): self
     {
         $this->start = $start;
+
         return $this;
     }
 
@@ -94,6 +91,7 @@ class Event
     public function setEnd(\DateTimeInterface $end): self
     {
         $this->end = $end;
+
         return $this;
     }
 
@@ -105,6 +103,7 @@ class Event
     public function setClassName(string $className): self
     {
         $this->className = $className;
+
         return $this;
     }
 

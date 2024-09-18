@@ -9,8 +9,8 @@
 
 namespace App\Crm\Transport\Form;
 
-use App\Crm\Transport\Form\Type\YesNoType;
 use App\Crm\Domain\Entity\Tag;
+use App\Crm\Transport\Form\Type\YesNoType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -26,7 +26,7 @@ class TagEditForm extends AbstractType
             ->add('name', TextType::class, [
                 'label' => 'name',
                 'attr' => [
-                    'autofocus' => 'autofocus'
+                    'autofocus' => 'autofocus',
                 ],
                 'documentation' => [
                     'type' => 'string',
@@ -49,7 +49,7 @@ class TagEditForm extends AbstractType
             'csrf_field_name' => '_token',
             'csrf_token_id' => 'tags_edit',
             'attr' => [
-                'data-form-event' => 'kimai.tagUpdate'
+                'data-form-event' => 'kimai.tagUpdate',
             ],
         ]);
     }

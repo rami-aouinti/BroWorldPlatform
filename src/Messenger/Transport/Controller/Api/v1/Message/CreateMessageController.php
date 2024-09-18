@@ -20,11 +20,11 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Mercure\HubInterface;
+use Symfony\Component\Mercure\Update;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Authorization\Voter\AuthenticatedVoter;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\Mercure\Update;
 
 /**
  * @package App\Message
@@ -96,8 +96,7 @@ class CreateMessageController extends AbstractController
         User $receiver,
         Request $request,
         HubInterface $hub
-    ): JsonResponse
-    {
+    ): JsonResponse {
         $data = $request->request->get('content');
         $message = new Message();
         $message->setSender($loggedInUser);
@@ -110,7 +109,9 @@ class CreateMessageController extends AbstractController
 
         $update = new Update(
             '/chat/messages/' . $receiver->getUsername() . '/' . $loggedInUser->getUsername(),
-            json_encode(['message' => $message->getContent()])
+            json_encode([
+                'message' => $message->getContent(),
+            ])
         );
 
         //dd($update);
@@ -126,10 +127,9 @@ class CreateMessageController extends AbstractController
                     'file' => $e->getFile(),
                     'line' => $e->getLine(),
                     'message' => $e->getMessage(),
-                ]
+                ],
             ], 500);
         }
-
 
         /** @var array<string, string|array<string, string>> $output */
         $output = JSON::decode(

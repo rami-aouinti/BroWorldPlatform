@@ -42,8 +42,7 @@ final class DsnParserFactory
     public function parse(
         #[\SensitiveParameter]
         string $dsn
-    ): array
-    {
+    ): array {
         // see https://github.com/doctrine/dbal/pull/5843
 
         $options = $this->create()->parse($dsn);
@@ -55,7 +54,7 @@ final class DsnParserFactory
                 'defaultTableOptions' => [
                     'charset' => 'utf8mb4',
                     'collation' => 'utf8mb4_unicode_ci',
-                ]
+                ],
             ]
         );
 

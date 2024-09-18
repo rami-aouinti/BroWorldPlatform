@@ -19,14 +19,13 @@ use App\User\Domain\Entity\Traits\Blameable;
 use App\User\Domain\Entity\User;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Doctrine\UuidBinaryOrderedTimeType;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
-
-use Doctrine\Common\Collections\Collection;
 use Throwable;
 
 use function Symfony\Component\String\u;
@@ -103,10 +102,15 @@ class Comment
         $this->likes = new ArrayCollection();
     }
 
+    public function __toString(): string
+    {
+        return $this->content;
+    }
+
     #[Assert\IsTrue(message: 'comment.is_spam')]
     public function isLegitComment(): bool
     {
-        $containsInvalidCharacters = null !== u($this->content)->indexOf('@');
+        $containsInvalidCharacters = u($this->content)->indexOf('@') !== null;
 
         return !$containsInvalidCharacters;
     }
@@ -169,10 +173,9 @@ class Comment
                 return true;
             }
         }
+
         return false;
     }
-
-
 
     public function jsonSerialize(): string
     {
@@ -180,11 +183,6 @@ class Comment
         // so this method is used to customize its JSON representation when json_encode()
         // is called, for example in tags|json_encode (templates/form/fields.html.twig)
 
-        return $this->content;
-    }
-
-    public function __toString(): string
-    {
         return $this->content;
     }
 }

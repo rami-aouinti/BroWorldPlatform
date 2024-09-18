@@ -28,14 +28,13 @@ final class ThemeOptionsSubscriber implements EventSubscriberInterface
         private readonly TokenStorageInterface $storage,
         private readonly ContextHelper $helper,
         private readonly LocaleService $localeService
-    )
-    {
+    ) {
     }
 
     public static function getSubscribedEvents(): array
     {
         return [
-            KernelEvents::CONTROLLER => ['setThemeOptions', 100]
+            KernelEvents::CONTROLLER => ['setThemeOptions', 100],
         ];
     }
 
@@ -46,14 +45,14 @@ final class ThemeOptionsSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $this->helper->setAssetVersion((string) Constants::VERSION_ID);
+        $this->helper->setAssetVersion((string)Constants::VERSION_ID);
 
         if ($this->localeService->isRightToLeft($event->getRequest()->getLocale())) {
             $this->helper->setIsRightToLeft(true);
         }
 
         // ignore events like the toolbar where we do not have a token
-        if (null === $this->storage->getToken()) {
+        if ($this->storage->getToken() === null) {
             return;
         }
 

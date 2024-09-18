@@ -17,7 +17,6 @@ use App\Crm\Domain\Entity\Project;
 use App\Crm\Domain\Entity\Tag;
 use App\Crm\Domain\Entity\TimesheetMeta;
 use App\User\Domain\Entity\User;
-use App\Crm\Application\Service\Validator\Constraints as Constraints;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 

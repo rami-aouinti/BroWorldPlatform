@@ -11,17 +11,17 @@ declare(strict_types=1);
 
 namespace App\Crm\Transport\Controller\Api\v1;
 
+use App\Crm\Application\Service\Export\ServiceExport;
 use App\Crm\Domain\Entity\Timesheet;
 use App\Crm\Transport\Event\TimesheetMetaDisplayEvent;
-use App\Crm\Application\Service\Export\ServiceExport;
 use App\Crm\Transport\Form\TimesheetEditForm;
+use OpenApi\Attributes as OA;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
-use OpenApi\Attributes as OA;
 
 /**
  * No permission check on controller level, only for single routes.
@@ -36,8 +36,12 @@ use OpenApi\Attributes as OA;
 #[OA\Tag(name: 'Crm Timesheet Management')]
 final class TimesheetController extends TimesheetAbstractController
 {
-    #[Route(path: '/', name: 'timesheet', defaults: ['page' => 1], methods: ['GET'])]
-    #[Route(path: '/page/{page}', name: 'timesheet_paginated', requirements: ['page' => '[1-9]\d*'], methods: ['GET'])]
+    #[Route(path: '/', name: 'timesheet', defaults: [
+        'page' => 1,
+    ], methods: ['GET'])]
+    #[Route(path: '/page/{page}', name: 'timesheet_paginated', requirements: [
+        'page' => '[1-9]\d*',
+    ], methods: ['GET'])]
     #[IsGranted('view_own_timesheet')]
     public function indexAction(int $page, Request $request): Response
     {
@@ -96,6 +100,8 @@ final class TimesheetController extends TimesheetAbstractController
 
     protected function getDuplicateForm(Timesheet $entry, Timesheet $original): FormInterface
     {
-        return $this->generateCreateForm($entry, TimesheetEditForm::class, $this->generateUrl('timesheet_duplicate', ['id' => $original->getId()]));
+        return $this->generateCreateForm($entry, TimesheetEditForm::class, $this->generateUrl('timesheet_duplicate', [
+            'id' => $original->getId(),
+        ]));
     }
 }

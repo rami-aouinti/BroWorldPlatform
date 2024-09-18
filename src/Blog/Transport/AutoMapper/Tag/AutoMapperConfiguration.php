@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Blog\Transport\AutoMapper\Tag;
 
-use App\General\Transport\AutoMapper\RestAutoMapperConfiguration;
 use App\Blog\Application\DTO\Tag\TagCreate;
 use App\Blog\Application\DTO\Tag\TagPatch;
 use App\Blog\Application\DTO\Tag\TagUpdate;
+use App\General\Transport\AutoMapper\RestAutoMapperConfiguration;
 
 /**
  * @package App\Tag

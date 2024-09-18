@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Blog\Transport\Controller\Api\v1\Post;
 
+use App\Blog\Application\DTO\Post\PostCreate;
+use App\Blog\Application\DTO\Post\PostPatch;
+use App\Blog\Application\DTO\Post\PostUpdate;
 use App\Blog\Application\Resource\PostResource;
 use App\General\Transport\Rest\Controller;
 use App\General\Transport\Rest\ResponseHandler;
 use App\General\Transport\Rest\Traits\Actions;
-use App\Blog\Application\DTO\Post\PostCreate;
-use App\Blog\Application\DTO\Post\PostPatch;
-use App\Blog\Application\DTO\Post\PostUpdate;
 use OpenApi\Attributes as OA;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;

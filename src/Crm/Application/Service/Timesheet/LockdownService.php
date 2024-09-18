@@ -17,8 +17,9 @@ final class LockdownService
 {
     private ?bool $isActive = null;
 
-    public function __construct(private SystemConfiguration $configuration)
-    {
+    public function __construct(
+        private SystemConfiguration $configuration
+    ) {
     }
 
     public function isLockdownActive(): bool
@@ -38,18 +39,7 @@ final class LockdownService
             return null;
         }
 
-        return (string) $timezone;
-    }
-
-    private function getTimezone(User $user): \DateTimeZone
-    {
-        $timezone = $this->getLockdownTimezone();
-
-        if ($timezone === null) {
-            $timezone = $user->getTimezone();
-        }
-
-        return new \DateTimeZone($timezone);
+        return (string)$timezone;
     }
 
     public function getLockdownStart(User $user): ?\DateTimeInterface
@@ -64,37 +54,6 @@ final class LockdownService
         return $start->setTimezone(new \DateTimeZone($user->getTimezone()));
     }
 
-    private function getLockdownPeriodStart(): ?string
-    {
-        $start = $this->configuration->find('timesheet.rules.lockdown_period_start');
-
-        if (!\is_string($start) || trim($start) === '') {
-            return null;
-        }
-
-        $start = explode(',', $start);
-        if (\count($start) === 1) {
-            return $start[0];
-        }
-
-        $min = null;
-        $date = null;
-        foreach ($start as $dateString) {
-            $tmp = new \DateTimeImmutable($dateString);
-            if ($min === null) {
-                $min = $dateString;
-                $date = $tmp;
-                continue;
-            }
-            if ($tmp > $date) {
-                $min = $dateString;
-                $date = $tmp;
-            }
-        }
-
-        return $min;
-    }
-
     public function getLockdownEnd(User $user): ?\DateTimeInterface
     {
         $end = $this->getLockdownPeriodEnd();
@@ -105,37 +64,6 @@ final class LockdownService
         $end = new \DateTimeImmutable($end, $this->getTimezone($user));
 
         return $end->setTimezone(new \DateTimeZone($user->getTimezone()));
-    }
-
-    private function getLockdownPeriodEnd(): ?string
-    {
-        $end = $this->configuration->find('timesheet.rules.lockdown_period_end');
-
-        if (!\is_string($end) || trim($end) === '') {
-            return null;
-        }
-
-        $end = explode(',', $end);
-        if (\count($end) === 1) {
-            return $end[0];
-        }
-
-        $min = null;
-        $date = null;
-        foreach ($end as $dateString) {
-            $tmp = new \DateTimeImmutable($dateString);
-            if ($min === null) {
-                $min = $dateString;
-                $date = $tmp;
-                continue;
-            }
-            if ($tmp > $date) {
-                $min = $dateString;
-                $date = $tmp;
-            }
-        }
-
-        return $min;
     }
 
     public function getLockdownGrace(User $user): ?\DateTimeInterface
@@ -155,25 +83,9 @@ final class LockdownService
         return $grace->modify($gracePeriod);
     }
 
-    private function getLockdownGracePeriod(): ?string
-    {
-        $grace = $this->configuration->find('timesheet.rules.lockdown_grace_period');
-
-        if ($grace === null || $grace === '') {
-            return null;
-        }
-
-        return (string) $grace;
-    }
-
     /**
      * Does not check if the current user is allowed to edit timesheets in lockdown situations.
      * This needs to be performed earlier by yourself (see TimesheetVoter or LockdownValidator).
-     *
-     * @param Timesheet $timesheet
-     * @param \DateTimeInterface $now
-     * @param bool $allowEditInGracePeriod
-     * @return bool
      */
     public function isEditable(Timesheet $timesheet, \DateTimeInterface $now, bool $allowEditInGracePeriod = false): bool
     {
@@ -183,7 +95,7 @@ final class LockdownService
 
         $timesheetStart = $timesheet->getBegin();
 
-        if (null === $timesheetStart) {
+        if ($timesheetStart === null) {
             return true;
         }
 
@@ -238,5 +150,91 @@ final class LockdownService
         }
 
         return false;
+    }
+
+    private function getTimezone(User $user): \DateTimeZone
+    {
+        $timezone = $this->getLockdownTimezone();
+
+        if ($timezone === null) {
+            $timezone = $user->getTimezone();
+        }
+
+        return new \DateTimeZone($timezone);
+    }
+
+    private function getLockdownPeriodStart(): ?string
+    {
+        $start = $this->configuration->find('timesheet.rules.lockdown_period_start');
+
+        if (!\is_string($start) || trim($start) === '') {
+            return null;
+        }
+
+        $start = explode(',', $start);
+        if (\count($start) === 1) {
+            return $start[0];
+        }
+
+        $min = null;
+        $date = null;
+        foreach ($start as $dateString) {
+            $tmp = new \DateTimeImmutable($dateString);
+            if ($min === null) {
+                $min = $dateString;
+                $date = $tmp;
+
+                continue;
+            }
+            if ($tmp > $date) {
+                $min = $dateString;
+                $date = $tmp;
+            }
+        }
+
+        return $min;
+    }
+
+    private function getLockdownPeriodEnd(): ?string
+    {
+        $end = $this->configuration->find('timesheet.rules.lockdown_period_end');
+
+        if (!\is_string($end) || trim($end) === '') {
+            return null;
+        }
+
+        $end = explode(',', $end);
+        if (\count($end) === 1) {
+            return $end[0];
+        }
+
+        $min = null;
+        $date = null;
+        foreach ($end as $dateString) {
+            $tmp = new \DateTimeImmutable($dateString);
+            if ($min === null) {
+                $min = $dateString;
+                $date = $tmp;
+
+                continue;
+            }
+            if ($tmp > $date) {
+                $min = $dateString;
+                $date = $tmp;
+            }
+        }
+
+        return $min;
+    }
+
+    private function getLockdownGracePeriod(): ?string
+    {
+        $grace = $this->configuration->find('timesheet.rules.lockdown_grace_period');
+
+        if ($grace === null || $grace === '') {
+            return null;
+        }
+
+        return (string)$grace;
     }
 }

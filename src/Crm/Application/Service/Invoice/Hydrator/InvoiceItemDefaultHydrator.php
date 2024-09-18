@@ -73,7 +73,7 @@ final class InvoiceItemDefaultHydrator implements InvoiceItemHydrator
             'entry.duration' => $item->getDuration(),
             'entry.duration_format' => $formatter->getFormattedDuration($item->getDuration()),
             'entry.duration_decimal' => $formatter->getFormattedDecimalDuration($item->getDuration()),
-            'entry.duration_minutes' => (int) ($item->getDuration() / 60),
+            'entry.duration_minutes' => (int)($item->getDuration() / 60),
         ];
 
         if ($begin !== null) {
@@ -92,7 +92,7 @@ final class InvoiceItemDefaultHydrator implements InvoiceItemHydrator
             $values['entry.end_timestamp'] = $end->getTimestamp();
         }
 
-        if (null !== $user) {
+        if ($user !== null) {
             $values = array_merge($values, [
                 'entry.user_id' => $user->getId(),
                 'entry.user_name' => $user->getUserIdentifier(),
@@ -106,7 +106,7 @@ final class InvoiceItemDefaultHydrator implements InvoiceItemHydrator
             }
         }
 
-        if (null !== $activity) {
+        if ($activity !== null) {
             $values = array_merge($values, [
                 'entry.activity' => $activity->getName(),
                 'entry.activity_id' => $activity->getId(),
@@ -119,7 +119,7 @@ final class InvoiceItemDefaultHydrator implements InvoiceItemHydrator
             }
         }
 
-        if (null !== $project) {
+        if ($project !== null) {
             $values = array_merge($values, [
                 'entry.project' => $project->getName(),
                 'entry.project_id' => $project->getId(),
@@ -132,7 +132,7 @@ final class InvoiceItemDefaultHydrator implements InvoiceItemHydrator
             }
         }
 
-        if (null !== $customer) {
+        if ($customer !== null) {
             $values = array_merge($values, [
                 'entry.customer' => $customer->getName(),
                 'entry.customer_id' => $customer->getId(),

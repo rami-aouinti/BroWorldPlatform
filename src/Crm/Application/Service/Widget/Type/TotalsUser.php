@@ -15,8 +15,9 @@ use App\Crm\Infrastructure\Repository\UserRepository;
 
 final class TotalsUser extends AbstractWidget
 {
-    public function __construct(private UserRepository $repository)
-    {
+    public function __construct(
+        private UserRepository $repository
+    ) {
     }
 
     /**

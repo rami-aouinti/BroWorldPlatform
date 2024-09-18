@@ -9,14 +9,13 @@
 
 namespace App\Crm\Transport\Controller\Api\v1;
 
-
 use App\Crm\Application\Service\Reporting\ReportingService;
 use App\Crm\Application\Service\Utils\PageSetup;
+use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
-use OpenApi\Attributes as OA;
 
 /**
  * Controller used to render reports.

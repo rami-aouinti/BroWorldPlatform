@@ -8,8 +8,6 @@ use App\User\Domain\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Class Score
- *
  * @package App\Quiz\Domain\Entity
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
@@ -32,35 +30,35 @@ class Score
     #[ORM\JoinColumn(nullable: false)]
     private Quiz $quiz;
 
-    public  function getId(): int
+    public function getId(): int
     {
         return $this->id;
     }
-    public  function setId(int $id):void
+    public function setId(int $id): void
     {
         $this->id = $id;
     }
-    public  function getScore(): int
+    public function getScore(): int
     {
         return $this->score;
     }
-    public  function setScore(int $score):void
+    public function setScore(int $score): void
     {
         $this->score = $score;
     }
-    public  function getUser(): User
+    public function getUser(): User
     {
         return $this->user;
     }
-    public  function setUser(User $user):void
+    public function setUser(User $user): void
     {
         $this->user = $user;
     }
-    public  function getQuiz(): Quiz
+    public function getQuiz(): Quiz
     {
         return $this->quiz;
     }
-    public  function setQuiz(Quiz $quiz):void
+    public function setQuiz(Quiz $quiz): void
     {
         $this->quiz = $quiz;
     }

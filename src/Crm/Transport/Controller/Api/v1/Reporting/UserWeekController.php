@@ -17,6 +17,7 @@ use App\Crm\Application\Service\Model\DailyStatistic;
 use App\Crm\Application\Service\Reporting\WeekByUser\WeekByUser;
 use App\Crm\Application\Service\Reporting\WeekByUser\WeekByUserForm;
 use Exception;
+use OpenApi\Attributes as OA;
 use PhpOffice\PhpSpreadsheet\Reader\Html;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -24,10 +25,8 @@ use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
-use OpenApi\Attributes as OA;
+
 /**
- * Class UserWeekController
- *
  * @package App\Crm\Transport\Controller\Api\v1\Reporting
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
@@ -38,8 +37,6 @@ use OpenApi\Attributes as OA;
 final class UserWeekController extends AbstractUserReportController
 {
     /**
-     * @param Request $request
-     * @return Response
      * @throws Exception
      */
     #[Route(path: '/week', name: 'report_user_week', methods: ['GET', 'POST'])]

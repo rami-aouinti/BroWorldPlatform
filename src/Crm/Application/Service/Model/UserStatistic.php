@@ -14,8 +14,9 @@ use App\User\Domain\Entity\User;
 
 class UserStatistic extends TimesheetCountedStatistic
 {
-    public function __construct(private User $user)
-    {
+    public function __construct(
+        private User $user
+    ) {
     }
 
     public function getUser(): User

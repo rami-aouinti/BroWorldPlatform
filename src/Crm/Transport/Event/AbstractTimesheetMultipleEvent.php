@@ -20,8 +20,9 @@ abstract class AbstractTimesheetMultipleEvent extends Event
     /**
      * @param array<Timesheet> $timesheets
      */
-    public function __construct(private array $timesheets)
-    {
+    public function __construct(
+        private array $timesheets
+    ) {
     }
 
     public function getTimesheets(): array

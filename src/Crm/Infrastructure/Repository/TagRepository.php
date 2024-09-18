@@ -10,10 +10,10 @@
 namespace App\Crm\Infrastructure\Repository;
 
 use App\Crm\Application\Service\Utils\Pagination;
+use App\Crm\Domain\Entity\Tag;
 use App\Crm\Infrastructure\Repository\Paginator\QueryBuilderPaginator;
 use App\Crm\Infrastructure\Repository\Query\TagFormTypeQuery;
 use App\Crm\Infrastructure\Repository\Query\TagQuery;
-use App\Crm\Domain\Entity\Tag;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
@@ -49,19 +49,29 @@ class TagRepository extends EntityRepository
     public function findTagsByName(array $tagNames, ?bool $visible = null): array
     {
         if ($visible === null) {
-            return $this->findBy(['name' => $tagNames]);
+            return $this->findBy([
+                'name' => $tagNames,
+            ]);
         }
 
-        return $this->findBy(['name' => $tagNames, 'visible' => $visible]);
+        return $this->findBy([
+            'name' => $tagNames,
+            'visible' => $visible,
+        ]);
     }
 
     public function findTagByName(string $tagName, ?bool $visible = null): ?Tag
     {
         if ($visible === null) {
-            return $this->findOneBy(['name' => $tagName]);
+            return $this->findOneBy([
+                'name' => $tagName,
+            ]);
         }
 
-        return $this->findOneBy(['name' => $tagName, 'visible' => $visible]);
+        return $this->findOneBy([
+            'name' => $tagName,
+            'visible' => $visible,
+        ]);
     }
 
     /**
@@ -80,7 +90,7 @@ class TagRepository extends EntityRepository
         $qb->andWhere($qb->expr()->eq('t.visible', ':visible'));
         $qb->setParameter('visible', true, ParameterType::BOOLEAN);
 
-        if (null !== $filter) {
+        if ($filter !== null) {
             $qb->andWhere('t.name LIKE :filter');
             $qb->setParameter('filter', '%' . $filter . '%');
         }
@@ -93,9 +103,6 @@ class TagRepository extends EntityRepository
      * - id
      * - name
      * - amount
-     *
-     * @param TagQuery $query
-     * @return Pagination
      */
     public function getTagCount(TagQuery $query): Pagination
     {
@@ -107,7 +114,7 @@ class TagRepository extends EntityRepository
             ->resetDQLPart('orderBy')
             ->select($qb->expr()->count('tag.id'))
         ;
-        $counter = (int) $qb->getQuery()->getSingleScalarResult();
+        $counter = (int)$qb->getQuery()->getSingleScalarResult();
 
         $paginator = new QueryBuilderPaginator($qb1, $counter);
 
@@ -116,6 +123,61 @@ class TagRepository extends EntityRepository
         $pager->setCurrentPage($query->getPage());
 
         return $pager;
+    }
+
+    public function getQueryBuilderForFormType(TagFormTypeQuery $query): QueryBuilder
+    {
+        $qb = $this->createQueryBuilder('tag');
+
+        $qb->orderBy('tag.name', 'ASC');
+        $qb->andWhere($qb->expr()->eq('tag.visible', ':visible'));
+        $qb->setParameter('visible', true, ParameterType::BOOLEAN);
+
+        return $qb;
+    }
+
+    /**
+     * @param Tag[] $tags
+     * @throws \Exception
+     */
+    public function multiDelete(iterable $tags): void
+    {
+        $em = $this->getEntityManager();
+        $em->beginTransaction();
+
+        try {
+            foreach ($tags as $tag) {
+                $em->remove($tag);
+            }
+            $em->flush();
+            $em->commit();
+        } catch (\Exception $ex) {
+            $em->rollback();
+
+            throw $ex;
+        }
+    }
+
+    /**
+     * @param Tag[] $tags
+     * @throws \Exception
+     */
+    public function multiUpdate(iterable $tags): void
+    {
+        $em = $this->getEntityManager();
+        $em->beginTransaction();
+
+        try {
+            foreach ($tags as $tag) {
+                $em->persist($tag);
+            }
+            $em->flush();
+            $em->commit();
+        } catch (\Exception $ex) {
+            $em->rollback();
+
+            throw $ex;
+        }
     }
 
     private function getQueryBuilderForQuery(TagQuery $query): QueryBuilder
@@ -159,58 +221,5 @@ class TagRepository extends EntityRepository
         }
 
         return $qb;
-    }
-
-    public function getQueryBuilderForFormType(TagFormTypeQuery $query): QueryBuilder
-    {
-        $qb = $this->createQueryBuilder('tag');
-
-        $qb->orderBy('tag.name', 'ASC');
-        $qb->andWhere($qb->expr()->eq('tag.visible', ':visible'));
-        $qb->setParameter('visible', true, ParameterType::BOOLEAN);
-
-        return $qb;
-    }
-
-    /**
-     * @param Tag[] $tags
-     * @throws \Exception
-     */
-    public function multiDelete(iterable $tags): void
-    {
-        $em = $this->getEntityManager();
-        $em->beginTransaction();
-
-        try {
-            foreach ($tags as $tag) {
-                $em->remove($tag);
-            }
-            $em->flush();
-            $em->commit();
-        } catch (\Exception $ex) {
-            $em->rollback();
-            throw $ex;
-        }
-    }
-
-    /**
-     * @param Tag[] $tags
-     * @throws \Exception
-     */
-    public function multiUpdate(iterable $tags): void
-    {
-        $em = $this->getEntityManager();
-        $em->beginTransaction();
-
-        try {
-            foreach ($tags as $tag) {
-                $em->persist($tag);
-            }
-            $em->flush();
-            $em->commit();
-        } catch (\Exception $ex) {
-            $em->rollback();
-            throw $ex;
-        }
     }
 }

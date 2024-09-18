@@ -11,8 +11,9 @@ namespace App\Crm\Application\Service\Model;
 
 final class InvoiceDocument
 {
-    public function __construct(private \SplFileInfo $file)
-    {
+    public function __construct(
+        private \SplFileInfo $file
+    ) {
     }
 
     public function getId(): string

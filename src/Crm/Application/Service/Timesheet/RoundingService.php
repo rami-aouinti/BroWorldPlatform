@@ -30,41 +30,7 @@ final class RoundingService
         #[TaggedIterator(RoundingInterface::class)]
         private readonly iterable $roundingModes,
         private readonly array $rules
-    )
-    {
-    }
-
-    /**
-     * @return array<string, array{'days': array<string>, 'begin': int, 'end': int, 'duration': int, 'mode': string}>
-     */
-    private function getRoundingRules(): array
-    {
-        if ($this->rulesCache === null) {
-            $rules = $this->rules;
-            $rules['default']['days'] = $this->configuration->getTimesheetDefaultRoundingDays();
-            $rules['default']['begin'] = $this->configuration->getTimesheetDefaultRoundingBegin();
-            $rules['default']['end'] = $this->configuration->getTimesheetDefaultRoundingEnd();
-            $rules['default']['duration'] = $this->configuration->getTimesheetDefaultRoundingDuration();
-            $rules['default']['mode'] = $this->configuration->getTimesheetDefaultRoundingMode();
-
-            // see AppExtension, conversion from string to array due to system configuration not allowing to store arrays
-            foreach ($rules as $key => $settings) {
-                if (\is_array($settings['days'])) {
-                    continue;
-                }
-                if ($settings['days'] === '') {
-                    $rules[$key]['days'] = [];
-                    continue;
-                }
-                $days = explode(',', $settings['days']);
-                $days = array_map('trim', $days);
-                $days = array_map('strtolower', $days);
-                $rules[$key]['days'] = $days;
-            }
-            $this->rulesCache = $rules; // @phpstan-ignore-line
-        }
-
-        return $this->rulesCache; // @phpstan-ignore-line
+    ) {
     }
 
     public function roundBegin(Timesheet $record): void
@@ -114,7 +80,7 @@ final class RoundingService
 
     public function applyRoundings(Timesheet $record): void
     {
-        if (null === $record->getEnd()) {
+        if ($record->getEnd() === null) {
             return;
         }
 
@@ -156,5 +122,39 @@ final class RoundingService
         }
 
         throw new \InvalidArgumentException('Unknown rounding mode: ' . $id);
+    }
+
+    /**
+     * @return array<string, array{'days': array<string>, 'begin': int, 'end': int, 'duration': int, 'mode': string}>
+     */
+    private function getRoundingRules(): array
+    {
+        if ($this->rulesCache === null) {
+            $rules = $this->rules;
+            $rules['default']['days'] = $this->configuration->getTimesheetDefaultRoundingDays();
+            $rules['default']['begin'] = $this->configuration->getTimesheetDefaultRoundingBegin();
+            $rules['default']['end'] = $this->configuration->getTimesheetDefaultRoundingEnd();
+            $rules['default']['duration'] = $this->configuration->getTimesheetDefaultRoundingDuration();
+            $rules['default']['mode'] = $this->configuration->getTimesheetDefaultRoundingMode();
+
+            // see AppExtension, conversion from string to array due to system configuration not allowing to store arrays
+            foreach ($rules as $key => $settings) {
+                if (\is_array($settings['days'])) {
+                    continue;
+                }
+                if ($settings['days'] === '') {
+                    $rules[$key]['days'] = [];
+
+                    continue;
+                }
+                $days = explode(',', $settings['days']);
+                $days = array_map('trim', $days);
+                $days = array_map('strtolower', $days);
+                $rules[$key]['days'] = $days;
+            }
+            $this->rulesCache = $rules; // @phpstan-ignore-line
+        }
+
+        return $this->rulesCache; // @phpstan-ignore-line
     }
 }

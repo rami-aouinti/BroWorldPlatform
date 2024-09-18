@@ -9,8 +9,8 @@
 
 namespace App\Crm\Transport\Form\Type;
 
-use App\Crm\Infrastructure\Repository\InvoiceTemplateRepository;
 use App\Crm\Domain\Entity\InvoiceTemplate;
+use App\Crm\Infrastructure\Repository\InvoiceTemplateRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -29,7 +29,7 @@ final class InvoiceTemplateType extends AbstractType
             'choice_label' => 'name',
             'query_builder' => function (InvoiceTemplateRepository $repository) {
                 return $repository->getQueryBuilderForFormType();
-            }
+            },
         ]);
     }
 

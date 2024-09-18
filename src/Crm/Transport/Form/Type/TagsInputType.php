@@ -28,14 +28,13 @@ final class TagsInputType extends AbstractType
     public function __construct(
         private readonly TagRepository $tagRepository,
         private readonly UrlGeneratorInterface $router
-    )
-    {
+    ) {
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->addModelTransformer(new CollectionToArrayTransformer(), true);
-        $builder->addModelTransformer(new TagArrayToStringTransformer($this->tagRepository, (bool) $options['allow_create']), true);
+        $builder->addModelTransformer(new TagArrayToStringTransformer($this->tagRepository, (bool)$options['allow_create']), true);
     }
 
     public function configureOptions(OptionsResolver $resolver): void
@@ -58,7 +57,7 @@ final class TagsInputType extends AbstractType
             'data-minimum-character' => 3,
             'class' => 'form-select',
             'autocomplete' => 'off',
-            'data-form-widget' => 'autocomplete'
+            'data-form-widget' => 'autocomplete',
         ]);
 
         if ($options['allow_create']) {

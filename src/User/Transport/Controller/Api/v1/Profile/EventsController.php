@@ -24,7 +24,6 @@ use Symfony\Component\Serializer\SerializerInterface;
 #[OA\Tag(name: 'Profile')]
 class EventsController
 {
-
     public function __construct(
         private readonly SerializerInterface $serializer,
     ) {

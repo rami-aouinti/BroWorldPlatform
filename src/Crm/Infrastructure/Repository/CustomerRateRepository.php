@@ -33,7 +33,6 @@ class CustomerRateRepository extends EntityRepository
     }
 
     /**
-     * @param Customer $customer
      * @return CustomerRate[]
      */
     public function getRatesForCustomer(Customer $customer): array

@@ -27,8 +27,12 @@ final class PasswordResetForm extends AbstractType
                     'autocomplete' => 'new-password',
                 ],
             ],
-            'first_options' => ['label' => 'password'],
-            'second_options' => ['label' => 'password_repeat'],
+            'first_options' => [
+                'label' => 'password',
+            ],
+            'second_options' => [
+                'label' => 'password_repeat',
+            ],
             'invalid_message' => 'The entered passwords don\'t match.',
         ]);
     }

@@ -19,7 +19,9 @@ final class Configuration
     private string $translationDomain = 'messages';
     private string|int|null|bool|float $value = null;
     private ?string $type = null;
-    /** @var array<string, mixed> */
+    /**
+     * @var array<string, mixed>
+     */
     private array $options = [];
     private bool $enabled = true;
     private bool $required = true;
@@ -28,8 +30,9 @@ final class Configuration
      */
     private array $constraints = [];
 
-    public function __construct(private string $name)
-    {
+    public function __construct(
+        private string $name
+    ) {
     }
 
     public function getName(): string
@@ -42,10 +45,10 @@ final class Configuration
         return $this->value;
     }
 
-    public function setValue(string|int|null|bool|float $value): Configuration
+    public function setValue(string|int|null|bool|float $value): self
     {
         if ($this->type === CheckboxType::class || $this->type === YesNoType::class) {
-            $value = (bool) $value;
+            $value = (bool)$value;
         }
 
         $this->value = $value;
@@ -58,7 +61,7 @@ final class Configuration
         return $this->type;
     }
 
-    public function setType(string $type): Configuration
+    public function setType(string $type): self
     {
         $this->type = $type;
 
@@ -70,7 +73,7 @@ final class Configuration
         return $this->enabled;
     }
 
-    public function setEnabled(bool $enabled): Configuration
+    public function setEnabled(bool $enabled): self
     {
         $this->enabled = $enabled;
 
@@ -82,7 +85,7 @@ final class Configuration
         return $this->label;
     }
 
-    public function setLabel(string $label): Configuration
+    public function setLabel(string $label): self
     {
         $this->label = $label;
 
@@ -99,9 +102,8 @@ final class Configuration
 
     /**
      * @param Constraint[] $constraints
-     * @return Configuration
      */
-    public function setConstraints(array $constraints): Configuration
+    public function setConstraints(array $constraints): self
     {
         $this->constraints = $constraints;
 
@@ -113,7 +115,7 @@ final class Configuration
         return $this->translationDomain;
     }
 
-    public function setTranslationDomain(string $translationDomain): Configuration
+    public function setTranslationDomain(string $translationDomain): self
     {
         $this->translationDomain = $translationDomain;
 
@@ -125,7 +127,7 @@ final class Configuration
         return $this->required;
     }
 
-    public function setRequired(bool $required): Configuration
+    public function setRequired(bool $required): self
     {
         $this->required = $required;
 
@@ -143,7 +145,7 @@ final class Configuration
     /**
      * @param array<string, mixed> $options
      */
-    public function setOptions(array $options): Configuration
+    public function setOptions(array $options): self
     {
         $this->options = $options;
 

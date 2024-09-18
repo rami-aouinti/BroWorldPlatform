@@ -10,15 +10,14 @@ use App\General\Domain\Entity\Traits\Uuid;
 use App\Menu\Domain\Entity\Interfaces\MenuInterface;
 use App\User\Domain\Entity\Traits\Blameable;
 use App\User\Domain\Entity\User;
-use Doctrine\DBAL\Types\Types;
-use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
+use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Doctrine\UuidBinaryOrderedTimeType;
 use Ramsey\Uuid\UuidInterface;
-use Symfony\Component\Serializer\Attribute\MaxDepth;
-use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 use Throwable;
 
 /**
@@ -94,6 +93,34 @@ class Menu implements EntityInterface, MenuInterface
     private ?string $link = null;
 
     #[ORM\Column(
+        name: 'icon',
+        type: Types::STRING,
+        length: 255,
+        nullable: true,
+    )]
+    #[Groups([
+        'Menu',
+        'Menu.icon',
+
+        self::SET_USER_MENU,
+    ])]
+    private ?string $icon = null;
+
+    #[ORM\Column(
+        name: 'type',
+        type: Types::STRING,
+        length: 255,
+        nullable: true,
+    )]
+    #[Groups([
+        'Menu',
+        'Menu.type',
+
+        self::SET_USER_MENU,
+    ])]
+    private ?string $type = null;
+
+    #[ORM\Column(
         name: 'active',
         type: Types::BOOLEAN
     )]
@@ -166,36 +193,40 @@ class Menu implements EntityInterface, MenuInterface
     {
         return $this->title;
     }
-    public function setTitle(string $title):self
+    public function setTitle(string $title): self
     {
         $this->title = $title;
+
         return $this;
     }
     public function getPrefix(): ?string
     {
         return $this->prefix;
     }
-    public function setPrefix(?string $prefix):self
+    public function setPrefix(?string $prefix): self
     {
         $this->prefix = $prefix;
+
         return $this;
     }
     public function getLink(): ?string
     {
         return $this->link;
     }
-    public function setLink(?string $link):self
+    public function setLink(?string $link): self
     {
         $this->link = $link;
+
         return $this;
     }
-    public  function isActive(): bool
+    public function isActive(): bool
     {
         return $this->active;
     }
-    public function setActive(bool $active):self
+    public function setActive(bool $active): self
     {
         $this->active = $active;
+
         return $this;
     }
     public function getAction(): ?string
@@ -203,29 +234,49 @@ class Menu implements EntityInterface, MenuInterface
         return $this->action;
     }
 
-    public  function setAction(?string $action):self
+    public function setAction(?string $action): self
     {
         $this->action = $action;
+
         return $this;
     }
 
-    public  function getLevel(): ?int
+    public function getLevel(): ?int
     {
         return $this->level;
     }
-    public  function setLevel(?int $level):self
+    public function setLevel(?int $level): self
     {
         $this->level = $level;
+
         return $this;
     }
 
-    public function getParent(): ?Menu
+    public function getIcon(): ?string
+    {
+        return $this->icon;
+    }
+    public function setIcon(?string $icon): void
+    {
+        $this->icon = $icon;
+    }
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+    public function setType(?string $type): void
+    {
+        $this->type = $type;
+    }
+
+    public function getParent(): ?self
     {
         return $this->parent;
     }
-    public function setParent(?Menu $parent):self
+    public function setParent(?self $parent): self
     {
         $this->parent = $parent;
+
         return $this;
     }
 
@@ -234,7 +285,7 @@ class Menu implements EntityInterface, MenuInterface
         return $this->children;
     }
 
-    public function addChild(Menu $child): self
+    public function addChild(self $child): self
     {
         if (!$this->children->contains($child)) {
             $this->children[] = $child;
@@ -244,7 +295,7 @@ class Menu implements EntityInterface, MenuInterface
         return $this;
     }
 
-    public function removeChild(Menu $child): self
+    public function removeChild(self $child): self
     {
         if ($this->children->removeElement($child)) {
             if ($child->getParent() === $this) {
@@ -255,11 +306,11 @@ class Menu implements EntityInterface, MenuInterface
         return $this;
     }
 
-    public  function getUser(): ?User
+    public function getUser(): ?User
     {
         return $this->user;
     }
-    public  function setUser(?User $user):void
+    public function setUser(?User $user): void
     {
         $this->user = $user;
     }

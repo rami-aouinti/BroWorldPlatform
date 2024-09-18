@@ -19,8 +19,6 @@ use function count;
 use function strlen;
 
 /**
- * Class MarkdownExtension
- *
  * @package App\Crm\Transport\Twig\Runtime
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
@@ -28,25 +26,14 @@ final class MarkdownExtension implements RuntimeExtensionInterface
 {
     private ?bool $markdownEnabled = null;
 
-    public function __construct(private readonly Markdown $markdown, private readonly SystemConfiguration $configuration)
-    {
-    }
-
-    private function isMarkdownEnabled(): bool
-    {
-        if (null === $this->markdownEnabled) {
-            $this->markdownEnabled = $this->configuration->isTimesheetMarkdownEnabled();
-        }
-
-        return $this->markdownEnabled;
+    public function __construct(
+        private readonly Markdown $markdown,
+        private readonly SystemConfiguration $configuration
+    ) {
     }
 
     /**
      * Transforms entity and user comments (customer, project, activity ...) into HTML.
-     *
-     * @param string|null $content
-     * @param bool $fullLength
-     * @return string
      */
     public function commentContent(?string $content, bool $fullLength = true): string
     {
@@ -69,10 +56,6 @@ final class MarkdownExtension implements RuntimeExtensionInterface
 
     /**
      * Transforms the entities comment (customer, project, activity ...) into a one-liner.
-     *
-     * @param string|null $content
-     * @param bool $fullLength
-     * @return string
      */
     public function commentOneLiner(?string $content, bool $fullLength = true): string
     {
@@ -99,9 +82,6 @@ final class MarkdownExtension implements RuntimeExtensionInterface
 
     /**
      * Transforms the timesheet description content into HTML.
-     *
-     * @param string|null $content
-     * @return string
      */
     public function timesheetContent(?string $content): string
     {
@@ -118,12 +98,18 @@ final class MarkdownExtension implements RuntimeExtensionInterface
 
     /**
      * Transforms the given Markdown content into HTML
-     *
-     * @param string $content
-     * @return string
      */
     public function markdownToHtml(string $content): string
     {
         return $this->markdown->withFullMarkdownSupport($content);
+    }
+
+    private function isMarkdownEnabled(): bool
+    {
+        if ($this->markdownEnabled === null) {
+            $this->markdownEnabled = $this->configuration->isTimesheetMarkdownEnabled();
+        }
+
+        return $this->markdownEnabled;
     }
 }

@@ -9,8 +9,8 @@
 
 namespace App\Crm\Transport\EventSubscriber\Actions;
 
-use App\Crm\Transport\Event\PageActionsEvent;
 use App\Crm\Domain\Entity\Team;
+use App\Crm\Transport\Event\PageActionsEvent;
 
 final class TeamSubscriber extends AbstractActionsSubscriber
 {
@@ -32,17 +32,28 @@ final class TeamSubscriber extends AbstractActionsSubscriber
 
         if ($this->isGranted('edit', $team)) {
             if (!$event->isView('edit')) {
-                $event->addEdit($this->path('admin_team_edit', ['id' => $team->getId()]));
+                $event->addEdit($this->path('admin_team_edit', [
+                    'id' => $team->getId(),
+                ]));
             }
 
             if ($this->isGranted('create_team')) {
-                $event->addAction('copy', ['url' => $this->path('team_duplicate', ['id' => $team->getId()]), 'title' => 'copy', 'translation_domain' => 'actions', 'class' => 'modal-ajax-form']);
+                $event->addAction('copy', [
+                    'url' => $this->path('team_duplicate', [
+                        'id' => $team->getId(),
+                    ]),
+                    'title' => 'copy',
+                    'translation_domain' => 'actions',
+                    'class' => 'modal-ajax-form',
+                ]);
             }
         }
 
         if ($event->isIndexView() && $this->isGranted('delete', $team)) {
             $event->addAction('trash', [
-                'url' => $this->path('delete_team', ['id' => $team->getId()]),
+                'url' => $this->path('delete_team', [
+                    'id' => $team->getId(),
+                ]),
                 'class' => 'api-link text-red',
                 'translation_domain' => 'actions',
                 'attr' => [
@@ -50,8 +61,8 @@ final class TeamSubscriber extends AbstractActionsSubscriber
                     'data-method' => 'DELETE',
                     'data-question' => 'confirm.delete',
                     'data-msg-error' => 'action.delete.error',
-                    'data-msg-success' => 'action.delete.success'
-                ]
+                    'data-msg-success' => 'action.delete.success',
+                ],
             ]);
         }
     }

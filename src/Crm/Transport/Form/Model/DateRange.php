@@ -17,8 +17,9 @@ final class DateRange implements EquatableInterface
     private ?DateTime $begin = null;
     private ?DateTime $end = null;
 
-    public function __construct(private bool $resetTimes = true)
-    {
+    public function __construct(
+        private bool $resetTimes = true
+    ) {
     }
 
     public function getBegin(): ?DateTime
@@ -26,7 +27,7 @@ final class DateRange implements EquatableInterface
         return $this->begin;
     }
 
-    public function setBegin(\DateTimeInterface $begin): DateRange
+    public function setBegin(\DateTimeInterface $begin): self
     {
         $this->begin = DateTime::createFromInterface($begin);
         if ($this->resetTimes) {
@@ -41,7 +42,7 @@ final class DateRange implements EquatableInterface
         return $this->end;
     }
 
-    public function setEnd(\DateTimeInterface $end): DateRange
+    public function setEnd(\DateTimeInterface $end): self
     {
         $this->end = DateTime::createFromInterface($end);
         if ($this->resetTimes) {
@@ -53,7 +54,7 @@ final class DateRange implements EquatableInterface
 
     public function isEqualTo(object $compare): bool
     {
-        if (!$compare instanceof DateRange) {
+        if (!$compare instanceof self) {
             return false;
         }
 

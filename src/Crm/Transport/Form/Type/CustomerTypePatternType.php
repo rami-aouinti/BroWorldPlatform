@@ -23,8 +23,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  */
 final class CustomerTypePatternType extends AbstractType
 {
-    public function __construct(private readonly TranslatorInterface $translator)
-    {
+    public function __construct(
+        private readonly TranslatorInterface $translator
+    ) {
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -47,7 +48,7 @@ final class CustomerTypePatternType extends AbstractType
                 $name => CustomerHelper::PATTERN_NAME,
                 $company => CustomerHelper::PATTERN_COMPANY,
                 $comment => CustomerHelper::PATTERN_COMMENT,
-            ]
+            ],
         ]);
     }
 

@@ -5,13 +5,10 @@ declare(strict_types=1);
 namespace App\Quiz\Infrastructure\Repository;
 
 use App\Quiz\Domain\Entity\Quiz;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-
 /**
- * Class QuizRepository
- *
  * @package App\Quiz\Infrastructure\Repository
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
@@ -23,9 +20,6 @@ class QuizRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param string|null $categoryName
-     * @param string|null $difficultyLevel
-     *
      * @return float|int|mixed|string
      */
     public function findByFilters(?string $categoryName, ?string $difficultyLevel): mixed

@@ -9,8 +9,8 @@
 
 namespace App\Crm\Transport\Form;
 
-use App\Crm\Transport\Form\Type\DatePickerType;
 use App\Crm\Domain\Entity\AccessToken;
+use App\Crm\Transport\Form\Type\DatePickerType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -31,7 +31,7 @@ final class AccessTokenForm extends AbstractType
                 'force_time' => 'end',
                 'min_day' => $options['min_date'],
                 'constraints' => [
-                    new GreaterThan($options['min_date'])
+                    new GreaterThan($options['min_date']),
                 ],
             ])
         ;
@@ -45,7 +45,7 @@ final class AccessTokenForm extends AbstractType
             'csrf_field_name' => '_token',
             'csrf_token_id' => 'access_token_form',
             'attr' => [
-                'data-form-event' => 'kimai.accessToken'
+                'data-form-event' => 'kimai.accessToken',
             ],
             'min_date' => new \DateTimeImmutable('today 00:00:00'),
         ]);

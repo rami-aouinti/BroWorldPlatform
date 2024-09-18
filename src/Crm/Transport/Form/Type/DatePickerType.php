@@ -24,8 +24,9 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  */
 class DatePickerType extends AbstractType
 {
-    public function __construct(private LocaleService $localeService)
-    {
+    public function __construct(
+        private LocaleService $localeService
+    ) {
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void

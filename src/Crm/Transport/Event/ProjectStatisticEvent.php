@@ -19,8 +19,7 @@ final class ProjectStatisticEvent extends AbstractProjectEvent
         private readonly ProjectStatistic $statistic,
         private readonly ?\DateTimeInterface $begin = null,
         private readonly ?\DateTimeInterface $end = null
-    )
-    {
+    ) {
         parent::__construct($project);
     }
 

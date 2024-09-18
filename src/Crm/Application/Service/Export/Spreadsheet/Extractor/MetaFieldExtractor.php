@@ -10,8 +10,8 @@
 namespace App\Crm\Application\Service\Export\Spreadsheet\Extractor;
 
 use App\Crm\Application\Service\Export\Spreadsheet\ColumnDefinition;
-use App\Crm\Transport\Event\MetaDisplayEventInterface;
 use App\Crm\Domain\Entity\EntityWithMetaFields;
+use App\Crm\Transport\Event\MetaDisplayEventInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -19,8 +19,9 @@ use Psr\EventDispatcher\EventDispatcherInterface;
  */
 final class MetaFieldExtractor implements ExtractorInterface
 {
-    public function __construct(private EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        private EventDispatcherInterface $eventDispatcher
+    ) {
     }
 
     /**
@@ -48,7 +49,7 @@ final class MetaFieldExtractor implements ExtractorInterface
                 'string',
                 function (EntityWithMetaFields $entityWithMetaFields) use ($field) {
                     $meta = $entityWithMetaFields->getMetaField($field->getName());
-                    if (null === $meta) {
+                    if ($meta === null) {
                         return null;
                     }
 

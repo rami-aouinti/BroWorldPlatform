@@ -5,13 +5,10 @@ declare(strict_types=1);
 namespace App\User\Transport\Controller\Api\v1\Profile;
 
 use App\General\Domain\Utils\JSON;
-use App\Messenger\Domain\Entity\Message;
-use App\Notification\Application\Service\NotificationService;
 use App\Notification\Domain\Entity\Notification;
 use App\Notification\Infrastructure\Repository\NotificationRepository;
 use App\User\Domain\Entity\Profile;
 use App\User\Domain\Entity\User;
-use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Exception\NotSupported;
 use JsonException;
@@ -20,7 +17,6 @@ use OpenApi\Attributes as OA;
 use OpenApi\Attributes\JsonContent;
 use OpenApi\Attributes\Property;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\AsController;
@@ -29,7 +25,6 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Authorization\Voter\AuthenticatedVoter;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\Mercure\Update;
 
 /**
  * @package App\Profile
@@ -48,13 +43,8 @@ class MarkAllNotificationAsReadController extends AbstractController
     /**
      * Get current user profile data, accessible only for 'IS_AUTHENTICATED_FULLY' users.
      *
-     * @param User         $loggedInUser
-     * @param Request      $request
-     * @param HubInterface $hub
-     *
      * @throws JsonException
      * @throws NotSupported
-     * @return JsonResponse
      */
     #[Route(
         path: '/v1/profile/notifications/read',
@@ -106,10 +96,12 @@ class MarkAllNotificationAsReadController extends AbstractController
         User $loggedInUser,
         Request $request,
         HubInterface $hub
-    ): JsonResponse
-    {
+    ): JsonResponse {
         $notifications = $this->notificationRepository
-            ->findBy(['user' => $loggedInUser, 'isRead' => false]);
+            ->findBy([
+                'user' => $loggedInUser,
+                'isRead' => false,
+            ]);
 
         foreach ($notifications as $notification) {
             $notification->setIsRead(true);
@@ -117,8 +109,6 @@ class MarkAllNotificationAsReadController extends AbstractController
         }
 
         $this->entityManager->flush();
-
-
 
         /** @var array<string, string|array<string, string>> $output */
         $output = JSON::decode(

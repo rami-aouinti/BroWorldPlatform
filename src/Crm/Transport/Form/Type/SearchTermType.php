@@ -19,17 +19,11 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Length;
 
 /**
- * Class SearchTermType
- *
  * @package App\Crm\Transport\Form\Type
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 final class SearchTermType extends AbstractType
 {
-    /**
-     * @param FormBuilderInterface $builder
-     * @param array $options
-     */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->addModelTransformer(new SearchTermTransformer());
@@ -44,7 +38,9 @@ final class SearchTermType extends AbstractType
                 'placeholder' => 'search',
             ],
             'constraints' => [
-                new Length(['min' => 2])
+                new Length([
+                    'min' => 2,
+                ]),
             ],
         ]);
     }

@@ -9,10 +9,10 @@
 
 namespace App\Crm\Application\Service\Project;
 
+use App\Crm\Domain\Entity\Project;
 use App\Crm\Infrastructure\Repository\ActivityRateRepository;
 use App\Crm\Infrastructure\Repository\ActivityRepository;
 use App\Crm\Infrastructure\Repository\ProjectRateRepository;
-use App\Crm\Domain\Entity\Project;
 
 final class ProjectDuplicationService
 {
@@ -40,7 +40,7 @@ final class ProjectDuplicationService
             $newProject->setMetaField($newMetaField);
         }
 
-        if (null !== $project->getEnd()) {
+        if ($project->getEnd() !== null) {
             $newProject->setStart(clone $project->getEnd());
             $newProject->setEnd(null);
         }

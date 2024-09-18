@@ -14,9 +14,6 @@ namespace App\Crm\Application\Service\Utils;
  */
 final class ParsedownExtension extends \Parsedown
 {
-    /** @var array<string> */
-    private array $ids = [];
-
     /**
      * Overwritten to prevent # to show up as headings for two reasons:
      * - Hashes are often used to cross-link issues in other systems
@@ -66,6 +63,10 @@ final class ParsedownExtension extends \Parsedown
         'news:',
         'steam:',
     ];
+    /**
+     * @var array<string>
+     */
+    private array $ids = [];
 
     /**
      * Overwritten:
@@ -89,7 +90,7 @@ final class ParsedownExtension extends \Parsedown
                     'text' => $url,
                     'attributes' => [
                         'href' => $url,
-                        'target' => '_blank'
+                        'target' => '_blank',
                     ],
                 ],
             ];
@@ -107,10 +108,23 @@ final class ParsedownExtension extends \Parsedown
 
         // add id-attribute
         $block['element']['attributes'] = [
-            'id' => $id
+            'id' => $id,
         ];
 
         return $block;
+    }
+
+    protected function blockTable($Line, array $Block = null)
+    {
+        $Block = parent::blockTable($Line, $Block);
+
+        if ($Block === null) {
+            return null;
+        }
+
+        $Block['element']['attributes']['class'] = 'table';
+
+        return $Block;
     }
 
     /**
@@ -122,14 +136,15 @@ final class ParsedownExtension extends \Parsedown
      * - If that is not unique, add "-1", "-2", "-3",... to make it unique
      *
      * @param string $text
-     * @return string
      */
     private function getIDfromText($text): string
     {
         $text = strtolower($text);
 
         $text = preg_replace('/[^A-Za-z0-9\-\ ]/', '', $text);
-        $text = strtr($text, [' ' => '-']);
+        $text = strtr($text, [
+            ' ' => '-',
+        ]);
 
         if (isset($this->ids[$text])) {
             $i = 0;
@@ -146,18 +161,5 @@ final class ParsedownExtension extends \Parsedown
         $this->ids[$text] = '';
 
         return $text;
-    }
-
-    protected function blockTable($Line, array $Block = null)
-    {
-        $Block = parent::blockTable($Line, $Block);
-
-        if ($Block === null) {
-            return null;
-        }
-
-        $Block['element']['attributes']['class'] = 'table';
-
-        return $Block;
     }
 }

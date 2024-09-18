@@ -16,20 +16,24 @@ use App\Crm\Application\Service\User\UserService;
 use Symfony\Component\Form\FormBuilderInterface;
 
 /**
- * Class ToolbarHelper
- *
  * @package App\Crm\Transport\Form\Helper
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 final class ToolbarHelper
 {
-    /** @var array<string> */
+    /**
+     * @var array<string>
+     */
     private array $teamNames = ['team', 'teams', 'searchTeams'];
-    /** @var array<string> */
+    /**
+     * @var array<string>
+     */
     private array $userNames = ['user', 'users'];
 
-    public function __construct(private UserService $userService, private TeamService $teamService)
-    {
+    public function __construct(
+        private UserService $userService,
+        private TeamService $teamService
+    ) {
     }
 
     public function cleanupForm(FormBuilderInterface $builder): void

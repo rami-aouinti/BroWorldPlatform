@@ -13,13 +13,13 @@ use App\Crm\Application\Service\Timesheet\DateTimeFactory;
 use App\Crm\Application\Service\WorkingTime\Model\Month;
 use App\Crm\Application\Service\WorkingTime\Model\Year;
 use App\Crm\Application\Service\WorkingTime\Model\YearPerUserSummary;
+use App\Crm\Domain\Entity\WorkingTime;
 use App\Crm\Infrastructure\Repository\TimesheetRepository;
 use App\Crm\Infrastructure\Repository\WorkingTimeRepository;
 use App\Crm\Transport\Event\WorkingTimeApproveMonthEvent;
 use App\Crm\Transport\Event\WorkingTimeYearEvent;
 use App\Crm\Transport\Event\WorkingTimeYearSummaryEvent;
 use App\User\Domain\Entity\User;
-use App\Crm\Domain\Entity\WorkingTime;
 use Psr\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -27,8 +27,11 @@ use Psr\EventDispatcher\EventDispatcherInterface;
  */
 final class WorkingTimeService
 {
-    public function __construct(private TimesheetRepository $timesheetRepository, private WorkingTimeRepository $workingTimeRepository, private EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        private TimesheetRepository $timesheetRepository,
+        private WorkingTimeRepository $workingTimeRepository,
+        private EventDispatcherInterface $eventDispatcher
+    ) {
     }
 
     public function getYearSummary(Year $year, \DateTimeInterface $until): YearPerUserSummary
@@ -64,6 +67,7 @@ final class WorkingTimeService
                 $key = $day->getDay()->format('Y-m-d');
                 if (\array_key_exists($key, $existing)) {
                     $day->setWorkingTime($existing[$key]);
+
                     continue;
                 }
 
@@ -128,8 +132,6 @@ final class WorkingTimeService
     }
 
     /**
-     * @param \DateTimeInterface $year
-     * @param User $user
      * @return array<string, int>
      */
     private function getYearStatistics(\DateTimeInterface $year, User $user): array
@@ -156,7 +158,7 @@ final class WorkingTimeService
 
         $durations = [];
         foreach ($results as $row) {
-            $durations[$row['day']] = (int) $row['duration'];
+            $durations[$row['day']] = (int)$row['duration'];
         }
 
         return $durations; // @phpstan-ignore-line

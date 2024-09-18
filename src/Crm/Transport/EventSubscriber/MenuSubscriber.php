@@ -21,8 +21,7 @@ final class MenuSubscriber implements EventSubscriberInterface
     public function __construct(
         private readonly Security $security,
         private readonly ContextHelper $helper
-    )
-    {
+    ) {
     }
 
     public static function getSubscribedEvents(): array
@@ -30,13 +29,6 @@ final class MenuSubscriber implements EventSubscriberInterface
         return [
             ConfigureMainMenuEvent::class => ['onMainMenuConfigure', 100],
         ];
-    }
-
-    private function addDivider(MenuItemModel $menu): void
-    {
-        if ($this->helper->isBoxedLayout()) {
-            $menu->addChild(MenuItemModel::createDivider());
-        }
     }
 
     public function onMainMenuConfigure(ConfigureMainMenuEvent $event): void
@@ -205,5 +197,12 @@ final class MenuSubscriber implements EventSubscriberInterface
         }
 
         $this->addDivider($menu);
+    }
+
+    private function addDivider(MenuItemModel $menu): void
+    {
+        if ($this->helper->isBoxedLayout()) {
+            $menu->addChild(MenuItemModel::createDivider());
+        }
     }
 }

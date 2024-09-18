@@ -9,9 +9,9 @@
 
 namespace App\Crm\Infrastructure\Repository\Query;
 
-use App\Crm\Transport\Form\Model\DateRange;
 use App\Crm\Domain\Entity\Customer;
 use App\Crm\Domain\Entity\Invoice;
+use App\Crm\Transport\Form\Model\DateRange;
 
 /**
  * Query for created invoices.
@@ -21,7 +21,7 @@ class InvoiceArchiveQuery extends BaseQuery implements DateRangeInterface
     use DateRangeTrait;
 
     public const INVOICE_ARCHIVE_ORDER_ALLOWED = [
-        'date', 'invoice.number', 'status', 'total_rate'
+        'date', 'invoice.number', 'status', 'total_rate',
         // TODO other fields have a problem with translation
         // , 'tax', 'payed'
     ];

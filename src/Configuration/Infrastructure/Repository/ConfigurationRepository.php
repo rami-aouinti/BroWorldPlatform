@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Configuration\Infrastructure\Repository;
 
-use App\General\Infrastructure\Repository\BaseRepository;
 use App\Configuration\Domain\Entity\Configuration as Entity;
 use App\Configuration\Domain\Repository\Interfaces\ConfigurationRepositoryInterface;
+use App\General\Infrastructure\Repository\BaseRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -37,6 +37,7 @@ class ConfigurationRepository extends BaseRepository implements ConfigurationRep
     protected static string $entityName = Entity::class;
 
     public function __construct(
-        protected ManagerRegistry $managerRegistry) {
+        protected ManagerRegistry $managerRegistry
+    ) {
     }
 }

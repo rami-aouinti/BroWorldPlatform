@@ -15,8 +15,9 @@ use App\Crm\Infrastructure\Repository\Query\CustomerQuery;
 
 final class TotalsCustomer extends AbstractWidget
 {
-    public function __construct(private CustomerRepository $customer)
-    {
+    public function __construct(
+        private CustomerRepository $customer
+    ) {
     }
 
     public function getTitle(): string

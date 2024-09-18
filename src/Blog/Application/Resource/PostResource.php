@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Blog\Application\Resource;
 
+use App\Blog\Domain\Entity\Post as Entity;
+use App\Blog\Domain\Repository\Interfaces\PostRepositoryInterface as Repository;
 use App\General\Application\DTO\Interfaces\RestDtoInterface;
 use App\General\Application\Rest\RestResource;
 use App\General\Domain\Entity\Interfaces\EntityInterface;
-use App\Blog\Domain\Entity\Post as Entity;
-use App\Blog\Domain\Repository\Interfaces\PostRepositoryInterface as Repository;
 
 /**
  * @package App\Post

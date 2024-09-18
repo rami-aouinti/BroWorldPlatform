@@ -10,10 +10,10 @@
 namespace App\Crm\Application\Service\Timesheet;
 
 use App\Crm\Application\Service\Model\FavoriteTimesheet;
-use App\Crm\Infrastructure\Repository\BookmarkRepository;
-use App\Crm\Infrastructure\Repository\TimesheetRepository;
 use App\Crm\Domain\Entity\Bookmark;
 use App\Crm\Domain\Entity\Timesheet;
+use App\Crm\Infrastructure\Repository\BookmarkRepository;
+use App\Crm\Infrastructure\Repository\TimesheetRepository;
 use App\User\Domain\Entity\User;
 
 /**
@@ -23,13 +23,13 @@ final class FavoriteRecordService
 {
     public const MAX_FAVORITES = 5;
 
-    public function __construct(private TimesheetRepository $repository, private BookmarkRepository $bookmarkRepository)
-    {
+    public function __construct(
+        private TimesheetRepository $repository,
+        private BookmarkRepository $bookmarkRepository
+    ) {
     }
 
     /**
-     * @param User $user
-     * @param int $limit
      * @return array<FavoriteTimesheet>
      */
     public function favoriteEntries(User $user, int $limit = 5): array
@@ -64,6 +64,7 @@ final class FavoriteRecordService
                 if (!$favorite instanceof FavoriteTimesheet) {
                     // auto cleanup in case someone deleted a bookmarked timesheet
                     $this->removeFavoriteById($user, $id);
+
                     continue;
                 }
 
@@ -72,20 +73,6 @@ final class FavoriteRecordService
         }
 
         return \array_slice(array_values($all), 0, $limit);
-    }
-
-    private function getBookmark(User $user): Bookmark
-    {
-        $bookmark = $this->bookmarkRepository->findBookmark($user, 'favorite', 'recent');
-
-        if ($bookmark === null) {
-            $bookmark = new Bookmark();
-            $bookmark->setUser($user);
-            $bookmark->setType('favorite');
-            $bookmark->setName('recent');
-        }
-
-        return $bookmark;
     }
 
     public function addFavorite(Timesheet $timesheet): void
@@ -139,5 +126,19 @@ final class FavoriteRecordService
         }
         $bookmark->setContent($newIds);
         $this->bookmarkRepository->saveBookmark($bookmark);
+    }
+
+    private function getBookmark(User $user): Bookmark
+    {
+        $bookmark = $this->bookmarkRepository->findBookmark($user, 'favorite', 'recent');
+
+        if ($bookmark === null) {
+            $bookmark = new Bookmark();
+            $bookmark->setUser($user);
+            $bookmark->setType('favorite');
+            $bookmark->setName('recent');
+        }
+
+        return $bookmark;
     }
 }

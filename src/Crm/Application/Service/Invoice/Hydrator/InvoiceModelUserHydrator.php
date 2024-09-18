@@ -18,7 +18,7 @@ final class InvoiceModelUserHydrator implements InvoiceModelHydrator
     {
         $user = $model->getUser();
 
-        if (null === $user) {
+        if ($user === null) {
             return [];
         }
 

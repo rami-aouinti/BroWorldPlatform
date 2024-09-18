@@ -16,15 +16,15 @@ use Symfony\Component\Mime\Email;
 use Symfony\Component\Mime\RawMessage;
 
 /**
- * Class KimaiMailer
- *
  * @package App\Crm\Application\Mail
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 final class KimaiMailer implements MailerInterface
 {
-    public function __construct(private readonly MailConfiguration $configuration, private readonly MailerInterface $mailer)
-    {
+    public function __construct(
+        private readonly MailConfiguration $configuration,
+        private readonly MailerInterface $mailer
+    ) {
     }
 
     public function send(RawMessage $message, Envelope $envelope = null): void

@@ -16,14 +16,14 @@ use App\Crm\Transport\Event\EmailEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
-* Class EmailSubscriber
  * @package App\Crm\Transport\EventSubscriber
  * @author Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 final class EmailSubscriber implements EventSubscriberInterface
 {
-    public function __construct(private readonly KimaiMailer $mailer)
-    {
+    public function __construct(
+        private readonly KimaiMailer $mailer
+    ) {
     }
 
     public static function getSubscribedEvents(): array

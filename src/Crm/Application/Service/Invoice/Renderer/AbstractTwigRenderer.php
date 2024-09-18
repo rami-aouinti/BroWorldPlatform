@@ -22,8 +22,9 @@ abstract class AbstractTwigRenderer implements RendererInterface
 {
     use TwigRendererTrait;
 
-    public function __construct(private Environment $twig)
-    {
+    public function __construct(
+        private Environment $twig
+    ) {
     }
 
     protected function renderTwigTemplate(InvoiceDocument $document, InvoiceModel $model, array $options = []): string
@@ -42,7 +43,7 @@ abstract class AbstractTwigRenderer implements RendererInterface
             // new since 1.16.7 - templates should only use the pre-generated values
             'invoice' => $model->toArray(),
             // new since 1.19.5 - templates should only use the pre-generated values
-            'entries' => $entries
+            'entries' => $entries,
         ], $options);
 
         return $this->renderTwigTemplateWithLanguage($this->twig, $template, $options, $language, $formatLocale);

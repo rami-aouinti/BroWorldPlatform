@@ -9,8 +9,8 @@
 
 namespace App\Crm\Transport\Event;
 
-use App\User\Domain\Entity\User;
 use App\Crm\Domain\Entity\UserPreference;
+use App\User\Domain\Entity\User;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
@@ -22,8 +22,11 @@ final class UserPreferenceEvent extends Event
     /**
      * @param array<UserPreference> $preferences
      */
-    public function __construct(private readonly User $user, private array $preferences, private readonly bool $booting = true)
-    {
+    public function __construct(
+        private readonly User $user,
+        private array $preferences,
+        private readonly bool $booting = true
+    ) {
     }
 
     /**
@@ -36,8 +39,6 @@ final class UserPreferenceEvent extends Event
 
     /**
      * Do not set the preferences directly to the user object, but ONLY via addPreference()
-     *
-     * @return User
      */
     public function getUser(): User
     {

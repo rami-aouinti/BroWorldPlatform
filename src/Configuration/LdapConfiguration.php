@@ -13,8 +13,9 @@ use App\Crm\Application\Service\Configuration\SystemConfiguration;
 
 final class LdapConfiguration
 {
-    public function __construct(private SystemConfiguration $configuration)
-    {
+    public function __construct(
+        private SystemConfiguration $configuration
+    ) {
     }
 
     public function isActivated(): bool

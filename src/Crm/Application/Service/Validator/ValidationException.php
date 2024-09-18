@@ -12,8 +12,6 @@ declare(strict_types=1);
 namespace App\Crm\Application\Service\Validator;
 
 /**
- * Class ValidationException
- *
  * @package App\Crm\Application\Service\Validator
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */

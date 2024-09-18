@@ -13,8 +13,10 @@ use App\User\Domain\Entity\User;
 
 final class UserYear
 {
-    public function __construct(private User $user, private Year $year)
-    {
+    public function __construct(
+        private User $user,
+        private Year $year
+    ) {
     }
 
     public function getYear(): Year

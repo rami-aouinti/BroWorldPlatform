@@ -11,22 +11,20 @@ declare(strict_types=1);
 
 namespace App\Crm\Transport\Controller\Api\v1\Reporting;
 
-
 use App\Crm\Application\Service\Project\ProjectStatisticService;
 use App\Crm\Application\Service\Reporting\ProjectDetails\ProjectDetailsForm;
 use App\Crm\Application\Service\Reporting\ProjectDetails\ProjectDetailsQuery;
 use App\Crm\Application\Service\Utils\PageSetup;
 use App\Crm\Transport\Controller\Api\v1\AbstractController;
+use OpenApi\Attributes as OA;
 use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
-use OpenApi\Attributes as OA;
+
 /**
- * Class ProjectDetailsController
- *
  * @package App\Crm\Transport\Controller\Api\v1\Reporting
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
@@ -62,7 +60,9 @@ final class ProjectDetailsController extends AbstractController
         if ($project !== null) {
             $page->setActionName('project');
             $page->setActionView('project_details_report');
-            $page->setActionPayload(['project' => $project]);
+            $page->setActionPayload([
+                'project' => $project,
+            ]);
         }
 
         return $this->render('reporting/project_details.html.twig', [

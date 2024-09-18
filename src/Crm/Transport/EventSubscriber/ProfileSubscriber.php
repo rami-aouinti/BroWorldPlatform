@@ -15,8 +15,9 @@ use Symfony\Component\Security\Http\Event\LoginSuccessEvent;
 
 final class ProfileSubscriber implements EventSubscriberInterface
 {
-    public function __construct(private ProfileManager $profileManager)
-    {
+    public function __construct(
+        private ProfileManager $profileManager
+    ) {
     }
 
     public static function getSubscribedEvents(): array

@@ -21,7 +21,7 @@ abstract class AbstractMergedCalculator extends AbstractCalculator
     protected function mergeInvoiceItems(InvoiceItem $invoiceItem, ExportableItem $entry): void
     {
         $duration = $invoiceItem->getDuration();
-        if (null !== $entry->getDuration()) {
+        if ($entry->getDuration() !== null) {
             $duration += $entry->getDuration();
         }
 
@@ -30,10 +30,10 @@ abstract class AbstractMergedCalculator extends AbstractCalculator
         $type = $entry->getType();
         $category = $entry->getCategory();
 
-        if (null !== $invoiceItem->getType() && $type !== $invoiceItem->getType()) {
+        if ($invoiceItem->getType() !== null && $type !== $invoiceItem->getType()) {
             $type = self::TYPE_MIXED;
         }
-        if (null !== $invoiceItem->getCategory() && $category !== $invoiceItem->getCategory()) {
+        if ($invoiceItem->getCategory() !== null && $category !== $invoiceItem->getCategory()) {
             $category = self::CATEGORY_MIXED;
         }
 
@@ -46,7 +46,7 @@ abstract class AbstractMergedCalculator extends AbstractCalculator
         $invoiceItem->setInternalRate($invoiceItem->getInternalRate() + ($entry->getInternalRate() ?? 0.00));
         $invoiceItem->setDuration($duration);
 
-        if (null !== $entry->getFixedRate()) {
+        if ($entry->getFixedRate() !== null) {
             /*
             if (null !== $invoiceItem->getFixedRate() && $invoiceItem->getFixedRate() !== $entry->getFixedRate()) {
                 throw new \InvalidArgumentException('Cannot mix different fixed-rates');
@@ -55,7 +55,7 @@ abstract class AbstractMergedCalculator extends AbstractCalculator
             $invoiceItem->setFixedRate($entry->getFixedRate());
         }
 
-        if (null !== $entry->getHourlyRate()) {
+        if ($entry->getHourlyRate() !== null) {
             /*
             if (null !== $invoiceItem->getHourlyRate() && $invoiceItem->getHourlyRate() !== $entry->getHourlyRate()) {
                 throw new \InvalidArgumentException('Cannot mix different hourly-rates');
@@ -64,11 +64,11 @@ abstract class AbstractMergedCalculator extends AbstractCalculator
             $invoiceItem->setHourlyRate($entry->getHourlyRate());
         }
 
-        if (null === $invoiceItem->getBegin() || $invoiceItem->getBegin()->getTimestamp() > $entry->getBegin()->getTimestamp()) {
+        if ($invoiceItem->getBegin() === null || $invoiceItem->getBegin()->getTimestamp() > $entry->getBegin()->getTimestamp()) {
             $invoiceItem->setBegin($entry->getBegin());
         }
 
-        if (null === $invoiceItem->getEnd() || $invoiceItem->getEnd()->getTimestamp() < $entry->getEnd()->getTimestamp()) {
+        if ($invoiceItem->getEnd() === null || $invoiceItem->getEnd()->getTimestamp() < $entry->getEnd()->getTimestamp()) {
             $invoiceItem->setEnd($entry->getEnd());
         }
 
@@ -80,11 +80,11 @@ abstract class AbstractMergedCalculator extends AbstractCalculator
             $invoiceItem->setDescription($description . $entry->getDescription());
         }
 
-        if (null === $invoiceItem->getActivity()) {
+        if ($invoiceItem->getActivity() === null) {
             $invoiceItem->setActivity($entry->getActivity());
         }
 
-        if (null === $invoiceItem->getProject()) {
+        if ($invoiceItem->getProject() === null) {
             $invoiceItem->setProject($entry->getProject());
         }
 

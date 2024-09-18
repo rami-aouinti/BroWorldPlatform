@@ -29,8 +29,13 @@ final class ProjectInvoiceCalculator extends AbstractSumInvoiceCalculator implem
         }
 
         return [
-            $invoiceItem->getProject()->getId()
+            $invoiceItem->getProject()->getId(),
         ];
+    }
+
+    public function getId(): string
+    {
+        return 'project';
     }
 
     protected function mergeSumInvoiceItem(InvoiceItem $invoiceItem, ExportableItem $entry): void
@@ -44,10 +49,5 @@ final class ProjectInvoiceCalculator extends AbstractSumInvoiceCalculator implem
         } else {
             $invoiceItem->setDescription($entry->getProject()->getName());
         }
-    }
-
-    public function getId(): string
-    {
-        return 'project';
     }
 }

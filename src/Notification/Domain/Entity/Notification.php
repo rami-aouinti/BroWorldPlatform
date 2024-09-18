@@ -8,6 +8,7 @@ use App\General\Domain\Entity\Traits\Timestampable;
 use App\General\Domain\Entity\Traits\Uuid;
 use App\User\Domain\Entity\Traits\Blameable;
 use App\User\Domain\Entity\User;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Doctrine\UuidBinaryOrderedTimeType;
 use Ramsey\Uuid\UuidInterface;
@@ -15,19 +16,16 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Throwable;
 
 /**
- * Class Notification
- *
  * @package App\Notification\Domain\Entity
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 #[ORM\Entity]
 class Notification
 {
-    final public const string SET_USER_NOTIFICATION = 'set.UserNotification';
-
     use Blameable;
     use Timestampable;
     use Uuid;
+    final public const string SET_USER_NOTIFICATION = 'set.UserNotification';
 
     #[ORM\Id]
     #[ORM\Column(
@@ -51,6 +49,34 @@ class Notification
     ])]
     private string $message;
 
+    #[ORM\Column(
+        name: 'icon',
+        type: Types::STRING,
+        length: 255,
+        nullable: true,
+    )]
+    #[Groups([
+        'Notification',
+        'Notification.icon',
+
+        self::SET_USER_NOTIFICATION,
+    ])]
+    private ?string $icon = null;
+
+    #[ORM\Column(
+        name: 'type',
+        type: Types::STRING,
+        length: 255,
+        nullable: true,
+    )]
+    #[Groups([
+        'Notification',
+        'Notification.type',
+
+        self::SET_USER_NOTIFICATION,
+    ])]
+    private ?string $type = null;
+
     #[ORM\Column(type: 'boolean')]
     #[Groups([
         'Notification',
@@ -67,7 +93,6 @@ class Notification
         self::SET_USER_NOTIFICATION,
     ])]
     private ?User $user;
-
 
     // Getters et setters
 
@@ -92,6 +117,19 @@ class Notification
     public function setMessage(string $message): void
     {
         $this->message = $message;
+    }
+
+    public function getIcon(): ?string
+    {
+        return $this->icon;
+    }
+    public function setIcon(?string $icon): void
+    {
+        $this->icon = $icon;
+    }
+    public function getType(): ?string
+    {
+        return $this->type;
     }
 
     public function isRead(): bool

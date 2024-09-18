@@ -15,8 +15,9 @@ use App\Crm\Infrastructure\Repository\Query\ActivityQuery;
 
 final class TotalsActivity extends AbstractWidget
 {
-    public function __construct(private ActivityRepository $activity)
-    {
+    public function __construct(
+        private ActivityRepository $activity
+    ) {
     }
 
     public function getTitle(): string

@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Blog\Transport\Controller\Api\v1\Tag;
 
+use App\Blog\Application\DTO\Tag\TagCreate;
+use App\Blog\Application\DTO\Tag\TagPatch;
+use App\Blog\Application\DTO\Tag\TagUpdate;
 use App\Blog\Application\Resource\TagResource;
 use App\General\Transport\Rest\Controller;
 use App\General\Transport\Rest\ResponseHandler;
 use App\General\Transport\Rest\Traits\Actions;
-use App\Blog\Application\DTO\Tag\TagCreate;
-use App\Blog\Application\DTO\Tag\TagPatch;
-use App\Blog\Application\DTO\Tag\TagUpdate;
 use OpenApi\Attributes as OA;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;

@@ -11,13 +11,12 @@ declare(strict_types=1);
 
 namespace App\Crm\Transport\Controller\Api\v1;
 
-use App\Crm\Domain\Entity\Bookmark;
-use App\User\Domain\Entity\Interfaces\UserInterface;
-use App\User\Domain\Entity\User;
-use App\Crm\Infrastructure\Repository\BookmarkRepository;
-use App\Crm\Infrastructure\Repository\Query\BaseQuery;
 use App\Crm\Application\Service\Timesheet\DateTimeFactory;
 use App\Crm\Application\Service\Validator\ValidationFailedException;
+use App\Crm\Domain\Entity\Bookmark;
+use App\Crm\Infrastructure\Repository\BookmarkRepository;
+use App\Crm\Infrastructure\Repository\Query\BaseQuery;
+use App\User\Domain\Entity\User;
 use Exception;
 use InvalidArgumentException;
 use Psr\Container\ContainerExceptionInterface;
@@ -32,19 +31,24 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Contracts\Service\ServiceSubscriberInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-
 use Throwable;
 
 use function array_key_exists;
 
 /**
- * Class AbstractController
- *
  * @package App\Crm\Transport\Controller\Api\v1
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 abstract class AbstractController extends BaseAbstractController implements ServiceSubscriberInterface
 {
+    public static function getSubscribedServices(): array
+    {
+        return array_merge(parent::getSubscribedServices(), [
+            'translator' => TranslatorInterface::class,
+            'logger' => LoggerInterface::class,
+            BookmarkRepository::class => BookmarkRepository::class,
+        ]);
+    }
     protected function getUser(): ?User
     {
         $user = parent::getUser();
@@ -60,20 +64,10 @@ abstract class AbstractController extends BaseAbstractController implements Serv
     }
 
     /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
-    private function getTranslator(): TranslatorInterface
-    {
-        return $this->container->get('translator');
-    }
-
-    /**
      * @template TFormType of FormTypeInterface<TData>
      * @template TData of mixed
      * @param class-string<TFormType> $type
      * @param TData                   $data
-     * @param array                   $options
      *
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
@@ -89,7 +83,6 @@ abstract class AbstractController extends BaseAbstractController implements Serv
      * @template TData of mixed
      * @param class-string<TFormType> $type
      * @param TData                   $data
-     * @param array                   $options
      *
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
@@ -97,16 +90,16 @@ abstract class AbstractController extends BaseAbstractController implements Serv
      */
     protected function createFormForGetRequest(string $type, mixed $data, array $options = []): FormInterface
     {
-        return $this->container->get('form.factory')->createNamed('', $type, $data, array_merge(['method' => 'GET'], $options)); // @phpstan-ignore-line
+        return $this->container->get('form.factory')->createNamed('', $type, $data, array_merge([
+            'method' => 'GET',
+        ], $options)); // @phpstan-ignore-line
     }
 
     /**
      * @template TFormType of FormTypeInterface<TData>
      * @template TData of array|object
-     * @param string                  $name
      * @param class-string<TFormType> $type
      * @param TData                   $data
-     * @param array                   $options
      *
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
@@ -151,20 +144,17 @@ abstract class AbstractController extends BaseAbstractController implements Serv
     /**
      * Adds an "error" flash message to the stack.
      *
-     * @param string $translationKey
-     * @param string $reason
-     * @return void
      * @throws Exception
      */
     protected function flashError(string $translationKey, string $reason = ''): void
     {
-        $this->addFlashTranslated('error', $translationKey, ['%reason%' => $reason]);
+        $this->addFlashTranslated('error', $translationKey, [
+            '%reason%' => $reason,
+        ]);
     }
 
     /**
      * Adds an exception flash message for failed update/create actions.
-     *
-     * @param Exception $exception
      *
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
@@ -177,8 +167,6 @@ abstract class AbstractController extends BaseAbstractController implements Serv
     /**
      * Adds an exception flash message for failed delete actions.
      *
-     * @param Exception $exception
-     *
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
@@ -190,9 +178,6 @@ abstract class AbstractController extends BaseAbstractController implements Serv
     /**
      * Adds an "error" flash message and logs the Exception.
      *
-     * @param Exception $exception
-     * @param string    $translationKey
-     *
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
@@ -200,28 +185,9 @@ abstract class AbstractController extends BaseAbstractController implements Serv
     {
         $this->logException($exception);
 
-        $this->addFlashTranslated('error', $translationKey, ['%reason%' => $exception->getMessage()]);
-    }
-
-    /**
-     * Adds a fully translated (both $message and all keys in $parameter) flash message to the stack.
-     *
-     * @param array<string, string> $parameter
-     */
-    private function addFlashTranslated(string $type, string $message, array $parameter = []): void
-    {
-        if (!empty($parameter)) {
-            foreach ($parameter as $key => $value) {
-                $parameter[$key] = $this->getTranslator()->trans($value, [], 'flashmessages');
-            }
-            $message = $this->getTranslator()->trans(
-                $message,
-                $parameter,
-                'flashmessages'
-            );
-        }
-
-        $this->addFlash($type, $message);
+        $this->addFlashTranslated('error', $translationKey, [
+            '%reason%' => $exception->getMessage(),
+        ]);
     }
 
     /**
@@ -255,71 +221,23 @@ abstract class AbstractController extends BaseAbstractController implements Serv
         $this->container->get('logger')->critical($ex->getMessage());
     }
 
-    public static function getSubscribedServices(): array
-    {
-        return array_merge(parent::getSubscribedServices(), [
-            'translator' => TranslatorInterface::class,
-            'logger' => LoggerInterface::class,
-            BookmarkRepository::class => BookmarkRepository::class,
-        ]);
-    }
-
     protected function getDateTimeFactory(?User $user = null): DateTimeFactory
     {
-        if (null === $user) {
+        if ($user === null) {
             $user = $this->getUser();
         }
 
         return DateTimeFactory::createByUser($user);
     }
 
-    // ================================ SEARCH AND BOOKMARKS ================================
-
-    /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
-    private function getBookmark(): BookmarkRepository
-    {
-        return $this->container->get(BookmarkRepository::class);
-    }
-
-    private function getLastSearch(SessionInterface $session, BaseQuery $query): ?array
-    {
-        $name = 'search_' . $this->getSearchName($query);
-
-        if (!$session->has($name)) {
-            return null;
-        }
-
-        return $session->get($name);
-    }
-
-    private function removeLastSearch(SessionInterface $session, BaseQuery $query): void
-    {
-        $name = 'search_' . $this->getSearchName($query);
-
-        if ($session->has($name)) {
-            $session->remove($name);
-        }
-    }
-
-    private function getSearchName(BaseQuery $query): string
-    {
-        return substr($query->getName(), 0, 50);
-    }
-
     /**
      * Use "performSearch=1" to skip loading session searches.
      *
-     * @param FormInterface $form
-     * @param Request       $request
      * @param array<string> $filterParams parameter names, which should not be saved (neither session, nor database)
      *
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      * @throws Exception
-     * @return bool
      */
     protected function handleSearch(FormInterface $form, Request $request, array $filterParams = []): bool
     {
@@ -371,9 +289,8 @@ abstract class AbstractController extends BaseAbstractController implements Serv
                 $bookmark = null;
 
                 return true;
-            } else {
-                $data->setBookmark($bookmark);
             }
+            $data->setBookmark($bookmark);
         }
 
         // apply persisted search data ONLY if search form was not submitted manually
@@ -454,5 +371,71 @@ abstract class AbstractController extends BaseAbstractController implements Serv
         }
 
         return false;
+    }
+
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    private function getTranslator(): TranslatorInterface
+    {
+        return $this->container->get('translator');
+    }
+
+    /**
+     * Adds a fully translated (both $message and all keys in $parameter) flash message to the stack.
+     *
+     * @param array<string, string> $parameter
+     */
+    private function addFlashTranslated(string $type, string $message, array $parameter = []): void
+    {
+        if (!empty($parameter)) {
+            foreach ($parameter as $key => $value) {
+                $parameter[$key] = $this->getTranslator()->trans($value, [], 'flashmessages');
+            }
+            $message = $this->getTranslator()->trans(
+                $message,
+                $parameter,
+                'flashmessages'
+            );
+        }
+
+        $this->addFlash($type, $message);
+    }
+
+    // ================================ SEARCH AND BOOKMARKS ================================
+
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    private function getBookmark(): BookmarkRepository
+    {
+        return $this->container->get(BookmarkRepository::class);
+    }
+
+    private function getLastSearch(SessionInterface $session, BaseQuery $query): ?array
+    {
+        $name = 'search_' . $this->getSearchName($query);
+
+        if (!$session->has($name)) {
+            return null;
+        }
+
+        return $session->get($name);
+    }
+
+    private function removeLastSearch(SessionInterface $session, BaseQuery $query): void
+    {
+        $name = 'search_' . $this->getSearchName($query);
+
+        if ($session->has($name)) {
+            $session->remove($name);
+        }
+    }
+
+    private function getSearchName(BaseQuery $query): string
+    {
+        return substr($query->getName(), 0, 50);
     }
 }

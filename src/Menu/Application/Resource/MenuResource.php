@@ -9,7 +9,6 @@ use App\General\Application\Rest\RestResource;
 use App\General\Domain\Entity\Interfaces\EntityInterface;
 use App\Menu\Domain\Entity\Menu as Entity;
 use App\Menu\Domain\Repository\Interfaces\MenuRepositoryInterface as Repository;
-use Throwable;
 
 /**
  * @package App\Menu

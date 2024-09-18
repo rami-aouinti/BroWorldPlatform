@@ -26,18 +26,32 @@ final class UserContractType extends AbstractType
         $dayOptions = [
             'translation_domain' => 'system-configuration',
             'constraints' => [
-                new GreaterThanOrEqual(0)
+                new GreaterThanOrEqual(0),
             ],
         ];
 
         $builder
-            ->add('workHoursMonday', DurationType::class, array_merge(['label' => 'Monday'], $dayOptions))
-            ->add('workHoursTuesday', DurationType::class, array_merge(['label' => 'Tuesday'], $dayOptions))
-            ->add('workHoursWednesday', DurationType::class, array_merge(['label' => 'Wednesday'], $dayOptions))
-            ->add('workHoursThursday', DurationType::class, array_merge(['label' => 'Thursday'], $dayOptions))
-            ->add('workHoursFriday', DurationType::class, array_merge(['label' => 'Friday'], $dayOptions))
-            ->add('workHoursSaturday', DurationType::class, array_merge(['label' => 'Saturday'], $dayOptions))
-            ->add('workHoursSunday', DurationType::class, array_merge(['label' => 'Sunday'], $dayOptions))
+            ->add('workHoursMonday', DurationType::class, array_merge([
+                'label' => 'Monday',
+            ], $dayOptions))
+            ->add('workHoursTuesday', DurationType::class, array_merge([
+                'label' => 'Tuesday',
+            ], $dayOptions))
+            ->add('workHoursWednesday', DurationType::class, array_merge([
+                'label' => 'Wednesday',
+            ], $dayOptions))
+            ->add('workHoursThursday', DurationType::class, array_merge([
+                'label' => 'Thursday',
+            ], $dayOptions))
+            ->add('workHoursFriday', DurationType::class, array_merge([
+                'label' => 'Friday',
+            ], $dayOptions))
+            ->add('workHoursSaturday', DurationType::class, array_merge([
+                'label' => 'Saturday',
+            ], $dayOptions))
+            ->add('workHoursSunday', DurationType::class, array_merge([
+                'label' => 'Sunday',
+            ], $dayOptions))
         ;
     }
 

@@ -22,6 +22,9 @@ use App\Crm\Application\Service\Reporting\ProjectInactive\ProjectInactiveQuery;
 use App\Crm\Application\Service\Reporting\ProjectView\ProjectViewModel;
 use App\Crm\Application\Service\Reporting\ProjectView\ProjectViewQuery;
 use App\Crm\Application\Service\Timesheet\DateTimeFactory;
+use App\Crm\Domain\Entity\Activity;
+use App\Crm\Domain\Entity\Project;
+use App\Crm\Domain\Entity\Timesheet;
 use App\Crm\Infrastructure\Repository\ActivityRepository;
 use App\Crm\Infrastructure\Repository\Loader\ProjectLoader;
 use App\Crm\Infrastructure\Repository\ProjectRepository;
@@ -30,9 +33,6 @@ use App\Crm\Infrastructure\Repository\UserRepository;
 use App\Crm\Transport\Event\ProjectBudgetStatisticEvent;
 use App\Crm\Transport\Event\ProjectStatisticEvent;
 use App\Crm\Transport\Form\Model\DateRange;
-use App\Crm\Domain\Entity\Activity;
-use App\Crm\Domain\Entity\Project;
-use App\Crm\Domain\Entity\Timesheet;
 use App\User\Domain\Entity\User;
 use DateTimeImmutable;
 use DateTimeInterface;
@@ -50,8 +50,7 @@ class ProjectStatisticService
         private readonly TimesheetRepository $timesheetRepository,
         private readonly EventDispatcherInterface $dispatcher,
         private readonly UserRepository $userRepository
-    )
-    {
+    ) {
     }
 
     /**
@@ -345,7 +344,7 @@ class ProjectStatisticService
 
         $result = $qb->getQuery()->getResult();
 
-        if (null !== $result) {
+        if ($result !== null) {
             foreach ($result as $resultRow) {
                 $statistic = $statistics[$resultRow['id']];
                 $statistic->setDuration($statistic->getDuration() + $resultRow['duration']);
@@ -374,10 +373,6 @@ class ProjectStatisticService
         return $statistics;
     }
 
-    /**
-     * @param ProjectDetailsQuery $query
-     * @return ProjectDetailsModel
-     */
     public function getProjectsDetails(ProjectDetailsQuery $query): ProjectDetailsModel
     {
         $project = $query->getProject();
@@ -520,11 +515,11 @@ class ProjectStatisticService
                 $end = clone $project->getEnd();
             } else {
                 $end = clone $query->getToday();
-                $end->setDate((int) $end->format('Y'), 12, 31);
+                $end->setDate((int)$end->format('Y'), 12, 31);
             }
 
             $start = clone $project->getStart();
-            $start->setDate((int) $start->format('Y'), (int) $start->format('m'), 1);
+            $start->setDate((int)$start->format('Y'), (int)$start->format('m'), 1);
             $start->setTime(0, 0, 0);
 
             while ($start !== false && $start < $end) {
@@ -634,7 +629,6 @@ class ProjectStatisticService
     }
 
     /**
-     * @param ProjectViewQuery $query
      * @return Project[]
      */
     public function findProjectsForView(ProjectViewQuery $query): array

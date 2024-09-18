@@ -9,13 +9,13 @@
 
 namespace App\Crm\Transport\Form;
 
+use App\Crm\Domain\Entity\Activity;
+use App\Crm\Domain\Entity\Customer;
 use App\Crm\Infrastructure\Repository\ProjectRepository;
 use App\Crm\Infrastructure\Repository\Query\ProjectFormTypeQuery;
 use App\Crm\Transport\Form\Type\InvoiceLabelType;
 use App\Crm\Transport\Form\Type\ProjectType;
 use App\Crm\Transport\Form\Type\TeamType;
-use App\Crm\Domain\Entity\Activity;
-use App\Crm\Domain\Entity\Customer;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -52,7 +52,7 @@ class ActivityEditForm extends AbstractType
             ->add('name', TextType::class, [
                 'label' => 'name',
                 'attr' => [
-                    'autofocus' => 'autofocus'
+                    'autofocus' => 'autofocus',
                 ],
             ])
             ->add('number', TextType::class, [
@@ -110,7 +110,7 @@ class ActivityEditForm extends AbstractType
             'include_budget' => false,
             'include_time' => false,
             'attr' => [
-                'data-form-event' => 'kimai.activityUpdate'
+                'data-form-event' => 'kimai.activityUpdate',
             ],
         ]);
     }

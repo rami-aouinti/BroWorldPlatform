@@ -16,8 +16,6 @@ use App\User\Domain\Entity\User;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
- * Class CalendarGoogleSourceEvent
- *
  * @package App\Crm\Transport\Event
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
@@ -28,8 +26,9 @@ final class CalendarGoogleSourceEvent extends Event
      */
     private array $sources = [];
 
-    public function __construct(private User $user)
-    {
+    public function __construct(
+        private User $user
+    ) {
     }
 
     public function getUser(): User
@@ -37,7 +36,7 @@ final class CalendarGoogleSourceEvent extends Event
         return $this->user;
     }
 
-    public function addSource(GoogleSource $source): CalendarGoogleSourceEvent
+    public function addSource(GoogleSource $source): self
     {
         $this->sources[] = $source;
 

@@ -11,7 +11,11 @@ namespace App\Crm\Transport\Controller\Api\v1;
 
 use App\Crm\Application\Service\Configuration\ConfigurationService;
 use App\Crm\Application\Service\Configuration\SystemConfiguration;
-
+use App\Crm\Application\Service\Timesheet\LockdownService;
+use App\Crm\Application\Service\Utils\PageSetup;
+use App\Crm\Application\Service\Validator\Constraints\ColorChoices;
+use App\Crm\Application\Service\Validator\Constraints\DateTimeFormat;
+use App\Crm\Application\Service\Validator\Constraints\TimeFormat;
 use App\Crm\Transport\Event\SystemConfigurationEvent;
 use App\Crm\Transport\Form\Model\Configuration;
 use App\Crm\Transport\Form\Model\SystemConfiguration as SystemConfigurationModel;
@@ -32,11 +36,7 @@ use App\Crm\Transport\Form\Type\TrackingModeType;
 use App\Crm\Transport\Form\Type\UserLanguageType;
 use App\Crm\Transport\Form\Type\WeekDaysType;
 use App\Crm\Transport\Form\Type\YesNoType;
-use App\Crm\Application\Service\Timesheet\LockdownService;
-use App\Crm\Application\Service\Utils\PageSetup;
-use App\Crm\Application\Service\Validator\Constraints\ColorChoices;
-use App\Crm\Application\Service\Validator\Constraints\DateTimeFormat;
-use App\Crm\Application\Service\Validator\Constraints\TimeFormat;
+use OpenApi\Attributes as OA;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Form\Extension\Core\Type\CountryType;
 use Symfony\Component\Form\Extension\Core\Type\CurrencyType;
@@ -54,7 +54,6 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Range;
 use Symfony\Component\Validator\Constraints\Regex;
-use OpenApi\Attributes as OA;
 
 /**
  * Controller used for executing system relevant tasks.
@@ -66,8 +65,12 @@ use OpenApi\Attributes as OA;
 #[OA\Tag(name: 'Crm System Configuration Management')]
 final class SystemConfigurationController extends AbstractController
 {
-    public function __construct(private EventDispatcherInterface $eventDispatcher, private ConfigurationService $repository, private SystemConfiguration $systemConfiguration, private LockdownService $lockdownService)
-    {
+    public function __construct(
+        private EventDispatcherInterface $eventDispatcher,
+        private ConfigurationService $repository,
+        private SystemConfiguration $systemConfiguration,
+        private LockdownService $lockdownService
+    ) {
     }
 
     #[Route(path: '/', name: 'system_configuration', methods: ['GET'])]
@@ -120,14 +123,14 @@ final class SystemConfigurationController extends AbstractController
 
     /**
      * @internal do not link directly to this route
-     * @param Request $request
-     * @param string $section
      * @return RedirectResponse|Response
      */
-    #[Route(path: '/update/{section}/{single}', defaults: ['single' => 0], name: 'system_configuration_update', methods: ['POST'])]
+    #[Route(path: '/update/{section}/{single}', defaults: [
+        'single' => 0,
+    ], name: 'system_configuration_update', methods: ['POST'])]
     public function configUpdate(Request $request, string $section, string $single): Response
     {
-        $single = (bool) $single;
+        $single = (bool)$single;
         $configModel = null;
         $configSettings = $this->getInitializedConfigurations();
 
@@ -138,7 +141,7 @@ final class SystemConfigurationController extends AbstractController
             }
         }
 
-        if (null === $configModel) {
+        if ($configModel === null) {
             throw $this->createNotFoundException('Could not find config model: ' . $section);
         }
 
@@ -156,7 +159,9 @@ final class SystemConfigurationController extends AbstractController
             }
 
             if ($single) {
-                return $this->redirectToRoute('system_configuration_section', ['section' => $section]);
+                return $this->redirectToRoute('system_configuration_section', [
+                    'section' => $section,
+                ]);
             }
 
             return $this->redirectToRoute('system_configuration');
@@ -189,7 +194,10 @@ final class SystemConfigurationController extends AbstractController
     private function createConfigurationsForm(SystemConfigurationModel $configuration, bool $isSingleSection = false): FormInterface
     {
         $options = [
-            'action' => $this->generateUrl('system_configuration_update', ['section' => $configuration->getSection(), 'single' => $isSingleSection ? '1' : '0']),
+            'action' => $this->generateUrl('system_configuration_update', [
+                'section' => $configuration->getSection(),
+                'single' => $isSingleSection ? '1' : '0',
+            ]),
             'method' => 'POST',
         ];
 
@@ -216,7 +224,7 @@ final class SystemConfigurationController extends AbstractController
                 }
 
                 $configValue = $this->systemConfiguration->find($config->getName());
-                if (null !== $configValue) {
+                if ($configValue !== null) {
                     $config->setValue($configValue);
                 }
             }
@@ -274,12 +282,18 @@ final class SystemConfigurationController extends AbstractController
                 (new Configuration('user.password_reset_retry_ttl'))
                     ->setTranslationDomain('system-configuration')
                     ->setLabel('user_auth_password_reset_retry_ttl')
-                    ->setConstraints([new NotNull(), new GreaterThanOrEqual(['value' => 60])])
+                    ->setConstraints([
+                        new NotNull(), new GreaterThanOrEqual([
+                            'value' => 60,
+                        ])])
                     ->setType(IntegerType::class),
                 (new Configuration('user.password_reset_token_ttl'))
                     ->setTranslationDomain('system-configuration')
                     ->setLabel('user_auth_password_reset_token_ttl')
-                    ->setConstraints([new NotNull(), new GreaterThanOrEqual(['value' => 60])])
+                    ->setConstraints([
+                        new NotNull(), new GreaterThanOrEqual([
+                            'value' => 60,
+                        ])])
                     ->setType(IntegerType::class),
             ]);
 
@@ -323,19 +337,26 @@ final class SystemConfigurationController extends AbstractController
                         ->setType(IntegerType::class)
                         ->setTranslationDomain('system-configuration')
                         ->setConstraints([
-                            new GreaterThanOrEqual(['value' => 1])
+                            new GreaterThanOrEqual([
+                                'value' => 1,
+                            ]),
                         ]),
                     (new Configuration('timesheet.time_increment'))
                         ->setType(MinuteIncrementType::class)
                         ->setTranslationDomain('system-configuration')
                         ->setConstraints([
-                            new Range(['min' => 0, 'max' => 60])
+                            new Range([
+                                'min' => 0,
+                                'max' => 60,
+                            ]),
                         ]),
                     (new Configuration('timesheet.duration_increment'))
                         ->setType(MinuteIncrementType::class)
                         ->setTranslationDomain('system-configuration')
                         ->setConstraints([
-                            new GreaterThanOrEqual(['value' => 0])
+                            new GreaterThanOrEqual([
+                                'value' => 0,
+                            ]),
                         ]),
                     /*
                     (new Configuration('timesheet.rules.break_warning_duration'))
@@ -349,7 +370,9 @@ final class SystemConfigurationController extends AbstractController
                         ->setType(IntegerType::class)
                         ->setTranslationDomain('system-configuration')
                         ->setConstraints([
-                            new GreaterThanOrEqual(['value' => 0])
+                            new GreaterThanOrEqual([
+                                'value' => 0,
+                            ]),
                         ]),
                 ]),
             (new SystemConfigurationModel('quick_entry'))
@@ -361,42 +384,63 @@ final class SystemConfigurationController extends AbstractController
                         ->setTranslationDomain('system-configuration')
                         ->setRequired(false)
                         ->setConstraints([
-                            new Range(['min' => 0, 'max' => 20]),
+                            new Range([
+                                'min' => 0,
+                                'max' => 20,
+                            ]),
                         ]),
                     (new Configuration('quick_entry.recent_activity_weeks'))
                         ->setType(IntegerType::class)
                         ->setTranslationDomain('system-configuration')
                         ->setRequired(false)
                         ->setConstraints([
-                            new Range(['min' => 0, 'max' => 20]),
+                            new Range([
+                                'min' => 0,
+                                'max' => 20,
+                            ]),
                         ]),
                     (new Configuration('quick_entry.minimum_rows'))
                         ->setType(IntegerType::class)
                         ->setTranslationDomain('system-configuration')
                         ->setConstraints([
-                            new Range(['min' => 1, 'max' => 5]),
+                            new Range([
+                                'min' => 1,
+                                'max' => 5,
+                            ]),
                         ]),
                 ]),
             (new SystemConfigurationModel('lockdown_period'))
                 ->setConfiguration([
                     (new Configuration('timesheet.rules.lockdown_period_start'))
-                        ->setOptions(['help' => $lockdownStartHelp])
+                        ->setOptions([
+                            'help' => $lockdownStartHelp,
+                        ])
                         ->setType(TextType::class)
                         ->setRequired(false)
-                        ->setConstraints([new DateTimeFormat(['separator' => ','])])
+                        ->setConstraints([
+                            new DateTimeFormat([
+                                'separator' => ',',
+                            ])])
                         ->setTranslationDomain('system-configuration'),
                     (new Configuration('timesheet.rules.lockdown_period_end'))
-                        ->setOptions(['help' => $lockdownEndHelp])
+                        ->setOptions([
+                            'help' => $lockdownEndHelp,
+                        ])
                         ->setType(TextType::class)
                         ->setRequired(false)
-                        ->setConstraints([new DateTimeFormat(['separator' => ','])])
+                        ->setConstraints([
+                            new DateTimeFormat([
+                                'separator' => ',',
+                            ])])
                         ->setTranslationDomain('system-configuration'),
                     (new Configuration('timesheet.rules.lockdown_period_timezone'))
                         ->setType(TimezoneType::class)
                         ->setRequired(false)
                         ->setTranslationDomain('system-configuration'),
                     (new Configuration('timesheet.rules.lockdown_grace_period'))
-                        ->setOptions(['help' => $lockdownGraceHelp])
+                        ->setOptions([
+                            'help' => $lockdownGraceHelp,
+                        ])
                         ->setType(TextType::class)
                         ->setRequired(false)
                         ->setConstraints([new DateTimeFormat()])
@@ -411,19 +455,25 @@ final class SystemConfigurationController extends AbstractController
                         ->setType(IntegerType::class)
                         ->setTranslationDomain('system-configuration')
                         ->setConstraints([
-                            new GreaterThanOrEqual(['value' => 0])
+                            new GreaterThanOrEqual([
+                                'value' => 0,
+                            ]),
                         ]),
                     (new Configuration('timesheet.rounding.default.end'))
                         ->setType(IntegerType::class)
                         ->setTranslationDomain('system-configuration')
                         ->setConstraints([
-                            new GreaterThanOrEqual(['value' => 0])
+                            new GreaterThanOrEqual([
+                                'value' => 0,
+                            ]),
                         ]),
                     (new Configuration('timesheet.rounding.default.duration'))
                         ->setType(IntegerType::class)
                         ->setTranslationDomain('system-configuration')
                         ->setConstraints([
-                            new GreaterThanOrEqual(['value' => 0])
+                            new GreaterThanOrEqual([
+                                'value' => 0,
+                            ]),
                         ]),
                     (new Configuration('timesheet.rounding.default.days'))
                         ->setType(WeekDaysType::class)
@@ -440,8 +490,8 @@ final class SystemConfigurationController extends AbstractController
                         ->setOptions([
                             'help' => 'allowed_replacer',
                             'help_translation_parameters' => [
-                                '%replacer%' => '{Y}, {y}, {M}, {m}, {D}, {d}, {date}, {cc}, {ccy}, {ccm}, {ccd}, {cu}, {cuy}, {cum}, {cud}, {ustaff}, {uid}, {c}, {cy}, {cm}, {cd}, {cname}, {cnumber}'
-                            ]
+                                '%replacer%' => '{Y}, {y}, {M}, {m}, {D}, {d}, {date}, {cc}, {ccy}, {ccm}, {ccd}, {cu}, {cuy}, {cum}, {cud}, {ustaff}, {uid}, {c}, {cy}, {cm}, {cd}, {cname}, {cnumber}',
+                            ],
                         ])
                         ->setRequired(true)
                         ->setType(TextType::class)
@@ -455,21 +505,32 @@ final class SystemConfigurationController extends AbstractController
                         ->setLabel('timezone')
                         ->setType(TimezoneType::class)
                         ->setValue(date_default_timezone_get())
-                        ->setOptions(['help' => 'default_value_new']),
+                        ->setOptions([
+                            'help' => 'default_value_new',
+                        ]),
                     (new Configuration('defaults.customer.country'))
                         ->setLabel('country')
                         ->setType(CountryType::class)
-                        ->setOptions(['help' => 'default_value_new']),
+                        ->setOptions([
+                            'help' => 'default_value_new',
+                        ]),
                     (new Configuration('defaults.customer.currency'))
                         ->setLabel('currency')
                         ->setType(CurrencyType::class)
-                        ->setOptions(['help' => 'default_value_new']),
+                        ->setOptions([
+                            'help' => 'default_value_new',
+                        ]),
                     (new Configuration('customer.choice_pattern'))
                         ->setLabel('choice_pattern')
                         ->setType(CustomerTypePatternType::class),
                     (new Configuration('customer.number_format'))
                         ->setLabel('customer.number_format')
-                        ->setOptions(['help' => 'allowed_replacer', 'help_translation_parameters' => ['%replacer%' => '{cc}']])
+                        ->setOptions([
+                            'help' => 'allowed_replacer',
+                            'help_translation_parameters' => [
+                                '%replacer%' => '{cc}',
+                            ],
+                        ])
                         ->setRequired(true)
                         ->setType(TextType::class)
                         ->setTranslationDomain('system-configuration'),
@@ -489,7 +550,12 @@ final class SystemConfigurationController extends AbstractController
                         ->setTranslationDomain('system-configuration'),
                     (new Configuration('project.number_format'))
                         ->setLabel('project.number_format')
-                        ->setOptions(['help' => 'allowed_replacer', 'help_translation_parameters' => ['%replacer%' => '{pc}']])
+                        ->setOptions([
+                            'help' => 'allowed_replacer',
+                            'help_translation_parameters' => [
+                                '%replacer%' => '{pc}',
+                            ],
+                        ])
                         ->setRequired(false)
                         ->setType(TextType::class)
                         ->setTranslationDomain('system-configuration'),
@@ -505,7 +571,12 @@ final class SystemConfigurationController extends AbstractController
                         ->setType(ActivityTypePatternType::class),
                     (new Configuration('activity.number_format'))
                         ->setLabel('activity.number_format')
-                        ->setOptions(['help' => 'allowed_replacer', 'help_translation_parameters' => ['%replacer%' => '{ac}']])
+                        ->setOptions([
+                            'help' => 'allowed_replacer',
+                            'help_translation_parameters' => [
+                                '%replacer%' => '{ac}',
+                            ],
+                        ])
                         ->setRequired(false)
                         ->setType(TextType::class)
                         ->setTranslationDomain('system-configuration'),
@@ -526,15 +597,21 @@ final class SystemConfigurationController extends AbstractController
                         ->setLabel('timezone')
                         ->setType(TimezoneType::class)
                         ->setValue(date_default_timezone_get())
-                        ->setOptions(['help' => 'default_value_new']),
+                        ->setOptions([
+                            'help' => 'default_value_new',
+                        ]),
                     (new Configuration('defaults.user.language'))
                         ->setLabel('language')
                         ->setType(UserLanguageType::class)
-                        ->setOptions(['help' => 'default_value_new']),
+                        ->setOptions([
+                            'help' => 'default_value_new',
+                        ]),
                     (new Configuration('defaults.user.theme'))
                         ->setLabel('skin')
                         ->setType(SkinType::class)
-                        ->setOptions(['help' => 'default_value_new']),
+                        ->setOptions([
+                            'help' => 'default_value_new',
+                        ]),
                     (new Configuration('defaults.user.currency'))
                         ->setLabel('currency')
                         ->setType(CurrencyType::class),
@@ -554,7 +631,9 @@ final class SystemConfigurationController extends AbstractController
                         ->setRequired(false)
                         ->setLabel('theme.color_choices')
                         ->setType(ArrayToCommaStringType::class)
-                        ->setOptions(['help' => 'help.theme.color_choices'])
+                        ->setOptions([
+                            'help' => 'help.theme.color_choices',
+                        ])
                         ->setConstraints([new ColorChoices()])
                         ->setTranslationDomain('system-configuration'),
                 ]),
@@ -587,11 +666,16 @@ final class SystemConfigurationController extends AbstractController
                     (new Configuration('calendar.slot_duration'))
                         ->setTranslationDomain('system-configuration')
                         ->setType(TextType::class)
-                        ->setConstraints([new Regex(['pattern' => '/[0-2]{1}[0-9]{1}:[0-9]{2}:[0-9]{2}/']), new NotNull()]),
+                        ->setConstraints([new Regex([
+                            'pattern' => '/[0-2]{1}[0-9]{1}:[0-9]{2}:[0-9]{2}/',
+                        ]), new NotNull()]),
                     (new Configuration('calendar.dragdrop_amount'))
                         ->setTranslationDomain('system-configuration')
                         ->setType(IntegerType::class)
-                        ->setConstraints([new Range(['min' => 0, 'max' => 20]), new NotNull()]),
+                        ->setConstraints([new Range([
+                            'min' => 0,
+                            'max' => 20,
+                        ]), new NotNull()]),
                     (new Configuration('calendar.dragdrop_data'))
                         ->setTranslationDomain('system-configuration')
                         ->setType(YesNoType::class),
@@ -613,7 +697,9 @@ final class SystemConfigurationController extends AbstractController
                         ->setTranslationDomain('system-configuration')
                         ->setRequired(false)
                         ->setType(DatePickerType::class)
-                        ->setOptions(['input' => 'string']),
+                        ->setOptions([
+                            'input' => 'string',
+                        ]),
                 ]),
         ];
     }

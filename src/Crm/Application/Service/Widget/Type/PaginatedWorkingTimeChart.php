@@ -18,8 +18,10 @@ use DateTime;
 
 final class PaginatedWorkingTimeChart extends AbstractWidget
 {
-    public function __construct(private TimesheetRepository $repository, private SystemConfiguration $systemConfiguration)
-    {
+    public function __construct(
+        private TimesheetRepository $repository,
+        private SystemConfiguration $systemConfiguration
+    ) {
     }
 
     public function getWidth(): int
@@ -78,14 +80,6 @@ final class PaginatedWorkingTimeChart extends AbstractWidget
         return $options;
     }
 
-    private function getLastWeekInYear($year): int
-    {
-        $lastWeekInYear = new DateTime();
-        $lastWeekInYear->setISODate($year, 53);
-
-        return $lastWeekInYear->format('W') === '53' ? 53 : 52;
-    }
-
     /**
      * @param array<string, string|bool|int|null|array<string, mixed>> $options
      */
@@ -97,14 +91,14 @@ final class PaginatedWorkingTimeChart extends AbstractWidget
 
         $year = $options['year'];
         if (\is_string($year)) {
-            $year = (int) $year;
+            $year = (int)$year;
         } elseif (!\is_int($year)) {
             throw new WidgetException('Invalid year given');
         }
 
         $week = $options['week'];
         if (\is_string($week)) {
-            $week = (int) $week;
+            $week = (int)$week;
         } elseif (!\is_int($week)) {
             throw new WidgetException('Invalid week given');
         }
@@ -125,8 +119,8 @@ final class PaginatedWorkingTimeChart extends AbstractWidget
         $dayBegin = $dateTimeFactory->createDateTime('00:00:00');
         $dayEnd = $dateTimeFactory->createDateTime('23:59:59');
 
-        $monthBegin = (clone $weekBegin)->setDate((int) $weekBegin->format('Y'), (int) $weekBegin->format('n'), 1)->setTime(0, 0, 0);
-        $monthEnd = (clone $weekBegin)->setDate((int) $weekBegin->format('Y'), (int) $weekBegin->format('n'), (int) $weekBegin->format('t'))->setTime(23, 59, 59);
+        $monthBegin = (clone $weekBegin)->setDate((int)$weekBegin->format('Y'), (int)$weekBegin->format('n'), 1)->setTime(0, 0, 0);
+        $monthEnd = (clone $weekBegin)->setDate((int)$weekBegin->format('Y'), (int)$weekBegin->format('n'), (int)$weekBegin->format('t'))->setTime(23, 59, 59);
 
         $yearBegin = $dateTimeFactory->createDateTime(sprintf('01 january %s 00:00:00', $year));
         $yearEnd = $dateTimeFactory->createDateTime(sprintf('31 december %s 23:59:59', $year));
@@ -159,5 +153,13 @@ final class PaginatedWorkingTimeChart extends AbstractWidget
     public function getId(): string
     {
         return 'PaginatedWorkingTimeChart';
+    }
+
+    private function getLastWeekInYear($year): int
+    {
+        $lastWeekInYear = new DateTime();
+        $lastWeekInYear->setISODate($year, 53);
+
+        return $lastWeekInYear->format('W') === '53' ? 53 : 52;
     }
 }

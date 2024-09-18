@@ -14,8 +14,6 @@ namespace App\Crm\Application\Plugin;
 use Exception;
 
 /**
- * Class Plugin
- *
  * @package App\Crm\Application\Plugin
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
@@ -23,8 +21,9 @@ final class Plugin
 {
     private ?PluginMetadata $metadata = null;
 
-    public function __construct(private readonly PluginInterface $bundle)
-    {
+    public function __construct(
+        private readonly PluginInterface $bundle
+    ) {
     }
 
     /**

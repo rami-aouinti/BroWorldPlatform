@@ -10,17 +10,17 @@
 namespace App\Crm\Infrastructure\Repository;
 
 use App\Crm\Application\Service\Utils\Pagination;
-use App\Crm\Infrastructure\Repository\Loader\ProjectLoader;
-use App\Crm\Infrastructure\Repository\Paginator\LoaderPaginator;
-use App\Crm\Infrastructure\Repository\Paginator\PaginatorInterface;
-use App\Crm\Infrastructure\Repository\Query\ProjectFormTypeQuery;
-use App\Crm\Infrastructure\Repository\Query\ProjectQuery;
 use App\Crm\Domain\Entity\Activity;
 use App\Crm\Domain\Entity\Project;
 use App\Crm\Domain\Entity\ProjectComment;
 use App\Crm\Domain\Entity\ProjectMeta;
 use App\Crm\Domain\Entity\Team;
 use App\Crm\Domain\Entity\Timesheet;
+use App\Crm\Infrastructure\Repository\Loader\ProjectLoader;
+use App\Crm\Infrastructure\Repository\Paginator\LoaderPaginator;
+use App\Crm\Infrastructure\Repository\Paginator\PaginatorInterface;
+use App\Crm\Infrastructure\Repository\Query\ProjectFormTypeQuery;
+use App\Crm\Infrastructure\Repository\Query\ProjectQuery;
 use App\User\Domain\Entity\User;
 use DateTime;
 use Doctrine\DBAL\ParameterType;
@@ -58,7 +58,6 @@ class ProjectRepository extends EntityRepository
     }
 
     /**
-     * @param Project $project
      * @throws ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
      */
@@ -71,12 +70,13 @@ class ProjectRepository extends EntityRepository
 
     /**
      * @param null|bool $visible
-     * @return int
      */
     public function countProject($visible = null): int
     {
-        if (null !== $visible) {
-            return $this->count(['visible' => (bool) $visible]);
+        if ($visible !== null) {
+            return $this->count([
+                'visible' => (bool)$visible,
+            ]);
         }
 
         return $this->count([]);
@@ -95,16 +95,16 @@ class ProjectRepository extends EntityRepository
         $andX = $qb->expr()->andX();
 
         // make sure that all queries without a user see all projects
-        if (null === $user && empty($teams)) {
+        if ($user === null && empty($teams)) {
             return $andX;
         }
 
         // make sure that admins see all projects
-        if (null !== $user && $user->canSeeAllData()) {
+        if ($user !== null && $user->canSeeAllData()) {
             return $andX;
         }
 
-        if (null !== $user) {
+        if ($user !== null) {
             $teams = array_merge($teams, $user->getTeams());
         }
 
@@ -138,9 +138,6 @@ class ProjectRepository extends EntityRepository
 
     /**
      * Returns a query builder that is used for ProjectType and your own 'query_builder' option.
-     *
-     * @param ProjectFormTypeQuery $query
-     * @return QueryBuilder
      */
     public function getQueryBuilderForFormType(ProjectFormTypeQuery $query): QueryBuilder
     {
@@ -188,7 +185,7 @@ class ProjectRepository extends EntityRepository
             $qb->setParameter('project', $query->getProjects());
         }
 
-        if (null !== $query->getProjectToIgnore()) {
+        if ($query->getProjectToIgnore() !== null) {
             $mainQuery = $qb->expr()->andX(
                 $mainQuery,
                 $qb->expr()->neq('p.id', ':ignored')
@@ -200,6 +197,107 @@ class ProjectRepository extends EntityRepository
         $qb->andWhere($outerQuery);
 
         return $qb;
+    }
+
+    public function countProjectsForQuery(ProjectQuery $query): int
+    {
+        $qb = $this->getQueryBuilderForQuery($query);
+        $qb
+            ->resetDQLPart('select')
+            ->resetDQLPart('orderBy')
+            ->resetDQLPart('groupBy')
+            ->select($qb->expr()->countDistinct('p.id'))
+        ;
+
+        return (int)$qb->getQuery()->getSingleScalarResult();
+    }
+
+    public function getPagerfantaForQuery(ProjectQuery $query): Pagination
+    {
+        return new Pagination($this->getPaginatorForQuery($query), $query);
+    }
+
+    /**
+     * @return Project[]
+     */
+    public function getProjectsForQuery(ProjectQuery $query): iterable
+    {
+        $qb = $this->getQueryBuilderForQuery($query);
+        $results = $qb->getQuery()->execute();
+        $loader = new ProjectLoader($qb->getEntityManager());
+        $loader->loadResults($results);
+
+        return $results;
+    }
+
+    /**
+     * @throws \Doctrine\ORM\Exception\ORMException
+     */
+    public function deleteProject(Project $delete, ?Project $replace = null)
+    {
+        $em = $this->getEntityManager();
+        $em->beginTransaction();
+
+        try {
+            if ($replace !== null) {
+                $qb = $em->createQueryBuilder();
+                $qb
+                    ->update(Timesheet::class, 't')
+                    ->set('t.project', ':replace')
+                    ->where('t.project = :delete')
+                    ->setParameter('delete', $delete)
+                    ->setParameter('replace', $replace)
+                    ->getQuery()
+                    ->execute();
+
+                $qb = $em->createQueryBuilder();
+                $qb
+                    ->update(Activity::class, 'a')
+                    ->set('a.project', ':replace')
+                    ->where('a.project = :delete')
+                    ->setParameter('delete', $delete)
+                    ->setParameter('replace', $replace)
+                    ->getQuery()
+                    ->execute();
+            }
+
+            $em->remove($delete);
+            $em->flush();
+            $em->commit();
+        } catch (ORMException $ex) {
+            $em->rollback();
+
+            throw $ex;
+        }
+    }
+
+    public function getComments(Project $project): array
+    {
+        $qb = $this->getEntityManager()->createQueryBuilder();
+        $qb
+            ->select('comments')
+            ->from(ProjectComment::class, 'comments')
+            ->andWhere($qb->expr()->eq('comments.project', ':project'))
+            ->addOrderBy('comments.pinned', 'DESC')
+            ->addOrderBy('comments.createdAt', 'DESC')
+            ->setParameter('project', $project)
+        ;
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function saveComment(ProjectComment $comment)
+    {
+        $entityManager = $this->getEntityManager();
+        $entityManager->persist($comment);
+        $entityManager->flush();
+    }
+
+    public function deleteComment(ProjectComment $comment)
+    {
+        $entityManager = $this->getEntityManager();
+        $entityManager->remove($comment);
+        $entityManager->flush();
     }
 
     private function getQueryBuilderForQuery(ProjectQuery $query): QueryBuilder
@@ -296,7 +394,7 @@ class ProjectRepository extends EntityRepository
     {
         $and = $qb->expr()->andX();
 
-        if (null !== $begin) {
+        if ($begin !== null) {
             $and->add(
                 $qb->expr()->andX(
                     $qb->expr()->orX(
@@ -312,7 +410,7 @@ class ProjectRepository extends EntityRepository
             $qb->setParameter('start', $begin);
         }
 
-        if (null !== $end) {
+        if ($end !== null) {
             $and->add(
                 $qb->expr()->andX(
                     $qb->expr()->orX(
@@ -331,114 +429,11 @@ class ProjectRepository extends EntityRepository
         return $and;
     }
 
-    public function countProjectsForQuery(ProjectQuery $query): int
-    {
-        $qb = $this->getQueryBuilderForQuery($query);
-        $qb
-            ->resetDQLPart('select')
-            ->resetDQLPart('orderBy')
-            ->resetDQLPart('groupBy')
-            ->select($qb->expr()->countDistinct('p.id'))
-        ;
-
-        return (int) $qb->getQuery()->getSingleScalarResult();
-    }
-
-    public function getPagerfantaForQuery(ProjectQuery $query): Pagination
-    {
-        return new Pagination($this->getPaginatorForQuery($query), $query);
-    }
-
     private function getPaginatorForQuery(ProjectQuery $query): PaginatorInterface
     {
         $counter = $this->countProjectsForQuery($query);
         $qb = $this->getQueryBuilderForQuery($query);
 
         return new LoaderPaginator(new ProjectLoader($qb->getEntityManager()), $qb, $counter);
-    }
-
-    /**
-     * @param ProjectQuery $query
-     * @return Project[]
-     */
-    public function getProjectsForQuery(ProjectQuery $query): iterable
-    {
-        $qb = $this->getQueryBuilderForQuery($query);
-        $results = $qb->getQuery()->execute();
-        $loader = new ProjectLoader($qb->getEntityManager());
-        $loader->loadResults($results);
-
-        return $results;
-    }
-
-    /**
-     * @param Project $delete
-     * @param Project|null $replace
-     * @throws \Doctrine\ORM\Exception\ORMException
-     */
-    public function deleteProject(Project $delete, ?Project $replace = null)
-    {
-        $em = $this->getEntityManager();
-        $em->beginTransaction();
-
-        try {
-            if (null !== $replace) {
-                $qb = $em->createQueryBuilder();
-                $qb
-                    ->update(Timesheet::class, 't')
-                    ->set('t.project', ':replace')
-                    ->where('t.project = :delete')
-                    ->setParameter('delete', $delete)
-                    ->setParameter('replace', $replace)
-                    ->getQuery()
-                    ->execute();
-
-                $qb = $em->createQueryBuilder();
-                $qb
-                    ->update(Activity::class, 'a')
-                    ->set('a.project', ':replace')
-                    ->where('a.project = :delete')
-                    ->setParameter('delete', $delete)
-                    ->setParameter('replace', $replace)
-                    ->getQuery()
-                    ->execute();
-            }
-
-            $em->remove($delete);
-            $em->flush();
-            $em->commit();
-        } catch (ORMException $ex) {
-            $em->rollback();
-            throw $ex;
-        }
-    }
-
-    public function getComments(Project $project): array
-    {
-        $qb = $this->getEntityManager()->createQueryBuilder();
-        $qb
-            ->select('comments')
-            ->from(ProjectComment::class, 'comments')
-            ->andWhere($qb->expr()->eq('comments.project', ':project'))
-            ->addOrderBy('comments.pinned', 'DESC')
-            ->addOrderBy('comments.createdAt', 'DESC')
-            ->setParameter('project', $project)
-        ;
-
-        return $qb->getQuery()->getResult();
-    }
-
-    public function saveComment(ProjectComment $comment)
-    {
-        $entityManager = $this->getEntityManager();
-        $entityManager->persist($comment);
-        $entityManager->flush();
-    }
-
-    public function deleteComment(ProjectComment $comment)
-    {
-        $entityManager = $this->getEntityManager();
-        $entityManager->remove($comment);
-        $entityManager->flush();
     }
 }

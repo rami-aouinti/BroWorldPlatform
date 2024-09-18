@@ -8,8 +8,6 @@ use App\User\Domain\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Class Like
- *
  * @package App\Blog\Domain\Entity
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
@@ -34,37 +32,36 @@ class Like
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 
-    public  function getId(): ?int
+    public function getId(): ?int
     {
         return $this->id;
     }
-    public  function setId(?int $id):void
+    public function setId(?int $id): void
     {
         $this->id = $id;
     }
-    public  function getPost(): ?Post
+    public function getPost(): ?Post
     {
         return $this->post;
     }
-    public  function setPost(?Post $post):void
+    public function setPost(?Post $post): void
     {
         $this->post = $post;
     }
-    public  function getComment(): ?Comment
+    public function getComment(): ?Comment
     {
         return $this->comment;
     }
-    public  function setComment(?Comment $comment):void
+    public function setComment(?Comment $comment): void
     {
         $this->comment = $comment;
     }
-    public  function getUser(): ?User
+    public function getUser(): ?User
     {
         return $this->user;
     }
-    public  function setUser(?User $user):void
+    public function setUser(?User $user): void
     {
         $this->user = $user;
     }
-
 }

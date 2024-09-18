@@ -20,25 +20,16 @@ use App\User\Domain\Entity\UserGroup;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use InvalidArgumentException;
-use Symfony\Component\Serializer\Annotation\Groups;
 use JMS\Serializer\Annotation as Serializer;
 use OpenApi\Attributes as OA;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
-
-use function in_array;
 
 /**
  * @package App\User
  */
 trait UserRelations
 {
-
-    #[ORM\OneToOne(targetEntity: Profile::class, cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(name: 'profile_id', referencedColumnName: 'id', nullable: true)]
-    #[Groups(['User.profile'])]
-    private ?Profile $profile = null;
-
     /**
      * @var Collection<int, UserGroup>|ArrayCollection<int, UserGroup>
      */
@@ -51,34 +42,6 @@ trait UserRelations
         'User.userGroups',
     ])]
     protected Collection | ArrayCollection $userGroups;
-
-    #[ORM\OneToMany(
-        mappedBy: 'user',
-        targetEntity: Configuration::class,
-        cascade: ['persist', 'remove']
-    )]
-    private Collection $configurations;
-
-    #[ORM\OneToMany(
-        mappedBy: 'user',
-        targetEntity: Notification::class,
-        cascade: ['persist', 'remove']
-    )]
-    private Collection $notifications;
-
-    #[ORM\OneToMany(
-        mappedBy: 'user',
-        targetEntity: Event::class,
-        cascade: ['persist', 'remove']
-    )]
-    private Collection $events;
-
-    #[ORM\OneToMany(
-        mappedBy: 'user',
-        targetEntity: Menu::class,
-        cascade: ['persist', 'remove']
-    )]
-    private Collection $menus;
 
     /**
      * @var Collection<int, LogRequest>|ArrayCollection<int, LogRequest>
@@ -115,6 +78,38 @@ trait UserRelations
         'User.logsLoginFailure',
     ])]
     protected Collection | ArrayCollection $logsLoginFailure;
+    #[ORM\OneToOne(targetEntity: Profile::class, cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(name: 'profile_id', referencedColumnName: 'id', nullable: true)]
+    #[Groups(['User.profile'])]
+    private ?Profile $profile = null;
+
+    #[ORM\OneToMany(
+        mappedBy: 'user',
+        targetEntity: Configuration::class,
+        cascade: ['persist', 'remove']
+    )]
+    private Collection $configurations;
+
+    #[ORM\OneToMany(
+        mappedBy: 'user',
+        targetEntity: Notification::class,
+        cascade: ['persist', 'remove']
+    )]
+    private Collection $notifications;
+
+    #[ORM\OneToMany(
+        mappedBy: 'user',
+        targetEntity: Event::class,
+        cascade: ['persist', 'remove']
+    )]
+    private Collection $events;
+
+    #[ORM\OneToMany(
+        mappedBy: 'user',
+        targetEntity: Menu::class,
+        cascade: ['persist', 'remove']
+    )]
+    private Collection $menus;
 
     /**
      * User preferences
@@ -142,6 +137,20 @@ trait UserRelations
     #[OA\Property(type: 'array', items: new OA\Items(ref: '#/components/schemas/TeamMembership'))]
     private Collection $memberships;
 
+    /**
+     * @var Collection<int, User>
+     * Many Users can follow Many Users.
+     */
+    #[ORM\ManyToMany(targetEntity: self::class, inversedBy: 'followers')]
+    #[ORM\JoinTable(name: 'user_friends')]
+    private Collection $following;
+
+    /**
+     * @var Collection<int, User>
+     * Many Users can be followed by Many Users.
+     */
+    #[ORM\ManyToMany(targetEntity: self::class, mappedBy: 'following')]
+    private Collection $followers;
 
     public function getProfile(): ?Profile
     {
@@ -331,7 +340,6 @@ trait UserRelations
         return $this;
     }
 
-
     public function getNotifications(): Collection
     {
         return $this->notifications;
@@ -345,5 +353,43 @@ trait UserRelations
         }
 
         return $this;
+    }
+
+    /**
+     * Get the users this user is following.
+     */
+    public function getFollowing(): Collection
+    {
+        return $this->following;
+    }
+
+    /**
+     * Add a user to the following list.
+     */
+    public function follow(User $user): self
+    {
+        if (!$this->following->contains($user)) {
+            $this->following[] = $user;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Remove a user from the following list.
+     */
+    public function unfollow(User $user): self
+    {
+        $this->following->removeElement($user);
+
+        return $this;
+    }
+
+    /**
+     * Get the users following this user.
+     */
+    public function getFollowers(): Collection
+    {
+        return $this->followers;
     }
 }

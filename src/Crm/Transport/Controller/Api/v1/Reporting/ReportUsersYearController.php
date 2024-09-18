@@ -10,28 +10,26 @@
 namespace App\Crm\Transport\Controller\Api\v1\Reporting;
 
 use App\Crm\Application\Service\Configuration\SystemConfiguration;
-
 use App\Crm\Application\Service\Export\Spreadsheet\Writer\BinaryFileResponseWriter;
 use App\Crm\Application\Service\Export\Spreadsheet\Writer\XlsxWriter;
 use App\Crm\Application\Service\Model\MonthlyStatistic;
 use App\Crm\Application\Service\Reporting\YearlyUserList\YearlyUserList;
 use App\Crm\Application\Service\Reporting\YearlyUserList\YearlyUserListForm;
+use App\Crm\Application\Service\Timesheet\TimesheetStatisticService;
 use App\Crm\Infrastructure\Repository\Query\TimesheetStatisticQuery;
 use App\Crm\Infrastructure\Repository\Query\UserQuery;
 use App\Crm\Infrastructure\Repository\Query\VisibilityInterface;
 use App\Crm\Infrastructure\Repository\UserRepository;
-use App\Crm\Application\Service\Timesheet\TimesheetStatisticService;
 use App\Crm\Transport\Controller\Api\v1\AbstractController;
+use OpenApi\Attributes as OA;
 use PhpOffice\PhpSpreadsheet\Reader\Html;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
-use OpenApi\Attributes as OA;
+
 /**
- * Class ReportUsersYearController
- *
  * @package App\Crm\Transport\Controller\Api\v1\Reporting
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */

@@ -10,16 +10,16 @@
 namespace App\Crm\Infrastructure\Repository;
 
 use App\Crm\Application\Service\Utils\Pagination;
-use App\Crm\Infrastructure\Repository\Loader\CustomerLoader;
-use App\Crm\Infrastructure\Repository\Paginator\LoaderPaginator;
-use App\Crm\Infrastructure\Repository\Paginator\PaginatorInterface;
-use App\Crm\Infrastructure\Repository\Query\CustomerFormTypeQuery;
-use App\Crm\Infrastructure\Repository\Query\CustomerQuery;
 use App\Crm\Domain\Entity\Customer;
 use App\Crm\Domain\Entity\CustomerComment;
 use App\Crm\Domain\Entity\CustomerMeta;
 use App\Crm\Domain\Entity\Project;
 use App\Crm\Domain\Entity\Team;
+use App\Crm\Infrastructure\Repository\Loader\CustomerLoader;
+use App\Crm\Infrastructure\Repository\Paginator\LoaderPaginator;
+use App\Crm\Infrastructure\Repository\Paginator\PaginatorInterface;
+use App\Crm\Infrastructure\Repository\Query\CustomerFormTypeQuery;
+use App\Crm\Infrastructure\Repository\Query\CustomerQuery;
 use App\User\Domain\Entity\User;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\ORM\EntityRepository;
@@ -64,7 +64,9 @@ class CustomerRepository extends EntityRepository
     public function countCustomer(bool $visible = false): int
     {
         if ($visible) {
-            return $this->count(['visible' => $visible]);
+            return $this->count([
+                'visible' => $visible,
+            ]);
         }
 
         return $this->count([]);
@@ -76,45 +78,6 @@ class CustomerRepository extends EntityRepository
         if ($permissions->count() > 0) {
             $qb->andWhere($permissions);
         }
-    }
-
-    private function getPermissionCriteria(QueryBuilder $qb, ?User $user = null, array $teams = []): Andx
-    {
-        $andX = $qb->expr()->andX();
-
-        // make sure that all queries without a user see all customers
-        if (null === $user && empty($teams)) {
-            return $andX;
-        }
-
-        // make sure that admins see all customers
-        if (null !== $user && $user->canSeeAllData()) {
-            return $andX;
-        }
-
-        if (null !== $user) {
-            $teams = array_merge($teams, $user->getTeams());
-        }
-
-        if (empty($teams)) {
-            $andX->add('SIZE(c.teams) = 0');
-
-            return $andX;
-        }
-
-        $or = $qb->expr()->orX(
-            'SIZE(c.teams) = 0',
-            $qb->expr()->isMemberOf(':teams', 'c.teams')
-        );
-        $andX->add($or);
-
-        $ids = array_values(array_unique(array_map(function (Team $team) {
-            return $team->getId();
-        }, $teams)));
-
-        $qb->setParameter('teams', $ids);
-
-        return $andX;
     }
 
     /**
@@ -146,7 +109,7 @@ class CustomerRepository extends EntityRepository
             $qb->setParameter('customer', $query->getCustomers());
         }
 
-        if (null !== $query->getCustomerToIgnore()) {
+        if ($query->getCustomerToIgnore() !== null) {
             $mainQuery = $qb->expr()->andX(
                 $mainQuery,
                 $qb->expr()->neq('c.id', ':ignored')
@@ -158,6 +121,140 @@ class CustomerRepository extends EntityRepository
         $qb->andWhere($outerQuery);
 
         return $qb;
+    }
+
+    public function getPagerfantaForQuery(CustomerQuery $query): Pagination
+    {
+        return new Pagination($this->getPaginatorForQuery($query), $query);
+    }
+
+    public function countCustomersForQuery(CustomerQuery $query): int
+    {
+        $qb = $this->getQueryBuilderForQuery($query);
+        $qb
+            ->resetDQLPart('select')
+            ->resetDQLPart('orderBy')
+            ->resetDQLPart('groupBy')
+            ->select($qb->expr()->countDistinct('c.id'))
+        ;
+
+        return (int)$qb->getQuery()->getSingleScalarResult();
+    }
+
+    /**
+     * @return Customer[]
+     */
+    public function getCustomersForQuery(CustomerQuery $query): iterable
+    {
+        // this is using the paginator internally, as it will load all joined entities into the working unit
+        // do not "optimize" to use the query directly, as it would results in hundreds of additional lazy queries
+        $paginator = $this->getPaginatorForQuery($query);
+
+        return $paginator->getAll();
+    }
+
+    public function deleteCustomer(Customer $delete, ?Customer $replace = null): void
+    {
+        $em = $this->getEntityManager();
+        $em->beginTransaction();
+
+        try {
+            if ($replace !== null) {
+                $qb = $em->createQueryBuilder();
+                $qb
+                    ->update(Project::class, 'p')
+                    ->set('p.customer', ':replace')
+                    ->where('p.customer = :delete')
+                    ->setParameter('delete', $delete)
+                    ->setParameter('replace', $replace)
+                    ->getQuery()
+                    ->execute();
+            }
+
+            $em->remove($delete);
+            $em->flush();
+            $em->commit();
+        } catch (ORMException $ex) {
+            $em->rollback();
+
+            throw $ex;
+        }
+    }
+
+    public function getComments(Customer $customer): array
+    {
+        $qb = $this->getEntityManager()->createQueryBuilder();
+        $qb
+            ->select('comments')
+            ->from(CustomerComment::class, 'comments')
+            ->andWhere($qb->expr()->eq('comments.customer', ':customer'))
+            ->addOrderBy('comments.pinned', 'DESC')
+            ->addOrderBy('comments.createdAt', 'DESC')
+            ->setParameter('customer', $customer)
+        ;
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function saveComment(CustomerComment $comment): void
+    {
+        $entityManager = $this->getEntityManager();
+        $entityManager->persist($comment);
+        $entityManager->flush();
+    }
+
+    public function deleteComment(CustomerComment $comment): void
+    {
+        $entityManager = $this->getEntityManager();
+        $entityManager->remove($comment);
+        $entityManager->flush();
+    }
+
+    protected function getPaginatorForQuery(CustomerQuery $query): PaginatorInterface
+    {
+        $counter = $this->countCustomersForQuery($query);
+        $qb = $this->getQueryBuilderForQuery($query);
+
+        return new LoaderPaginator(new CustomerLoader($qb->getEntityManager()), $qb, $counter);
+    }
+
+    private function getPermissionCriteria(QueryBuilder $qb, ?User $user = null, array $teams = []): Andx
+    {
+        $andX = $qb->expr()->andX();
+
+        // make sure that all queries without a user see all customers
+        if ($user === null && empty($teams)) {
+            return $andX;
+        }
+
+        // make sure that admins see all customers
+        if ($user !== null && $user->canSeeAllData()) {
+            return $andX;
+        }
+
+        if ($user !== null) {
+            $teams = array_merge($teams, $user->getTeams());
+        }
+
+        if (empty($teams)) {
+            $andX->add('SIZE(c.teams) = 0');
+
+            return $andX;
+        }
+
+        $or = $qb->expr()->orX(
+            'SIZE(c.teams) = 0',
+            $qb->expr()->isMemberOf(':teams', 'c.teams')
+        );
+        $andX->add($or);
+
+        $ids = array_values(array_unique(array_map(function (Team $team) {
+            return $team->getId();
+        }, $teams)));
+
+        $qb->setParameter('teams', $ids);
+
+        return $andX;
     }
 
     private function getQueryBuilderForQuery(CustomerQuery $query): QueryBuilder
@@ -219,99 +316,5 @@ class CustomerRepository extends EntityRepository
     private function getSearchableFields(): array
     {
         return ['c.name', 'c.comment', 'c.company', 'c.vatId', 'c.number', 'c.contact', 'c.phone', 'c.email', 'c.address'];
-    }
-
-    public function getPagerfantaForQuery(CustomerQuery $query): Pagination
-    {
-        return new Pagination($this->getPaginatorForQuery($query), $query);
-    }
-
-    public function countCustomersForQuery(CustomerQuery $query): int
-    {
-        $qb = $this->getQueryBuilderForQuery($query);
-        $qb
-            ->resetDQLPart('select')
-            ->resetDQLPart('orderBy')
-            ->resetDQLPart('groupBy')
-            ->select($qb->expr()->countDistinct('c.id'))
-        ;
-
-        return (int) $qb->getQuery()->getSingleScalarResult();
-    }
-
-    protected function getPaginatorForQuery(CustomerQuery $query): PaginatorInterface
-    {
-        $counter = $this->countCustomersForQuery($query);
-        $qb = $this->getQueryBuilderForQuery($query);
-
-        return new LoaderPaginator(new CustomerLoader($qb->getEntityManager()), $qb, $counter);
-    }
-
-    /**
-     * @return Customer[]
-     */
-    public function getCustomersForQuery(CustomerQuery $query): iterable
-    {
-        // this is using the paginator internally, as it will load all joined entities into the working unit
-        // do not "optimize" to use the query directly, as it would results in hundreds of additional lazy queries
-        $paginator = $this->getPaginatorForQuery($query);
-
-        return $paginator->getAll();
-    }
-
-    public function deleteCustomer(Customer $delete, ?Customer $replace = null): void
-    {
-        $em = $this->getEntityManager();
-        $em->beginTransaction();
-
-        try {
-            if (null !== $replace) {
-                $qb = $em->createQueryBuilder();
-                $qb
-                    ->update(Project::class, 'p')
-                    ->set('p.customer', ':replace')
-                    ->where('p.customer = :delete')
-                    ->setParameter('delete', $delete)
-                    ->setParameter('replace', $replace)
-                    ->getQuery()
-                    ->execute();
-            }
-
-            $em->remove($delete);
-            $em->flush();
-            $em->commit();
-        } catch (ORMException $ex) {
-            $em->rollback();
-            throw $ex;
-        }
-    }
-
-    public function getComments(Customer $customer): array
-    {
-        $qb = $this->getEntityManager()->createQueryBuilder();
-        $qb
-            ->select('comments')
-            ->from(CustomerComment::class, 'comments')
-            ->andWhere($qb->expr()->eq('comments.customer', ':customer'))
-            ->addOrderBy('comments.pinned', 'DESC')
-            ->addOrderBy('comments.createdAt', 'DESC')
-            ->setParameter('customer', $customer)
-        ;
-
-        return $qb->getQuery()->getResult();
-    }
-
-    public function saveComment(CustomerComment $comment): void
-    {
-        $entityManager = $this->getEntityManager();
-        $entityManager->persist($comment);
-        $entityManager->flush();
-    }
-
-    public function deleteComment(CustomerComment $comment): void
-    {
-        $entityManager = $this->getEntityManager();
-        $entityManager->remove($comment);
-        $entityManager->flush();
     }
 }

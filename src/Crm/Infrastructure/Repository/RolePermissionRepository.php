@@ -27,7 +27,10 @@ class RolePermissionRepository extends EntityRepository
 
     public function findRolePermission(Role $role, string $permission): ?RolePermission
     {
-        return $this->findOneBy(['role' => $role, 'permission' => $permission]);
+        return $this->findOneBy([
+            'role' => $role,
+            'permission' => $permission,
+        ]);
     }
 
     /**

@@ -9,9 +9,9 @@
 
 namespace App\Crm\Transport\Form\Type;
 
+use App\Crm\Domain\Entity\Team;
 use App\Crm\Infrastructure\Repository\Query\TeamQuery;
 use App\Crm\Infrastructure\Repository\TeamRepository;
-use App\Crm\Domain\Entity\Team;
 use App\User\Domain\Entity\User;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;

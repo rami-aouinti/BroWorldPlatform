@@ -11,13 +11,7 @@ declare(strict_types=1);
 
 namespace App\Crm\Domain\Entity;
 
-use Doctrine\Common\Collections\Collection;
-
-/**
- *
- */
 interface EntityWithMetaFields
 {
-
-    public function setMetaField(MetaTableTypeInterface $meta): EntityWithMetaFields;
+    public function setMetaField(MetaTableTypeInterface $meta): self;
 }

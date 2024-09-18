@@ -12,8 +12,8 @@ namespace App\Crm\Application\Service\Export\Base;
 use App\Crm\Application\Service\Activity\ActivityStatisticService;
 use App\Crm\Application\Service\Model\TimesheetCountedStatistic;
 use App\Crm\Application\Service\Project\ProjectStatisticService;
-use App\Crm\Infrastructure\Repository\Query\TimesheetQuery;
 use App\Crm\Domain\Entity\ExportableItem;
+use App\Crm\Infrastructure\Repository\Query\TimesheetQuery;
 
 trait RendererTrait
 {
@@ -21,7 +21,6 @@ trait RendererTrait
      * FIXME use statistic events to calculate budgets and do NOT iterate all results!
      *
      * @param ExportableItem[] $exportItems
-     * @return array
      */
     protected function calculateSummary(array $exportItems): array
     {
@@ -69,7 +68,7 @@ trait RendererTrait
                     'duration' => 0,
                     'type' => [],
                     'types' => [],
-                    'users' => []
+                    'users' => [],
                 ];
 
                 if ($project !== null) {
@@ -103,7 +102,7 @@ trait RendererTrait
                     'rate' => 0,
                     'rate_internal' => 0,
                     'duration' => 0,
-                    'users' => []
+                    'users' => [],
                 ];
 
                 if ($activity !== null) {
@@ -130,7 +129,7 @@ trait RendererTrait
             }
 
             $duration = $exportItem->getDuration();
-            if (null === $duration) {
+            if ($duration === null) {
                 $duration = 0;
             }
 
@@ -169,9 +168,6 @@ trait RendererTrait
 
     /**
      * @param ExportableItem[] $exportItems
-     * @param TimesheetQuery $query
-     * @param ProjectStatisticService $projectStatisticService
-     * @return array
      */
     protected function calculateProjectBudget(array $exportItems, TimesheetQuery $query, ProjectStatisticService $projectStatisticService): array
     {
@@ -229,34 +225,8 @@ trait RendererTrait
         return $summary;
     }
 
-    private function getToday(TimesheetQuery $query): \DateTime
-    {
-        $end = $query->getEnd();
-
-        if ($end !== null) {
-            return $end;
-        }
-
-        if ($query->getCurrentUser() !== null) {
-            $timezone = $query->getCurrentUser()->getTimezone();
-
-            return new \DateTime('now', new \DateTimeZone($timezone));
-        }
-
-        if ($query->getUser() !== null) {
-            $timezone = $query->getUser()->getTimezone();
-
-            return new \DateTime('now', new \DateTimeZone($timezone));
-        }
-
-        return new \DateTime();
-    }
-
     /**
      * @param ExportableItem[] $exportItems
-     * @param TimesheetQuery $query
-     * @param ActivityStatisticService $activityStatisticService
-     * @return array
      */
     protected function calculateActivityBudget(array $exportItems, TimesheetQuery $query, ActivityStatisticService $activityStatisticService): array
     {
@@ -326,5 +296,28 @@ trait RendererTrait
         }
 
         return $summary;
+    }
+
+    private function getToday(TimesheetQuery $query): \DateTime
+    {
+        $end = $query->getEnd();
+
+        if ($end !== null) {
+            return $end;
+        }
+
+        if ($query->getCurrentUser() !== null) {
+            $timezone = $query->getCurrentUser()->getTimezone();
+
+            return new \DateTime('now', new \DateTimeZone($timezone));
+        }
+
+        if ($query->getUser() !== null) {
+            $timezone = $query->getUser()->getTimezone();
+
+            return new \DateTime('now', new \DateTimeZone($timezone));
+        }
+
+        return new \DateTime();
     }
 }

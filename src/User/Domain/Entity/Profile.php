@@ -14,18 +14,16 @@ use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Doctrine\UuidBinaryOrderedTimeType;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
-use Symfony\Component\Validator\Constraints as Assert;
 use Throwable;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'profile')]
 class Profile implements EntityInterface, ProfileInterface
 {
-    final public const string SET_PROFILE = 'set.Profile';
-
     use Blameable;
     use Timestampable;
     use Uuid;
+    final public const string SET_PROFILE = 'set.Profile';
 
     #[ORM\Id]
     #[ORM\Column(
@@ -103,101 +101,100 @@ class Profile implements EntityInterface, ProfileInterface
         return $this->id->toString();
     }
 
-    public  function getPhoto(): ?string
+    public function getPhoto(): ?string
     {
         return $this->photo;
     }
-    public  function setPhoto(?string $photo):void
+    public function setPhoto(?string $photo): void
     {
         $this->photo = $photo;
     }
-    public  function getBirthday(): ?DateTimeInterface
+    public function getBirthday(): ?DateTimeInterface
     {
         return $this->birthday;
     }
-    public  function setBirthday(?DateTimeInterface $birthday):void
+    public function setBirthday(?DateTimeInterface $birthday): void
     {
         $this->birthday = $birthday;
     }
-    public  function getAddress(): ?Address
+    public function getAddress(): ?Address
     {
         return $this->address;
     }
-    public  function setAddress(?Address $address):void
+    public function setAddress(?Address $address): void
     {
         $this->address = $address;
     }
-    public  function getMobile(): ?string
+    public function getMobile(): ?string
     {
         return $this->mobile;
     }
-    public  function setMobile(?string $mobile):void
+    public function setMobile(?string $mobile): void
     {
         $this->mobile = $mobile;
     }
-    public  function getDescription(): ?string
+    public function getDescription(): ?string
     {
         return $this->description;
     }
-    public  function setDescription(?string $description):void
+    public function setDescription(?string $description): void
     {
         $this->description = $description;
     }
-    public  function getSexe(): ?string
+    public function getSexe(): ?string
     {
         return $this->sexe;
     }
-    public  function setSexe(?string $sexe):void
+    public function setSexe(?string $sexe): void
     {
         $this->sexe = $sexe;
     }
-    public  function getTitle(): ?string
+    public function getTitle(): ?string
     {
         return $this->title;
     }
-    public  function setTitle(?string $title):void
+    public function setTitle(?string $title): void
     {
         $this->title = $title;
     }
-    public  function getFacebookLink(): ?string
+    public function getFacebookLink(): ?string
     {
         return $this->facebookLink;
     }
-    public  function setFacebookLink(?string $facebookLink):void
+    public function setFacebookLink(?string $facebookLink): void
     {
         $this->facebookLink = $facebookLink;
     }
-    public  function getTwitter(): ?string
+    public function getTwitter(): ?string
     {
         return $this->twitter;
     }
-    public  function setTwitter(?string $twitter):void
+    public function setTwitter(?string $twitter): void
     {
         $this->twitter = $twitter;
     }
-    public  function getGoogle(): ?string
+    public function getGoogle(): ?string
     {
         return $this->google;
     }
-    public  function setGoogle(?string $google):void
+    public function setGoogle(?string $google): void
     {
         $this->google = $google;
     }
-    public  function getLinkedIn(): ?string
+    public function getLinkedIn(): ?string
     {
         return $this->linkedIn;
     }
-    public  function setLinkedIn(?string $linkedIn):void
+    public function setLinkedIn(?string $linkedIn): void
     {
         $this->linkedIn = $linkedIn;
     }
-    public  function getInstagram(): ?string
+    public function getInstagram(): ?string
     {
         return $this->instagram;
     }
-    public  function setInstagram(?string $instagram):void
+    public function setInstagram(?string $instagram): void
     {
         $this->instagram = $instagram;
     }
-
 }

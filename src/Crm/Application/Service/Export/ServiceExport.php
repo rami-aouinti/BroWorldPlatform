@@ -11,9 +11,9 @@ namespace App\Crm\Application\Service\Export;
 
 use App\Crm\Application\Service\Export\Renderer\HtmlRendererFactory;
 use App\Crm\Application\Service\Export\Renderer\PdfRendererFactory;
+use App\Crm\Domain\Entity\ExportableItem;
 use App\Crm\Infrastructure\Repository\Query\ExportQuery;
 use App\Crm\Transport\Event\ExportItemsQueryEvent;
-use App\Crm\Domain\Entity\ExportableItem;
 use Psr\EventDispatcher\EventDispatcherInterface;
 
 final class ServiceExport
@@ -39,8 +39,7 @@ final class ServiceExport
         private EventDispatcherInterface $eventDispatcher,
         private HtmlRendererFactory $htmlRendererFactory,
         private PdfRendererFactory $pdfRendererFactory
-    )
-    {
+    ) {
     }
 
     /**
@@ -147,7 +146,6 @@ final class ServiceExport
     }
 
     /**
-     * @param ExportQuery $query
      * @return ExportableItem[]
      * @throws TooManyItemsExportException
      */

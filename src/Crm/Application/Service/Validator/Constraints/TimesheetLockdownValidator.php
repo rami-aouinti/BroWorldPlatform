@@ -21,8 +21,7 @@ final class TimesheetLockdownValidator extends ConstraintValidator
     public function __construct(
         private readonly Security $security,
         private readonly LockdownService $lockdownService
-    )
-    {
+    ) {
     }
 
     public function validate(mixed $value, Constraint $constraint): void
@@ -44,7 +43,7 @@ final class TimesheetLockdownValidator extends ConstraintValidator
         }
 
         // lockdown never takes effect for users with special permission
-        if (null !== $this->security->getUser() && $this->security->isGranted('lockdown_override_timesheet')) {
+        if ($this->security->getUser() !== null && $this->security->isGranted('lockdown_override_timesheet')) {
             return;
         }
 
@@ -62,7 +61,7 @@ final class TimesheetLockdownValidator extends ConstraintValidator
         }
 
         $allowEditInGracePeriod = false;
-        if (null !== $this->security->getUser() && $this->security->isGranted('lockdown_grace_timesheet')) {
+        if ($this->security->getUser() !== null && $this->security->isGranted('lockdown_grace_timesheet')) {
             $allowEditInGracePeriod = true;
         }
 

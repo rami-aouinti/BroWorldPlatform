@@ -12,18 +12,22 @@ declare(strict_types=1);
 namespace App\Crm\Application\Service\Calendar;
 
 /**
- * Class CalendarSource
- *
  * @package App\Calendar
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
 class CalendarSource
 {
-    /** @var array<string, string|bool|int> */
+    /**
+     * @var array<string, string|bool|int>
+     */
     private array $options = [];
 
-    public function __construct(private CalendarSourceType $type, private string $id, private string $uri, private ?string $color = null)
-    {
+    public function __construct(
+        private CalendarSourceType $type,
+        private string $id,
+        private string $uri,
+        private ?string $color = null
+    ) {
     }
 
     public function getType(): CalendarSourceType

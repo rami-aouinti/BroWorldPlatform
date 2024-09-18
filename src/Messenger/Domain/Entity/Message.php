@@ -17,8 +17,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Throwable;
 
 /**
- * Class Message
- *
  * @package App\Messenger\Domain\Entity
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
@@ -96,35 +94,35 @@ class Message implements EntityInterface
         return $this->id->toString();
     }
 
-    public  function getSender(): User
+    public function getSender(): User
     {
         return $this->sender;
     }
-    public  function setSender(User $sender):void
+    public function setSender(User $sender): void
     {
         $this->sender = $sender;
     }
-    public  function getReceiver(): User
+    public function getReceiver(): User
     {
         return $this->receiver;
     }
-    public  function setReceiver(User $receiver):void
+    public function setReceiver(User $receiver): void
     {
         $this->receiver = $receiver;
     }
-    public  function getContent(): string
+    public function getContent(): string
     {
         return $this->content;
     }
-    public  function setContent(string $content):void
+    public function setContent(string $content): void
     {
         $this->content = $content;
     }
-    public  function getSentAt(): DateTime
+    public function getSentAt(): DateTime
     {
         return $this->sentAt;
     }
-    public  function setSentAt(DateTime $sentAt):void
+    public function setSentAt(DateTime $sentAt): void
     {
         $this->sentAt = $sentAt;
     }

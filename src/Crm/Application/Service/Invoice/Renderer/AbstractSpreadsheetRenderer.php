@@ -24,16 +24,8 @@ use Symfony\Component\HttpFoundation\Response;
 abstract class AbstractSpreadsheetRenderer extends AbstractRenderer
 {
     /**
-     * Saves the Spreadhseet and returns the filename.
-     */
-    abstract protected function saveSpreadsheet(Spreadsheet $spreadsheet): string;
-
-    /**
      * Render the given InvoiceDocument with the data from the InvoiceModel.
      *
-     * @param InvoiceDocument $document
-     * @param InvoiceModel $model
-     * @return Response
      * @throws \Exception
      */
     public function render(InvoiceDocument $document, InvoiceModel $model): Response
@@ -118,6 +110,10 @@ abstract class AbstractSpreadsheetRenderer extends AbstractRenderer
 
         return $this->getFileResponse($filename, $userFilename);
     }
+    /**
+     * Saves the Spreadhseet and returns the filename.
+     */
+    abstract protected function saveSpreadsheet(Spreadsheet $spreadsheet): string;
 
     /**
      * @throws \PhpOffice\PhpSpreadsheet\Exception

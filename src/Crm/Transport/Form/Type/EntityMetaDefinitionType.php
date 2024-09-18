@@ -22,10 +22,6 @@ use Symfony\Component\Validator\Constraints\NotNull;
  */
 final class EntityMetaDefinitionType extends AbstractType
 {
-    /**
-     * @param FormBuilderInterface $builder
-     * @param array $options
-     */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->addEventListener(
@@ -34,7 +30,10 @@ final class EntityMetaDefinitionType extends AbstractType
                 /** @var MetaTableTypeInterface $definition */
                 $definition = $event->getData();
 
-                $attr = ['data-name' => $definition->getName(), 'class' => ''];
+                $attr = [
+                    'data-name' => $definition->getName(),
+                    'class' => '',
+                ];
                 $options = $definition->getOptions();
 
                 if (\array_key_exists('attr', $options) && \is_array($options['attr'])) {
@@ -55,7 +54,9 @@ final class EntityMetaDefinitionType extends AbstractType
                     'constraints' => $constraints,
                     'required' => $required,
                     'attr' => $attr,
-                    'row_attr' => ['class' => 'p-0'],
+                    'row_attr' => [
+                        'class' => 'p-0',
+                    ],
                 ], $options));
             }
         );

@@ -18,8 +18,6 @@ use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use function is_array;
 
 /**
- * Class AbstractPluginExtension
- *
  * @package App\Crm\Application\Plugin
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
@@ -31,7 +29,9 @@ abstract class AbstractPluginExtension extends Extension
             'tabler_bundle.icons',
             array_merge(
                 $container->getParameter('tabler_bundle.icons'),
-                [$name => $icon]
+                [
+                    $name => $icon,
+                ]
             )
         );
     }
@@ -41,7 +41,9 @@ abstract class AbstractPluginExtension extends Extension
      */
     protected function registerBundleConfiguration(ContainerBuilder $container, array $configs): void
     {
-        $bundleConfig = [$this->getAlias() => $configs];
+        $bundleConfig = [
+            $this->getAlias() => $configs,
+        ];
 
         if ($container->hasParameter('kimai.bundles.config')) {
             $config = $container->getParameter('kimai.bundles.config');

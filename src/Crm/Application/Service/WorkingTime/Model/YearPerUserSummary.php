@@ -16,11 +16,14 @@ use App\User\Domain\Entity\User;
  */
 final class YearPerUserSummary implements \Countable, \IteratorAggregate
 {
-    /** @var array<YearSummary> */
+    /**
+     * @var array<YearSummary>
+     */
     private array $summaries = [];
 
-    public function __construct(private Year $year)
-    {
+    public function __construct(
+        private Year $year
+    ) {
     }
 
     public function getYear(): Year

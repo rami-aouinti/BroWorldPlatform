@@ -13,9 +13,6 @@ namespace App\Crm\Application\Service\Utils;
 
 use App\User\Domain\Entity\Interfaces\UserInterface;
 
-/**
- *
- */
 interface EquatableInterface
 {
     public function isEqualTo(UserInterface $compare): bool;

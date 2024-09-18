@@ -13,8 +13,10 @@ use App\Crm\Domain\Entity\Timesheet;
 
 final class FavoriteTimesheet
 {
-    public function __construct(private Timesheet $timesheet, private bool $isFavorite)
-    {
+    public function __construct(
+        private Timesheet $timesheet,
+        private bool $isFavorite
+    ) {
     }
 
     public function getTimesheet(): Timesheet

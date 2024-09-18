@@ -18,8 +18,9 @@ use App\Crm\Domain\Entity\Timesheet;
  */
 final class RateCalculator implements CalculatorInterface
 {
-    public function __construct(private RateServiceInterface $service)
-    {
+    public function __construct(
+        private RateServiceInterface $service
+    ) {
     }
 
     public function calculate(Timesheet $record, array $changeset): void

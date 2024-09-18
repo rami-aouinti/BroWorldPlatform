@@ -7,7 +7,6 @@ namespace App\Blog\Transport\Controller\Api\v1\Blog;
 use App\Blog\Domain\Entity\Post;
 use App\Blog\Infrastructure\Repository\PostRepository;
 use App\Blog\Infrastructure\Repository\TagRepository;
-use App\Menu\Domain\Entity\Menu;
 use App\User\Domain\Entity\User;
 use Doctrine\ORM\Exception\NotSupported;
 use Exception;
@@ -30,7 +29,6 @@ use Symfony\Component\Serializer\SerializerInterface;
 #[OA\Tag(name: 'Blog')]
 class IndexController
 {
-
     public function __construct(
         private readonly SerializerInterface $serializer,
     ) {
@@ -44,7 +42,10 @@ class IndexController
      */
     #[Route(
         path: '/v1/blog/post',
-        defaults: ['page' => '1', '_format' => 'html'],
+        defaults: [
+            'page' => '1',
+            '_format' => 'html',
+        ],
         methods: [Request::METHOD_GET],
     )]
     #[IsGranted(AuthenticatedVoter::IS_AUTHENTICATED_FULLY)]
@@ -94,12 +95,13 @@ class IndexController
         int $page,
         PostRepository $postRepository,
         TagRepository $tagRepository
-    ): JsonResponse
-    {
+    ): JsonResponse {
         $tag = null;
 
         if ($request->query->has('tag')) {
-            $tag = $tagRepository->findOneBy(['name' => $request->query->get('tag')]);
+            $tag = $tagRepository->findOneBy([
+                'name' => $request->query->get('tag'),
+            ]);
         }
 
         $posts = $postRepository->findLatest($page, $tag, $loggedInUser);

@@ -35,10 +35,12 @@ final class AppExtension extends Extension
     public function load(array $configs, ContainerBuilder $container): void
     {
         $configuration = new Configuration();
+
         try {
             $config = $this->processConfiguration($configuration, $configs);
         } catch (InvalidConfigurationException $e) {
             trigger_error('Found invalid "kimai" configuration: ' . $e->getMessage());
+
             throw $e;
         }
 
@@ -116,6 +118,11 @@ final class AppExtension extends Extension
         $container->setParameter('kimai.config', $newConfig);
     }
 
+    public function getAlias(): string
+    {
+        return 'kimai';
+    }
+
     private function setLanguageFormats(ContainerBuilder $container): void
     {
         $locales = explode('|', $container->getParameter('app_locales'));
@@ -146,9 +153,6 @@ final class AppExtension extends Extension
     /**
      * Performs some pre-compilation on the configured permissions from kimai.yaml
      * to save us from constant array lookups from during runtime.
-     *
-     * @param array $config
-     * @param ContainerBuilder $container
      */
     private function createPermissionParameter(array $config, ContainerBuilder $container): void
     {
@@ -169,6 +173,7 @@ final class AppExtension extends Extension
                         'Configured permission set "' . $set . '" for role "' . $role . '" is unknown'
                     );
                     $exception->setPath('kimai.permissions.maps.' . $role);
+
                     throw $exception;
                 }
                 $roles[$role] = array_merge($roles[$role] ?? [], $this->extractSinglePermissionsFromSet($config, $set));
@@ -218,10 +223,5 @@ final class AppExtension extends Extension
         }
 
         return $result;
-    }
-
-    public function getAlias(): string
-    {
-        return 'kimai';
     }
 }

@@ -16,8 +16,10 @@ use App\Crm\Infrastructure\Repository\TimesheetRepository;
 
 final class ActiveUsersYear extends AbstractCounterYear
 {
-    public function __construct(private TimesheetRepository $repository, SystemConfiguration $systemConfiguration)
-    {
+    public function __construct(
+        private TimesheetRepository $repository,
+        SystemConfiguration $systemConfiguration
+    ) {
         parent::__construct($systemConfiguration);
     }
 
@@ -31,6 +33,16 @@ final class ActiveUsersYear extends AbstractCounterYear
             'icon' => 'users',
             'color' => WidgetInterface::COLOR_YEAR,
         ], parent::getOptions($options));
+    }
+
+    public function getPermissions(): array
+    {
+        return ['ROLE_TEAMLEAD'];
+    }
+
+    public function getId(): string
+    {
+        return 'activeUsersYear';
     }
 
     /**
@@ -50,15 +62,5 @@ final class ActiveUsersYear extends AbstractCounterYear
     protected function getFinancialYearTitle(): string
     {
         return 'stats.activeUsersFinancialYear';
-    }
-
-    public function getPermissions(): array
-    {
-        return ['ROLE_TEAMLEAD'];
-    }
-
-    public function getId(): string
-    {
-        return 'activeUsersYear';
     }
 }

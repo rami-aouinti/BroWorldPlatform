@@ -11,21 +11,20 @@ declare(strict_types=1);
 
 namespace App\Crm\Transport\Controller\Api\v1;
 
-
-use App\Crm\Domain\Entity\ExportableItem;
 use App\Crm\Application\Service\Export\Base\DispositionInlineInterface;
 use App\Crm\Application\Service\Export\ServiceExport;
 use App\Crm\Application\Service\Export\TooManyItemsExportException;
-use App\Crm\Transport\Form\Toolbar\ExportToolbarForm;
-use App\Crm\Infrastructure\Repository\Query\ExportQuery;
 use App\Crm\Application\Service\Utils\PageSetup;
+use App\Crm\Domain\Entity\ExportableItem;
+use App\Crm\Infrastructure\Repository\Query\ExportQuery;
+use App\Crm\Transport\Form\Toolbar\ExportToolbarForm;
+use OpenApi\Attributes as OA;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
-use OpenApi\Attributes as OA;
 
 /**
  * Controller used to export timesheet data.
@@ -36,8 +35,9 @@ use OpenApi\Attributes as OA;
 #[OA\Tag(name: 'Crm Export Management')]
 final class ExportController extends AbstractController
 {
-    public function __construct(private readonly ServiceExport $export)
-    {
+    public function __construct(
+        private readonly ServiceExport $export
+    ) {
     }
 
     #[Route(path: '/', name: 'export', methods: ['GET'])]
@@ -109,13 +109,13 @@ final class ExportController extends AbstractController
         $form->handleRequest($request);
 
         $type = $query->getRenderer();
-        if (null === $type) {
+        if ($type === null) {
             throw $this->createNotFoundException('Missing export renderer');
         }
 
         $renderer = $this->export->getRendererById($type);
 
-        if (null === $renderer) {
+        if ($renderer === null) {
             throw $this->createNotFoundException('Unknown export renderer');
         }
 
@@ -148,16 +148,15 @@ final class ExportController extends AbstractController
     }
 
     /**
-     * @param ExportQuery $query
      * @return ExportableItem[]
      * @throws TooManyItemsExportException
      */
     private function getEntries(ExportQuery $query): array
     {
-        if (null !== $query->getBegin()) {
+        if ($query->getBegin() !== null) {
             $query->getBegin()->setTime(0, 0, 0);
         }
-        if (null !== $query->getEnd()) {
+        if ($query->getEnd() !== null) {
             $query->getEnd()->setTime(23, 59, 59);
         }
 
@@ -165,8 +164,6 @@ final class ExportController extends AbstractController
     }
 
     /**
-     * @param ExportQuery $query
-     * @param string $method
      * @return FormInterface<ExportQuery>
      */
     private function getToolbarForm(ExportQuery $query, string $method): FormInterface
@@ -178,8 +175,8 @@ final class ExportController extends AbstractController
             'method' => $method,
             'timezone' => $this->getDateTimeFactory()->getTimezone()->getName(),
             'attr' => [
-                'id' => 'export-form'
-            ]
+                'id' => 'export-form',
+            ],
         ]);
     }
 }

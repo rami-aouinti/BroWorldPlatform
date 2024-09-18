@@ -17,8 +17,6 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Class CustomerRate
- *
  * @package App\Crm\Domain\Entity
  * @author  Rami Aouinti <rami.aouinti@tkdeutschland.de>
  */
@@ -37,7 +35,7 @@ class CustomerRate implements RateInterface
     #[Assert\NotNull]
     private ?Customer $customer = null;
 
-    public function setCustomer(?Customer $customer): CustomerRate
+    public function setCustomer(?Customer $customer): self
     {
         $this->customer = $customer;
 

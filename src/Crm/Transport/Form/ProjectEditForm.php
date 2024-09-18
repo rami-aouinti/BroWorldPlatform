@@ -9,13 +9,13 @@
 
 namespace App\Crm\Transport\Form;
 
+use App\Crm\Domain\Entity\Customer;
+use App\Crm\Domain\Entity\Project;
 use App\Crm\Transport\Form\Type\CustomerType;
 use App\Crm\Transport\Form\Type\DatePickerType;
 use App\Crm\Transport\Form\Type\InvoiceLabelType;
 use App\Crm\Transport\Form\Type\TeamType;
 use App\Crm\Transport\Form\Type\YesNoType;
-use App\Crm\Domain\Entity\Customer;
-use App\Crm\Domain\Entity\Project;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -38,7 +38,7 @@ class ProjectEditForm extends AbstractType
             $entry = $options['data'];
             $isNew = $entry->getId() === null;
 
-            if (null !== $entry->getCustomer()) {
+            if ($entry->getCustomer() !== null) {
                 $customer = $entry->getCustomer();
                 $options['currency'] = $customer->getCurrency();
 
@@ -54,7 +54,7 @@ class ProjectEditForm extends AbstractType
             'view_timezone' => $options['timezone'],
         ];
         // primarily for API usage, where we cannot use a user/locale specific format
-        if (null !== $options['date_format']) {
+        if ($options['date_format'] !== null) {
             $dateTimeOptions['format'] = $options['date_format'];
         }
 
@@ -62,7 +62,7 @@ class ProjectEditForm extends AbstractType
             ->add('name', TextType::class, [
                 'label' => 'name',
                 'attr' => [
-                    'autofocus' => 'autofocus'
+                    'autofocus' => 'autofocus',
                 ],
             ])
             ->add('number', TextType::class, [
@@ -97,13 +97,13 @@ class ProjectEditForm extends AbstractType
                 'force_time' => 'end',
             ]))
             ->add('customer', CustomerType::class, array_merge([
-                'placeholder' => ($isNew && null === $customer) ? '' : false,
+                'placeholder' => ($isNew && $customer === null) ? '' : false,
                 'customers' => $customer,
                 'query_builder_for_user' => true,
             ], $customerOptions))
             ->add('globalActivities', YesNoType::class, [
                 'label' => 'globalActivities',
-                'help' => 'help.globalActivities'
+                'help' => 'help.globalActivities',
             ])
         ;
 
@@ -134,7 +134,7 @@ class ProjectEditForm extends AbstractType
             'include_time' => false,
             'timezone' => date_default_timezone_get(),
             'attr' => [
-                'data-form-event' => 'kimai.projectUpdate'
+                'data-form-event' => 'kimai.projectUpdate',
             ],
         ]);
     }
