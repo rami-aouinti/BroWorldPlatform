@@ -10,6 +10,7 @@ use App\Blog\Infrastructure\Repository\TagRepository;
 use App\Menu\Domain\Entity\Menu;
 use App\User\Domain\Entity\User;
 use Doctrine\ORM\Exception\NotSupported;
+use Exception;
 use OpenApi\Attributes as OA;
 use OpenApi\Attributes\JsonContent;
 use OpenApi\Attributes\Property;
@@ -39,7 +40,7 @@ class IndexController
      * Get current user roles as an array, accessible only for 'IS_AUTHENTICATED_FULLY' users.
      *
      * @throws NotSupported
-     * @throws \Exception
+     * @throws Exception
      */
     #[Route(
         path: '/v1/blog/post',
@@ -89,6 +90,7 @@ class IndexController
     #[Cache(smaxage: 10)]
     public function __invoke(
         Request $request,
+        User $loggedInUser,
         int $page,
         PostRepository $postRepository,
         TagRepository $tagRepository
@@ -100,10 +102,18 @@ class IndexController
             $tag = $tagRepository->findOneBy(['name' => $request->query->get('tag')]);
         }
 
-        $posts = $postRepository->findLatest($page, $tag);
+        $posts = $postRepository->findLatest($page, $tag, $loggedInUser);
+
+        $postsArray = $posts->getResults();
+        foreach ($postsArray as &$postData) {
+            $postData['post']['isLikedByUser'] = $postData[0]->isLikedByUser($loggedInUser);
+            $postData['post']['likesCount'] = $postData[0]->getLikesCount();
+            unset($postData['isLikedByUser'], $postData['likesCount']);
+        }
+
         return new JsonResponse(
             $this->serializer->serialize(
-                $posts->getResults(),
+                $postsArray,
                 'json',
                 [
                     'groups' => Post::SET_BLOG_POST,

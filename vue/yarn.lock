@@ -10566,6 +10566,11 @@ vuelidate@0.7.6:
   resolved "https://registry.yarnpkg.com/vuelidate/-/vuelidate-0.7.6.tgz#84100c13b943470660d0416642845cd2a1edf4b2"
   integrity sha512-suzIuet1jGcyZ4oUSW8J27R2tNrJ9cIfklAh63EbAkFjE380iv97BAiIeolRYoB9bF9usBXCu4BxftWN1Dkn3g==
 
+vuetify-avatar-uploader@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/vuetify-avatar-uploader/-/vuetify-avatar-uploader-0.3.0.tgz#39e439bb5abbe065c27bb6ab584d00c4da5018d3"
+  integrity sha512-NLP8phj3gA4fK+c+S4RZr99fkGE65QL0HW+GBFkhRfNMC2s/alSqblrPO6IqNWzROe8KaKDL301Xy6QihYFwyw==
+
 vuetify-google-autocomplete@^2.1.2:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/vuetify-google-autocomplete/-/vuetify-google-autocomplete-2.1.2.tgz#d4ae51c329f23cd05ff4c232c592146808095ae7"

@@ -42,7 +42,7 @@ use Throwable;
  * @author Javier Eguiluz <javier.eguiluz@gmail.com>
  * @author Yonel Ceruto <yonelceruto@gmail.com>
  */
-#[ORM\Entity(repositoryClass: PostRepository::class)]
+#[ORM\Entity]
 #[ORM\Table(name: 'symfony_demo_post')]
 #[UniqueEntity(fields: ['slug'], message: 'post.slug_unique', errorPath: 'title')]
 class Post
@@ -138,6 +138,9 @@ class Post
     ])]
     private Collection $tags;
 
+    #[ORM\OneToMany(mappedBy: 'post', targetEntity: Like::class, cascade: ['remove'])]
+    private Collection $likes;
+
     /**
      * @throws Throwable
      */
@@ -147,6 +150,7 @@ class Post
         $this->publishedAt = new DateTimeImmutable();
         $this->comments = new ArrayCollection();
         $this->tags = new ArrayCollection();
+        $this->likes = new ArrayCollection();
     }
 
     public function getId(): string
@@ -256,5 +260,21 @@ class Post
     public function getTags(): Collection
     {
         return $this->tags;
+    }
+
+    public function getLikesCount(): int
+    {
+        return $this->likes->count();
+    }
+
+    // Vérifier si l'utilisateur a liké
+    public function isLikedByUser(User $user): bool
+    {
+        foreach ($this->likes as $like) {
+            if ($like->getUser() === $user) {
+                return true;
+            }
+        }
+        return false;
     }
 }

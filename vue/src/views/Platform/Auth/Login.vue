@@ -172,8 +172,15 @@ export default {
                 if (this.user.username && this.user.password) {
                     this.$store.dispatch("auth/login", this.user).then(
                         () => {
+                            this.$store.dispatch('profile/fetchProfile');
+                            this.$store.dispatch('notification/fetchNotification');
+                            this.$store.dispatch('user/fetchUser');
+                            this.$store.dispatch('menu/fetchMenu');
+                            this.$store.dispatch('configuration/fetchConfiguration');
+                            this.$store.dispatch('fetchQuizData', {category: 'Geography', difficulty: 'easy'});
+                            this.$store.dispatch('blog/fetchPosts');
                             if (this.user.username === 'john-root') {
-                                this.$router.push("/pages/dashboards/discover");
+                                this.$router.push("/");
                             } else {
                                 this.$router.push("/");
                             }

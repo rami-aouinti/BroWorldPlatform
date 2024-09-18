@@ -157,7 +157,17 @@ class User implements EntityInterface, UserInterface, UserGroupAwareInterface, E
     #[ORM\Column(name: 'avatar', type: 'string', length: 255, nullable: true)]
     #[Assert\Length(max: 255, groups: ['Profile'])]
     #[Serializer\Expose]
-    #[Serializer\Groups(['User_Entity'])]
+    #[Groups([
+        'User',
+        'User.avatar',
+
+        'LogLogin.avatar',
+        'LogLoginFailure.avatar',
+        'LogRequest.avatar',
+
+        self::SET_USER_PROFILE,
+        self::SET_USER_BASIC,
+    ])]
     private ?string $avatar = null;
 
     #[ORM\Column(name: 'account', type: 'string', length: 30, nullable: true)]
@@ -360,6 +370,7 @@ class User implements EntityInterface, UserInterface, UserGroupAwareInterface, E
         $this->logsLogin = new ArrayCollection();
         $this->logsLoginFailure = new ArrayCollection();
         $this->configurations = new ArrayCollection();
+        $this->notifications = new ArrayCollection();
         $this->menus = new ArrayCollection();
         $this->preferences = new ArrayCollection();
         $this->memberships = new ArrayCollection();

@@ -18,6 +18,7 @@ use App\General\Domain\Entity\Traits\Uuid;
 use App\User\Domain\Entity\Traits\Blameable;
 use App\User\Domain\Entity\User;
 use DateTimeImmutable;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Doctrine\UuidBinaryOrderedTimeType;
@@ -25,6 +26,7 @@ use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
+use Doctrine\Common\Collections\Collection;
 use Throwable;
 
 use function Symfony\Component\String\u;
@@ -88,6 +90,9 @@ class Comment
     ])]
     private ?User $author = null;
 
+    #[ORM\OneToMany(mappedBy: 'comment', targetEntity: Like::class, cascade: ['remove'])]
+    private Collection $likes;
+
     /**
      * @throws Throwable
      */
@@ -95,6 +100,7 @@ class Comment
     {
         $this->id = $this->createUuid();
         $this->publishedAt = new DateTimeImmutable();
+        $this->likes = new ArrayCollection();
     }
 
     #[Assert\IsTrue(message: 'comment.is_spam')]
@@ -149,6 +155,24 @@ class Comment
     {
         $this->post = $post;
     }
+
+    public function getLikesCount(): int
+    {
+        return $this->likes->count();
+    }
+
+    // Vérifier si l'utilisateur a liké
+    public function isLikedByUser(User $user): bool
+    {
+        foreach ($this->likes as $like) {
+            if ($like->getUser() === $user) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
 
     public function jsonSerialize(): string
     {

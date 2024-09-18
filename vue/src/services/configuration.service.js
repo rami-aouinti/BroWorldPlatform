@@ -5,16 +5,6 @@ import {configuration} from "../store/configuration.module";
 const API_URL = "http://localhost/api/v1/";
 
 class ConfigurationService {
-
-  updateLocale(item) {
-    return axios.post(
-        API_URL + "user/locale",
-        { item },
-        { headers: authHeader() }
-    );
-  }
-
-
     getConfigurations() {
         return axios.get(API_URL + "profile/configurations", { headers: authHeader() }).then(
             (response) => {

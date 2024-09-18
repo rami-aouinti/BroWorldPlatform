@@ -18,8 +18,8 @@ use App\Blog\Domain\Entity\Post;
 use App\Blog\Domain\Entity\Tag;
 use App\Blog\Domain\Repository\Interfaces\PostRepositoryInterface;
 use App\General\Infrastructure\Repository\BaseRepository;
+use App\User\Domain\Entity\User;
 use DateTimeImmutable;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 use Exception;
@@ -28,18 +28,19 @@ use function count;
 use function Symfony\Component\String\u;
 
 /**
- * This custom Doctrine repository contains some methods which are useful when
- * querying for blog post information.
+ * @package App\Post
  *
- * See https://symfony.com/doc/current/doctrine.html#querying-for-objects-the-repository
+ * @psalm-suppress LessSpecificImplementedReturnType
+ * @codingStandardsIgnoreStart
  *
- * @author Ryan Weaver <weaverryan@gmail.com>
- * @author Javier Eguiluz <javier.eguiluz@gmail.com>
- * @author Yonel Ceruto <yonelceruto@gmail.com>
+ * @method Post|null find(string $id, ?int $lockMode = null, ?int $lockVersion = null, ?string $entityManagerName = null)
+ * @method Post|null findAdvanced(string $id, string | int | null $hydrationMode = null, string|null $entityManagerName = null)
+ * @method Post|null findOneBy(array $criteria, ?array $orderBy = null, ?string $entityManagerName = null)
+ * @method Post[] findBy(array $criteria, ?array $orderBy = null, ?int $limit = null, ?int $offset = null, ?string $entityManagerName = null)
+ * @method Post[] findByAdvanced(array $criteria, ?array $orderBy = null, ?int $limit = null, ?int $offset = null, ?array $search = null, ?string $entityManagerName = null)
+ * @method Post[] findAll(?string $entityManagerName = null)
  *
- * @method Post|null findOneByTitle(string $postTitle)
- *
- * @template-extends ServiceEntityRepository<Post>
+ * @codingStandardsIgnoreEnd
  */
 class PostRepository extends BaseRepository implements PostRepositoryInterface
 {
@@ -61,21 +62,34 @@ class PostRepository extends BaseRepository implements PostRepositoryInterface
     /**
      * @throws Exception
      */
-    public function findLatest(int $page = 1, ?Tag $tag = null): Paginator
+    public function findLatest(int $page = 1, ?Tag $tag = null, ?User $currentUser = null): Paginator
     {
         $qb = $this->createQueryBuilder('p')
             ->addSelect('a', 't')
             ->innerJoin('p.author', 'a')
             ->leftJoin('p.tags', 't')
+            ->leftJoin('p.likes', 'l')
             ->where('p.publishedAt <= :now')
             ->orderBy('p.publishedAt', 'DESC')
-            ->setParameter('now', new DateTimeImmutable())
-        ;
+            ->setParameter('now', new DateTimeImmutable());
 
         if (null !== $tag) {
             $qb->andWhere(':tag MEMBER OF p.tags')
                 ->setParameter('tag', $tag);
         }
+
+        if ($currentUser) {
+            $qb->addSelect('COUNT(l.id) AS likesCount')
+                ->addSelect('(CASE WHEN l.user = :currentUser THEN true ELSE false END) AS isLikedByUser')
+                ->setParameter('currentUser', $currentUser);
+        } else {
+            $qb->addSelect('COUNT(l.id) AS likesCount')
+                ->addSelect('false AS isLikedByUser');
+        }
+
+        $qb->groupBy('p.id, a.id, p.publishedAt, p.title, p.content, a.username');
+
+        $qb->groupBy('p.id, a.id, p.publishedAt, p.title, p.content, a.username, t.id, t.name, l.user');
 
         return (new Paginator($qb))->paginate($page);
     }

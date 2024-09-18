@@ -4,6 +4,7 @@ import DashboardLayout from "../views/Layout/DashboardLayout.vue";
 import ProfileLayout from "../views/Layout/ProfileLayout.vue";
 import DashboardLayoutVr from "../views/Layout/DashboardLayoutVr.vue";
 import PageLayout from "../views/Layout/PageLayout";
+import PageTypeLayout from "../views/Platform/Layout/PageTypeLayout";
 import AuthBasicLayout from "../views/Layout/AuthBasicLayout";
 import AuthCoverLayout from "../views/Layout/AuthCoverLayout";
 import AuthIllustrationLayout from "../views/Layout/AuthIllustrationLayout";
@@ -114,6 +115,36 @@ const AdminConfigurationDatatables = () =>
 
 const AdminMenuDatatables = () =>
     import(/* webpackChunkName: "pages" */ "@/views/Admin/MenuDatatables.vue");
+
+
+const Blog = () =>
+    import(/* webpackChunkName: "pages" */ "@/views/Platform/Blog/Blog.vue");
+
+const CrmVue = () =>
+    import(/* webpackChunkName: "pages" */ "@/views/Platform/Crm/Crm.vue");
+
+const Shop = () =>
+    import(/* webpackChunkName: "pages" */ "@/views/Platform/Ecommerce/Shop.vue");
+
+const Library = () =>
+    import(/* webpackChunkName: "pages" */ "@/views/Platform/Library/Library.vue");
+
+const Profile = () =>
+    import(/* webpackChunkName: "pages" */ "@/views/Platform/Profile/Profile.vue");
+
+const Setting = () =>
+    import(/* webpackChunkName: "pages" */ "@/views/Platform/Profile/Setting.vue");
+
+const Project = () =>
+    import(/* webpackChunkName: "pages" */ "@/views/Platform/Projects/Project.vue");
+
+
+const QuizVue = () =>
+    import(/* webpackChunkName: "pages" */ "@/views/Platform/Quiz/Quiz.vue");
+
+const Resume = () =>
+    import(/* webpackChunkName: "pages" */ "@/views/Platform/Resume/Resume.vue");
+
 
 
 Vue.use(VueRouter);
@@ -287,7 +318,7 @@ let applicationPages = {
 };
 
 let pricingPage = {
-  path: "/",
+  path: "/pricing",
   component: PageLayout,
   name: "Pricing Page",
   children: [
@@ -339,7 +370,7 @@ let authIllustrationPages = {
 };
 
 let login = {
-    path: "/",
+    path: "/login",
     component: AuthBasicLayout,
     name: "Authentication Basic",
     children: [
@@ -351,9 +382,176 @@ let login = {
     ],
 };
 
-const routes = [
-  {
+let register = {
     path: "/",
+    component: AuthBasicLayout,
+    name: "Authentication Basic",
+    children: [
+        {
+            path: "/register",
+            name: "Register",
+            component: Login,
+        },
+    ],
+};
+
+let logout = {
+
+    path: '/logout',
+        name: 'logout',
+    beforeEnter(to, from, next) {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    next('/login');
+    }
+}
+
+let blog = {
+    path: "/",
+    component: PageTypeLayout,
+    name: "Blog",
+    children: [
+        {
+            path: "/",
+            name: "Blog",
+            component: Blog,
+        },
+    ],
+};
+
+let crm = {
+    path: "/",
+    component: PageTypeLayout,
+    name: "Crm",
+    children: [
+        {
+            path: "/crm",
+            name: "Crm",
+            component: CrmVue,
+        },
+    ],
+};
+
+let ecommerce = {
+    path: "/",
+    component: PageTypeLayout,
+    name: "Ecommerce",
+    children: [
+        {
+            path: "/ecommerce",
+            name: "Ecommerce",
+            component: Shop,
+        },
+    ],
+};
+
+let library = {
+    path: "/",
+    component: PageTypeLayout,
+    name: "Library",
+    children: [
+        {
+            path: "/library",
+            name: "Library",
+            component: Library,
+        },
+    ],
+};
+
+let profile = {
+    path: "/",
+    component: PageTypeLayout,
+    name: "Profile",
+    children: [
+        {
+            path: "/profile",
+            name: "Profile",
+            component: Profile,
+        },
+    ],
+};
+
+let setting = {
+    path: "/",
+    component: PageTypeLayout,
+    name: "Setting",
+    children: [
+        {
+            path: "/setting",
+            name: "Setting",
+            component: Setting,
+        },
+    ],
+};
+
+let project = {
+    path: "/",
+    component: PageTypeLayout,
+    name: "Project",
+    children: [
+        {
+            path: "/project",
+            name: "Projects",
+            component: Project,
+        },
+    ],
+};
+
+let quiz = {
+    path: "/",
+    component: PageTypeLayout,
+    name: "Authentication Basic",
+    children: [
+        {
+            path: "/quiz",
+            name: "Quiz",
+            component: QuizVue,
+        },
+    ],
+};
+
+let resume = {
+    path: "/",
+    component: PageTypeLayout,
+    name: "Resume",
+    children: [
+        {
+            path: "/resume",
+            name: "Resume",
+            component: Resume,
+        },
+    ],
+};
+
+let messenger = {
+    path: "/",
+    component: PageTypeLayout,
+    name: "Authentication Basic",
+    children: [
+        {
+            path: "/messenger",
+            name: "Messenger",
+            component: Login,
+        },
+    ],
+};
+
+const routes = [
+    login,
+    logout,
+    blog,
+    register,
+    crm,
+    ecommerce,
+    library,
+    profile,
+    setting,
+    project,
+    quiz,
+    resume,
+    messenger,
+  {
+    path: "/pages",
     name: "Dashboard",
     redirect: "/pages/dashboards/analytics",
     component: DashboardLayout,
@@ -549,8 +747,7 @@ const routes = [
   vrPages,
   authBasicPages,
   authCoverPages,
-  authIllustrationPages,
-    login,
+  authIllustrationPages
 ];
 
 const router = new VueRouter({

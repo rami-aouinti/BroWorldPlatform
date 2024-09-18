@@ -6,7 +6,9 @@ import { profile } from "./profile.module";
 import { user } from "./user.module";
 import { users } from "./users.module";
 import { menu } from "./menu.module";
+import { blog } from "./blog.module";
 import { configuration } from "./configuration.module";
+import { notification } from "./notification.module";
 import { userManagement } from "./admin/user.module";
 import { configurationManagement } from "./admin/configuration.module";
 import { menuManagement } from "./admin/menu.module";
@@ -130,12 +132,14 @@ export default new Vuex.Store({
     modules: {
         auth,
         user,
+        blog,
         users,
         profile,
         configuration,
         menu,
         userManagement,
         configurationManagement,
-        menuManagement
+        menuManagement,
+        notification
     },
 });

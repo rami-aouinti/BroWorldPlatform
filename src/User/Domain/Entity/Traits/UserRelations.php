@@ -13,6 +13,7 @@ use App\Log\Domain\Entity\LogLogin;
 use App\Log\Domain\Entity\LogLoginFailure;
 use App\Log\Domain\Entity\LogRequest;
 use App\Menu\Domain\Entity\Menu;
+use App\Notification\Domain\Entity\Notification;
 use App\User\Domain\Entity\Profile;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Entity\UserGroup;
@@ -57,6 +58,13 @@ trait UserRelations
         cascade: ['persist', 'remove']
     )]
     private Collection $configurations;
+
+    #[ORM\OneToMany(
+        mappedBy: 'user',
+        targetEntity: Notification::class,
+        cascade: ['persist', 'remove']
+    )]
+    private Collection $notifications;
 
     #[ORM\OneToMany(
         mappedBy: 'user',
@@ -314,7 +322,7 @@ trait UserRelations
 
     public function removeEvent(Event $event): self
     {
-        if ($this->menus->removeElement($event)) {
+        if ($this->events->removeElement($event)) {
             if ($event->getUser() === $this) {
                 $event->setUser(null);
             }
@@ -323,4 +331,19 @@ trait UserRelations
         return $this;
     }
 
+
+    public function getNotifications(): Collection
+    {
+        return $this->notifications;
+    }
+
+    public function addNotification(Notification $notification): self
+    {
+        if (!$this->notifications->contains($notification)) {
+            $this->notifications[] = $notification;
+            $notification->setUser($this);
+        }
+
+        return $this;
+    }
 }

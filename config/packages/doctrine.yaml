@@ -122,6 +122,12 @@ doctrine:
                         dir: '%kernel.project_dir%/src/Crm/Domain/Entity'
                         prefix: 'App\Crm\Domain\Entity'
                         alias: Crm
+                    Notification:
+                        type: attribute
+                        is_bundle: false
+                        dir: '%kernel.project_dir%/src/Notification/Domain/Entity'
+                        prefix: 'App\Notification\Domain\Entity'
+                        alias: Notification
                 dql:
                     datetime_functions:
                         datesub: DoctrineExtensions\Query\Mysql\DateSub

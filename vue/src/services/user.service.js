@@ -15,7 +15,7 @@ class UserService {
 
   uploadPhoto(photo) {
     return axios.post(
-      API_URL + "user/photo",
+      API_URL + "profile/upload",
       { photo },
       { headers: authHeader() }
     );
