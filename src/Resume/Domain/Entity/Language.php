@@ -4,10 +4,16 @@ declare(strict_types=1);
 
 namespace App\Resume\Domain\Entity;
 
+use App\General\Domain\Entity\Traits\Timestampable;
+use App\General\Domain\Entity\Traits\Uuid;
 use App\Resume\Infrastructure\Repository\LanguageRepository;
+use App\User\Domain\Entity\Traits\Blameable;
 use App\User\Domain\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Doctrine\UuidBinaryOrderedTimeType;
+use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Throwable;
 
 /**
  * @package App\Resume\Domain\Entity
@@ -17,29 +23,68 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\Table(name: 'resume_language')]
 class Language
 {
+    final public const string SET_USER_LANGUAGE = 'set.UserLanguage';
+
+    use Blameable;
+    use Timestampable;
+    use Uuid;
+
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
+    #[ORM\Column(
+        name: 'id',
+        type: UuidBinaryOrderedTimeType::NAME,
+        unique: true,
+        nullable: false,
+    )]
+    #[Groups([
+        'Language',
+        'Language.id',
+
+        self::SET_USER_LANGUAGE,
+    ])]
+    private UuidInterface $id;
 
     #[ORM\Column(length: 255)]
-    #[Groups('get')]
+    #[Groups([
+        'Language',
+        'Language.name',
+
+        self::SET_USER_LANGUAGE,
+    ])]
     private ?string $name = null;
 
     #[ORM\Column]
-    #[Groups('get')]
+    #[Groups([
+        'Language',
+        'Language.level',
+
+        self::SET_USER_LANGUAGE,
+    ])]
     private ?int $level = null;
 
     #[ORM\ManyToOne(inversedBy: 'languages')]
     private ?User $user = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups('get')]
+    #[Groups([
+        'Language',
+        'Language.flag',
+
+        self::SET_USER_LANGUAGE,
+    ])]
     private ?string $flag = null;
 
-    public function getId(): ?int
+    /**
+     * @throws Throwable
+     */
+    public function __construct()
     {
-        return $this->id;
+        $this->id = $this->createUuid();
+    }
+
+    public function getId(): string
+    {
+        return $this->id->toString();
     }
 
     public function getName(): ?string

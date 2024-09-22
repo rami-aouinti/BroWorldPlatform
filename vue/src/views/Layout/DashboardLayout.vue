@@ -138,7 +138,6 @@ export default {
 
                         ConfigurationService.updateConfiguration(item, config.id).then(
                             (response) => {
-                                console.log('Success')
                             },
                             (error) => {
                                 this.content =

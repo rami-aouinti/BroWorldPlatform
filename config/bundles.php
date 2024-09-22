@@ -31,4 +31,6 @@ return [
     KevinPapst\TablerBundle\TablerBundle::class => ['all' => true],
     Scheb\TwoFactorBundle\SchebTwoFactorBundle::class => ['all' => true],
     Symfony\WebpackEncoreBundle\WebpackEncoreBundle::class => ['all' => true],
+    League\FlysystemBundle\FlysystemBundle::class => ['all' => true],
+    Intervention\Image\Symfony\InterventionImageBundle::class => ['all' => true],
 ];

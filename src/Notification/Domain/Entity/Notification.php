@@ -25,6 +25,7 @@ class Notification
     use Blameable;
     use Timestampable;
     use Uuid;
+
     final public const string SET_USER_NOTIFICATION = 'set.UserNotification';
 
     #[ORM\Id]

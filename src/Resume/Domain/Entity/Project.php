@@ -4,12 +4,18 @@ declare(strict_types=1);
 
 namespace App\Resume\Domain\Entity;
 
+use App\General\Domain\Entity\Traits\Timestampable;
+use App\General\Domain\Entity\Traits\Uuid;
 use App\Resume\Infrastructure\Repository\ProjectRepository;
+use App\User\Domain\Entity\Traits\Blameable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Doctrine\UuidBinaryOrderedTimeType;
+use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Throwable;
 
 /**
  * @package App\Resume\Domain\Entity
@@ -19,37 +25,81 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\Table(name: 'resume_project')]
 class Project
 {
+    final public const string SET_USER_PROJECT = 'set.UserProject';
+
+    use Blameable;
+    use Timestampable;
+    use Uuid;
+
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
+    #[ORM\Column(
+        name: 'id',
+        type: UuidBinaryOrderedTimeType::NAME,
+        unique: true,
+        nullable: false,
+    )]
+    #[Groups([
+        'Project',
+        'Project.id',
+
+        self::SET_USER_PROJECT,
+    ])]
+    private UuidInterface $id;
 
     #[ORM\Column(length: 255)]
-    #[Groups('get')]
+    #[Groups([
+        'Project',
+        'Project.name',
+
+        self::SET_USER_PROJECT,
+    ])]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT)]
-    #[Groups('get')]
+    #[Groups([
+        'Project',
+        'Project.description',
+
+        self::SET_USER_PROJECT,
+    ])]
     private ?string $description = null;
 
     #[ORM\OneToMany(mappedBy: 'project', targetEntity: Media::class, cascade: ['persist'], orphanRemoval: true)]
-    #[Groups('get')]
+    #[Groups([
+        'Project',
+        'Project.medias',
+
+        self::SET_USER_PROJECT,
+    ])]
     private Collection $medias;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups('get')]
+    #[Groups([
+        'Project',
+        'Project.gitLink',
+
+        self::SET_USER_PROJECT,
+    ])]
     private ?string $gitLink = null;
 
-    #[ORM\ManyToOne(inversedBy: 'projects')]
-    #[Groups('get')]
+    #[ORM\ManyToOne(cascade: ['persist'], inversedBy: 'projects')]
     private ?Reference $reference = null;
 
     #[ORM\ManyToMany(targetEntity: Skill::class, inversedBy: 'projects')]
-    #[Groups('get')]
+    #[Groups([
+        'Project',
+        'Project.skills',
+
+        self::SET_USER_PROJECT,
+    ])]
     private Collection $skills;
 
+    /**
+     * @throws Throwable
+     */
     public function __construct()
     {
+        $this->id = $this->createUuid();
         $this->medias = new ArrayCollection();
         $this->skills = new ArrayCollection();
     }
@@ -59,9 +109,9 @@ class Project
         return $this->name;
     }
 
-    public function getId(): ?int
+    public function getId(): string
     {
-        return $this->id;
+        return $this->id->toString();
     }
 
     public function getName(): ?string

@@ -4,9 +4,9 @@
       <div class="card-padding mb-16">
         <div class="float-start">
           <h5 class="text-h5 text-dark font-weight-bold mt-3 mb-0">
-            Material UI Configurator
+            Bro World Applications
           </h5>
-          <p class="text-body font-weight-light">See our dashboard options.</p>
+          <p class="text-body font-weight-light">Enjoy</p>
         </div>
         <div class="float-end mt-4">
           <v-btn
@@ -183,10 +183,29 @@
             mt-2
             text-xs
           "
-          href="https://www.creative-tim.com/product/vuetify-material-dashboard-pro"
+          to="/resume"
           color="#fff"
-          >Buy Now</v-btn
+          >Generate your resume</v-btn
         >
+          <v-btn
+              elevation="0"
+              height="43"
+              class="
+            font-weight-bold
+            text-uppercase
+            btn-info
+            bg-gradient-primary
+            py-2
+            px-6
+            me-2
+            w-100
+            mt-2
+            text-xs
+          "
+              to="/job"
+              color="#fff"
+          >Jobs</v-btn
+          >
         <v-btn
           elevation="0"
           height="43"
@@ -203,9 +222,8 @@
             shadow-none
           "
           color="#fff"
-          href="https://vuetifyjs.com/en/components/alerts/"
-          target="_blank"
-          >View documentation</v-btn
+          to="/quiz"
+          >Start Quiz</v-btn
         >
         <div class="text-center d-flex mt-5">
           <gh-btns-star

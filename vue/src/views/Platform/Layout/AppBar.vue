@@ -20,13 +20,12 @@
               class="opacity-5 text-dark"
             >
               <svg
-                width="12px"
-                height="12px"
-                class="mb-1"
-                viewBox="0 0 45 40"
-                version="1.1"
-                xmlns="http://www.w3.org/2000/svg"
-                xmlns:xlink="http://www.w3.org/1999/xlink"
+                  width="12px"
+                  height="12px"
+                  class="mb-1"
+                  viewBox="0 0 45 40"
+                  version="1.1"
+                  xmlns="http://www.w3.org/2000/svg"
               >
                 <title>shop</title>
                 <g
@@ -291,25 +290,16 @@
               </template>
 
               <v-list class="pa-3">
+                  <!-- Filtrer les notifications non lues -->
                   <v-list-item
-                      v-for="(item, i) in notification"
+                      v-for="(item, i) in filteredNotifications"
                       :key="i"
-                      class="
-                pa-4
-                list-item-hover-active
-                d-flex
-                align-items-center
-                py-1
-                my-1
-                border-radius-md
-              "
+                      class="pa-4 list-item-hover-active d-flex align-items-center py-1 my-1 border-radius-md"
                   >
                       <v-icon class="material-icons-round text-body" size="20">email</v-icon>
 
                       <v-list-item-content class="pa-0">
-                          <v-list-item-title
-                              class="text-body-2 ls-0 text-typo font-weight-600 mb-0"
-                          >
+                          <v-list-item-title class="text-body-2 ls-0 text-typo font-weight-600 mb-0">
                               <v-row>
                                   <v-col>
                                       <h6
@@ -323,6 +313,10 @@
                           </v-list-item-title>
                       </v-list-item-content>
                   </v-list-item>
+
+                  <v-btn v-if="showLoadMore" @click="loadMore" class="mt-3" color="transparent">
+                      Read more
+                  </v-btn>
               </v-list>
           </v-menu>
 
@@ -395,6 +389,7 @@ export default {
           title: "Payment successfully completed",
         },
       ],
+        notificationsToShow: 5,
     };
   },
   methods: {
@@ -424,11 +419,25 @@ export default {
               console.error('Error', error);
           }
       },
+      loadMore() {
+          this.notificationsToShow += 5;
+      },
   },
     computed: {
         ...mapGetters('user', ['user']),
         ...mapGetters('menu', ['menu']),
         ...mapGetters('notification', ['notification', 'unreadNotificationCount']),
+        unreadNotifications() {
+            return this.notification.filter((item) => !item.isRead);
+        },
+        filteredNotifications() {
+            return this.unreadNotifications.length
+                ? this.unreadNotifications
+                : this.notification.reverse().slice(0, this.notificationsToShow);
+        },
+        showLoadMore() {
+            return this.unreadNotifications.length === 0 && this.notificationsToShow < this.notification.length;
+        },
     },
   watch: {
     toggleActive(val) {

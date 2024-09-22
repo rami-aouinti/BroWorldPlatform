@@ -25,7 +25,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
  */
 #[AsController]
 #[Route(
-    path: '/v1/post',
+    path: '/v1/admin/post',
 )]
 #[IsGranted(AuthenticatedVoter::IS_AUTHENTICATED_FULLY)]
 #[OA\Tag(name: 'Post Management')]

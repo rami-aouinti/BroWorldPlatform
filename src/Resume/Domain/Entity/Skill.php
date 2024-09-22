@@ -13,14 +13,20 @@ declare(strict_types=1);
 
 namespace App\Resume\Domain\Entity;
 
+use App\General\Domain\Entity\Traits\Timestampable;
+use App\General\Domain\Entity\Traits\Uuid;
 use App\Resume\Infrastructure\Repository\SkillRepository;
+use App\User\Domain\Entity\Traits\Blameable;
 use App\User\Domain\Entity\User;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Doctrine\UuidBinaryOrderedTimeType;
+use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+use Throwable;
 
 /**
  * @package App\Resume\Domain\Entity
@@ -30,19 +36,45 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Table(name: 'resume_skill')]
 class Skill
 {
+    final public const string SET_USER_SKILL = 'set.UserSkill';
+
+    use Blameable;
+    use Timestampable;
+    use Uuid;
+
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(type: Types::INTEGER)]
-    private ?int $id = null;
+    #[ORM\Column(
+        name: 'id',
+        type: UuidBinaryOrderedTimeType::NAME,
+        unique: true,
+        nullable: false,
+    )]
+    #[Groups([
+        'Skill',
+        'Skill.id',
+
+        self::SET_USER_SKILL,
+    ])]
+    private UuidInterface $id;
 
     #[ORM\Column(type: Types::STRING)]
     #[Assert\NotBlank]
-    #[Groups('get')]
+    #[Groups([
+        'Skill',
+        'Skill.name',
+
+        self::SET_USER_SKILL,
+    ])]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::STRING)]
     #[Assert\NotBlank]
-    #[Groups('get')]
+    #[Groups([
+        'Skill',
+        'Skill.type',
+
+        self::SET_USER_SKILL,
+    ])]
     private ?string $type = null;
 
     #[ORM\Column(type: Types::INTEGER)]
@@ -51,17 +83,26 @@ class Skill
         min: 1,
         max: 10,
     )]
-    #[Groups('get')]
+    #[Groups([
+        'Skill',
+        'Skill.level',
+
+        self::SET_USER_SKILL,
+    ])]
     private ?int $level = null;
 
-    #[ORM\ManyToOne(inversedBy: 'formations')]
+    #[ORM\ManyToOne(inversedBy: 'skills')]
     private ?User $user = null;
 
     #[ORM\ManyToMany(targetEntity: Project::class, mappedBy: 'skills')]
     private Collection $projects;
 
+    /**
+     * @throws Throwable
+     */
     public function __construct()
     {
+        $this->id = $this->createUuid();
         $this->projects = new ArrayCollection();
     }
 
@@ -70,9 +111,9 @@ class Skill
         return $this->name;
     }
 
-    public function getId(): ?int
+    public function getId(): string
     {
-        return $this->id;
+        return $this->id->toString();
     }
 
     public function getName(): ?string

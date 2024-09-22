@@ -4,7 +4,7 @@
       <v-footer
         color="transparent"
         class="px-6 position-absolute w-100 bottom-0"
-        v-if="$route.name != 'SignUpCover' && $route.name != 'Pricing'"
+        v-if="$route.name !== 'SignUpCover' && $route.name !== 'Pricing'"
       >
         <v-card class="flex" color="transparent">
           <v-card-text class="px-0">
@@ -14,14 +14,14 @@
                   © {{ new Date().getFullYear() }}, made with
                   <i class="fa fa-heart" aria-hidden="true"></i> by
                   <a
-                    href="https://www.creative-tim.com"
+                    href="https://www.broworld.de"
                     class="
                       text-decoration-none text-white text-body-2
                       ls-0
                       font-weight-bold
                     "
                     target="_blank"
-                    >Creative Tim</a
+                    >Bro World</a
                   >
                   for a better web.
                 </div>
@@ -96,10 +96,10 @@
                   Copyright © {{ new Date().getFullYear() }}
                   Material by
                   <a
-                    href="https://www.creative-tim.com"
+                    href="https://www.broworld.de"
                     class="text-decoration-none btn-hover text-body ls-0"
                     target="_blank"
-                    >Creative Tim</a
+                    >Bro World</a
                   >
                 </p>
               </v-col>
@@ -126,7 +126,7 @@
                       font-weight-bold
                     "
                     target="_blank"
-                    >Creative Tim</a
+                    >Bro World</a
                   >
                   for a better web.
                 </div>
@@ -170,20 +170,20 @@ export default {
     return {
       footer: [
         {
-          linkName: "Creative Tim",
-          link: "https://www.creative-tim.com/",
+          linkName: "Bro World",
+          link: "https://www.broworld.de/",
         },
         {
           linkName: "About Us",
-          link: "https://www.creative-tim.com/presentation",
+          link: "https://www.broworld.de/presentation",
         },
         {
           linkName: "Blog",
-          link: "http://blog.creative-tim.com/",
+          link: "https://www.broworld.de/blog",
         },
         {
           linkName: "License",
-          link: "https://www.creative-tim.com/license",
+          link: "https://www.broworld.de/license",
         },
       ],
       icons: [

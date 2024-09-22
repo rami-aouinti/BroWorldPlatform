@@ -53,9 +53,11 @@ final class ProjectValidator extends ConstraintValidator
         }
 
         if ((bool)$this->systemConfiguration->find('project.allow_duplicate_number') === false && (($number = $value->getNumber()) !== null)) {
-            foreach ($this->projectRepository->findBy([
+            foreach (
+                $this->projectRepository->findBy([
                 'number' => $number,
-            ]) as $tmp) {
+                ]) as $tmp
+            ) {
                 if ($tmp->getId() !== $value->getId()) {
                     $this->context->buildViolation(Project::getErrorName(Project::PROJECT_NUMBER_EXISTING))
                         ->setParameter('%number%', $number)

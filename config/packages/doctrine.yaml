@@ -128,6 +128,30 @@ doctrine:
                         dir: '%kernel.project_dir%/src/Notification/Domain/Entity'
                         prefix: 'App\Notification\Domain\Entity'
                         alias: Notification
+                    Resume:
+                        type: attribute
+                        is_bundle: false
+                        dir: '%kernel.project_dir%/src/Resume/Domain/Entity'
+                        prefix: 'App\Resume\Domain\Entity'
+                        alias: Resume
+                    Job:
+                        type: attribute
+                        is_bundle: false
+                        dir: '%kernel.project_dir%/src/Job/Domain/Entity'
+                        prefix: 'App\Job\Domain\Entity'
+                        alias: Job
+                    Media:
+                        type: attribute
+                        is_bundle: false
+                        dir: '%kernel.project_dir%/src/Media/Domain/Entity'
+                        prefix: 'App\Media\Domain\Entity'
+                        alias: Media
+                    Shop:
+                        type: attribute
+                        is_bundle: false
+                        dir: '%kernel.project_dir%/src/Shop/Domain/Entity'
+                        prefix: 'App\Shop\Domain\Entity'
+                        alias: Shop
                 dql:
                     datetime_functions:
                         datesub: DoctrineExtensions\Query\Mysql\DateSub

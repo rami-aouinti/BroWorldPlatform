@@ -7,6 +7,7 @@ import { user } from "./user.module";
 import { users } from "./users.module";
 import { menu } from "./menu.module";
 import { blog } from "./blog.module";
+import { job } from "./job.module";
 import { configuration } from "./configuration.module";
 import { notification } from "./notification.module";
 import { userManagement } from "./admin/user.module";
@@ -140,6 +141,7 @@ export default new Vuex.Store({
         userManagement,
         configurationManagement,
         menuManagement,
-        notification
+        notification,
+        job
     },
 });

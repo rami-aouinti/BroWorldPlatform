@@ -479,6 +479,17 @@
       <path value="$PROJECT_DIR$/vendor/twig/cssinliner-extra" />
       <path value="$PROJECT_DIR$/vendor/psr/http-message" />
       <path value="$PROJECT_DIR$/vendor/psr/http-client" />
+      <path value="$PROJECT_DIR$/vendor/dompdf/php-font-lib" />
+      <path value="$PROJECT_DIR$/vendor/dompdf/dompdf" />
+      <path value="$PROJECT_DIR$/vendor/dompdf/php-svg-lib" />
+      <path value="$PROJECT_DIR$/vendor/sabberworm/php-css-parser" />
+      <path value="$PROJECT_DIR$/vendor/league/flysystem-bundle" />
+      <path value="$PROJECT_DIR$/vendor/league/flysystem" />
+      <path value="$PROJECT_DIR$/vendor/league/mime-type-detection" />
+      <path value="$PROJECT_DIR$/vendor/league/flysystem-local" />
+      <path value="$PROJECT_DIR$/vendor/intervention/image" />
+      <path value="$PROJECT_DIR$/vendor/intervention/gif" />
+      <path value="$PROJECT_DIR$/vendor/intervention/image-symfony" />
     </include_path>
   </component>
   <component name="PhpInterpreters">

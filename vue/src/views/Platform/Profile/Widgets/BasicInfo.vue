@@ -221,10 +221,8 @@ export default {
     },
     methods: {
         updateProfile() {
-            console.log(this.form);
             axios.post('/api/profile/update', this.form)
                 .then(response => {
-                    console.log("Profile updated successfully!", response.data);
                 })
                 .catch(error => {
                     console.error("There was an error updating the profile", error);

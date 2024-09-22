@@ -377,6 +377,15 @@ class User implements EntityInterface, UserInterface, UserGroupAwareInterface, E
         $this->memberships = new ArrayCollection();
         $this->following = new ArrayCollection();
         $this->followers = new ArrayCollection();
+        $this->experiences = new ArrayCollection();
+        $this->hobbies = new ArrayCollection();
+        $this->languages = new ArrayCollection();
+        $this->references = new ArrayCollection();
+        $this->skills = new ArrayCollection();
+        $this->formations = new ArrayCollection();
+        $this->applicants = new ArrayCollection();
+        $this->addresses = new ArrayCollection();
+        $this->orders = new ArrayCollection();
     }
 
     /**
@@ -1153,7 +1162,7 @@ class User implements EntityInterface, UserInterface, UserGroupAwareInterface, E
     /**
      * Checks is the user is teamlead in any of the assigned teams.
      *
-     * @see User::hasTeamleadRole()
+     * @see \App\Shop\Domain\Entity\User::hasTeamleadRole()
      */
     public function isTeamlead(): bool
     {

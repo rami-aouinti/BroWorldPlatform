@@ -23,6 +23,7 @@ class Profile implements EntityInterface, ProfileInterface
     use Blameable;
     use Timestampable;
     use Uuid;
+
     final public const string SET_PROFILE = 'set.Profile';
 
     #[ORM\Id]

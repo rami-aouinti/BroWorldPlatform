@@ -33,6 +33,7 @@ class Customer implements EntityWithMetaFields, EntityWithBudget
 {
     use BudgetTrait;
     use ColorTrait;
+
     public const string DEFAULT_CURRENCY = 'EUR';
 
     #[ORM\Column(name: 'id', type: 'integer')]

@@ -145,7 +145,11 @@ const QuizVue = () =>
 const Resume = () =>
     import(/* webpackChunkName: "pages" */ "@/views/Platform/Resume/Resume.vue");
 
+const Job = () =>
+    import(/* webpackChunkName: "pages" */ "@/views/Platform/Job/Job.vue");
 
+const JobDetail = () =>
+    import(/* webpackChunkName: "pages" */ "@/views/Platform/Job/Job/JobDetail.vue");
 
 Vue.use(VueRouter);
 
@@ -506,6 +510,9 @@ let quiz = {
             path: "/quiz",
             name: "Quiz",
             component: QuizVue,
+            meta: {
+                groupName: "Application",
+            },
         },
     ],
 };
@@ -519,6 +526,42 @@ let resume = {
             path: "/resume",
             name: "Resume",
             component: Resume,
+            meta: {
+                groupName: "Application",
+            },
+        },
+    ],
+};
+
+let job = {
+    path: "/",
+    component: PageTypeLayout,
+    name: "Job",
+    children: [
+        {
+            path: "/job",
+            name: "Job",
+            component: Job,
+            meta: {
+                groupName: "Application",
+            },
+        },
+    ],
+};
+
+let jobDetail = {
+    path: "/",
+    component: PageTypeLayout,
+    name: "JobDetail",
+    children: [
+        {
+            path: "/job/:id",
+            name: "JobDetail",
+            component: JobDetail,
+            meta: {
+                groupName: "Job",
+            },
+            props: true
         },
     ],
 };
@@ -550,6 +593,8 @@ const routes = [
     quiz,
     resume,
     messenger,
+    job,
+    jobDetail,
   {
     path: "/pages",
     name: "Dashboard",

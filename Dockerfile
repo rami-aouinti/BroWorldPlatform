@@ -42,6 +42,9 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
       libzip-dev \
       wget \
       librabbitmq-dev \
+      libmagickwand-dev \
+    && pecl install imagick \
+    && docker-php-ext-enable imagick \
     && pecl install amqp \
     && docker-php-ext-configure pdo_mysql --with-pdo-mysql=mysqlnd \
     && docker-php-ext-configure intl \

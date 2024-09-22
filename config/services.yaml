@@ -64,6 +64,8 @@ services:
             - '../src/*/Transport/EventListener/'
             - '../src/Kernel.php'
 
+
+    League\Flysystem\FilesystemOperator: '@default.storage'
     # controllers are imported separately to make sure services can be injected
     # as action arguments even if you don't extend any base controller class
     App\General\Transport\ValueResolver\EntityValueResolver:

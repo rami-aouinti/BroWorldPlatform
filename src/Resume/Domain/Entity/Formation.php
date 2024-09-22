@@ -13,12 +13,19 @@ declare(strict_types=1);
 
 namespace App\Resume\Domain\Entity;
 
+use App\General\Domain\Entity\Traits\Timestampable;
+use App\General\Domain\Entity\Traits\Uuid;
 use App\Resume\Infrastructure\Repository\FormationRepository;
+use App\User\Domain\Entity\Traits\Blameable;
 use App\User\Domain\Entity\User;
 use DateTimeInterface;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Doctrine\UuidBinaryOrderedTimeType;
+use Ramsey\Uuid\UuidInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+use Throwable;
 
 /**
  * @package App\Resume\Domain\Entity
@@ -28,39 +35,99 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Table(name: 'resume_formation')]
 class Formation
 {
+    final public const string SET_USER_FORMATION = 'set.UserFormation';
+
+    use Blameable;
+    use Timestampable;
+    use Uuid;
+
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(type: Types::INTEGER)]
-    private ?int $id = null;
+    #[ORM\Column(
+        name: 'id',
+        type: UuidBinaryOrderedTimeType::NAME,
+        unique: true,
+        nullable: false,
+    )]
+    #[Groups([
+        'Formation',
+        'Formation.id',
+
+        self::SET_USER_FORMATION,
+    ])]
+    private UuidInterface $id;
 
     #[ORM\Column(type: Types::STRING)]
     #[Assert\NotBlank]
+    #[Groups([
+        'Formation',
+        'Formation.name',
+
+        self::SET_USER_FORMATION,
+    ])]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::STRING)]
     #[Assert\NotBlank]
+    #[Groups([
+        'Formation',
+        'Formation.school',
+
+        self::SET_USER_FORMATION,
+    ])]
     private ?string $school = null;
 
     #[ORM\Column(type: Types::INTEGER)]
+    #[Groups([
+        'Formation',
+        'Formation.gradeLevel',
+
+        self::SET_USER_FORMATION,
+    ])]
     private ?int $gradeLevel = null;
 
     #[ORM\Column(type: Types::TEXT)]
     #[Assert\NotBlank]
+    #[Groups([
+        'Formation',
+        'Formation.description',
+
+        self::SET_USER_FORMATION,
+    ])]
     private ?string $description = null;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE)]
     #[Assert\NotBlank]
+    #[Groups([
+        'Formation',
+        'Formation.startedAt',
+
+        self::SET_USER_FORMATION,
+    ])]
     private ?DateTimeInterface $startedAt = null;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]
+    #[Groups([
+        'Formation',
+        'Formation.endedAt',
+
+        self::SET_USER_FORMATION,
+    ])]
     private ?DateTimeInterface $endedAt = null;
 
     #[ORM\ManyToOne(inversedBy: 'formations')]
     private ?User $user = null;
 
-    public function getId(): ?int
+    /**
+     * @throws Throwable
+     */
+    public function __construct()
     {
-        return $this->id;
+        $this->id = $this->createUuid();
+    }
+
+    public function getId(): string
+    {
+        return $this->id->toString();
     }
 
     public function getName(): ?string

@@ -357,7 +357,6 @@ export default {
         },
       }).then((result) => {
         /* Read more about handling dismissals below */
-        console.log(result);
       });
     },
     showWarningAlert() {

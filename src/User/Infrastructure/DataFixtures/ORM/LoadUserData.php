@@ -13,6 +13,13 @@ use App\General\Domain\Enum\Language;
 use App\General\Domain\Enum\Locale;
 use App\General\Domain\Rest\UuidHelper;
 use App\Messenger\Domain\Entity\Message;
+use App\Resume\Domain\Entity\Experience;
+use App\Resume\Domain\Entity\Formation;
+use App\Resume\Domain\Entity\Hobby;
+use App\Resume\Domain\Entity\Media;
+use App\Resume\Domain\Entity\Project;
+use App\Resume\Domain\Entity\Reference;
+use App\Resume\Domain\Entity\Skill;
 use App\Role\Application\Security\Interfaces\RolesServiceInterface;
 use App\Tests\Utils\PhpUnitUtil;
 use App\User\Domain\Entity\Address;
@@ -165,10 +172,6 @@ final class LoadUserData extends Fixture implements OrderedFixtureInterface
 
         $entity->setProfile($profile);
 
-        // Ajout des autres éléments de niveau supérieur comme "Applications", "Ecommerce", "Authentication", etc.
-
-        // Create Configuration
-
         $entityConfigurationTitle = (new Configuration())
             ->setConfigurationKey('title')
             ->setConfigurationEntry('Example of Title')
@@ -210,6 +213,8 @@ final class LoadUserData extends Fixture implements OrderedFixtureInterface
         $manager->persist($entity);
         // Create reference for later usage
         $this->addReference('User-' . $entity->getUsername(), $entity);
+
+        $this->createResume($manager, $entity);
 
         return true;
     }
@@ -661,5 +666,85 @@ final class LoadUserData extends Fixture implements OrderedFixtureInterface
                 self::DEFAULT_API_TOKEN . '_super',
             ],
         ];
+    }
+
+    /**
+     * @param      $manager
+     * @param User $entity
+     *
+     * @return void
+     */
+    private function createResume($manager, User $entity): void
+    {
+        // Fixtures for Skills
+        $skill = new Skill();
+        $skill->setName('PHP');
+        $skill->setType('Programming Language');
+        $skill->setLevel(8);
+        $skill->setUser($entity);
+        $manager->persist($skill);
+
+        // Fixtures for References
+        $reference = new Reference();
+        $reference->setTitle('Senior Developer');
+        $reference->setCompany('Tech Company');
+        $reference->setDescription('Worked as a senior developer in a tech company.');
+        $reference->setStartedAt(new DateTimeImmutable('2019-01-01'));
+        $reference->setEndedAt(new DateTimeImmutable('2021-01-01'));
+        $reference->setUser($entity);
+        $manager->persist($reference);
+
+        // Fixtures for Projects
+        $project = new Project();
+        $project->setName('Awesome Project');
+        $project->setDescription('This is an awesome project.');
+        $project->setReference($reference);
+        $project->addSkill($skill);
+        $manager->persist($project);
+
+        // Fixtures for Media
+        $media = new Media();
+        $media->setPath('/images/sample.jpg');
+        $media->setReference($reference);
+        $manager->persist($media);
+
+        // Fixtures for Languages
+        $language = new \App\Resume\Domain\Entity\Language();
+        $language->setName('English');
+        $language->setLevel(10);
+        $language->setFlag('us');
+        $language->setUser($entity);
+        $manager->persist($language);
+
+        // Fixtures for Hobbies
+        $hobby = new Hobby();
+        $hobby->setName('Photography');
+        $hobby->setIcon('camera');
+        $hobby->setUser($entity);
+        $manager->persist($hobby);
+
+        // Fixtures for Formations
+        $formation = new Formation();
+        $formation->setName('Master\'s in Computer Science');
+        $formation->setSchool('University XYZ');
+        $formation->setGradeLevel(5);
+        $formation->setDescription('Advanced studies in computer science.');
+        $formation->setStartedAt(new DateTimeImmutable('2017-09-01'));
+        $formation->setEndedAt(new DateTimeImmutable('2019-06-30'));
+        $formation->setUser($entity);
+        $manager->persist($formation);
+
+        // Fixtures for Experiences
+        $experience = new Experience();
+        $experience->setTitle('Software Engineer');
+        $experience->setCompany('Software Inc.');
+        $experience->setDescription('Worked as a software engineer developing applications.');
+        $experience->setStartedAt(new DateTimeImmutable('2015-01-01'));
+        $experience->setEndedAt(new DateTimeImmutable('2018-12-31'));
+        $experience->setUser($entity);
+        $manager->persist($experience);
+
+        // Flush all changes to the database
+        $manager->flush();
     }
 }

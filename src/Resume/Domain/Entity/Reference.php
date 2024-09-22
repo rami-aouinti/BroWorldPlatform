@@ -13,15 +13,21 @@ declare(strict_types=1);
 
 namespace App\Resume\Domain\Entity;
 
+use App\General\Domain\Entity\Traits\Timestampable;
+use App\General\Domain\Entity\Traits\Uuid;
 use App\Resume\Infrastructure\Repository\ReferenceRepository;
+use App\User\Domain\Entity\Traits\Blameable;
 use App\User\Domain\Entity\User;
 use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Doctrine\UuidBinaryOrderedTimeType;
+use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+use Throwable;
 
 /**
  * @package App\Resume\Domain\Entity
@@ -31,48 +37,98 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Table(name: 'resume_reference')]
 class Reference
 {
+    final public const string SET_USER_REFERENCE = 'set.UserReference';
+
+    use Blameable;
+    use Timestampable;
+    use Uuid;
+
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(type: Types::INTEGER)]
-    private ?int $id = null;
+    #[ORM\Column(
+        name: 'id',
+        type: UuidBinaryOrderedTimeType::NAME,
+        unique: true,
+        nullable: false,
+    )]
+    #[Groups([
+        'Reference',
+        'Reference.id',
+
+        self::SET_USER_REFERENCE,
+    ])]
+    private UuidInterface $id;
 
     #[ORM\Column(type: Types::STRING)]
     #[Assert\NotBlank]
-    #[Groups('get')]
+    #[Groups([
+        'Reference',
+        'Reference.title',
+
+        self::SET_USER_REFERENCE,
+    ])]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::STRING)]
     #[Assert\NotBlank]
-    #[Groups('get')]
+    #[Groups([
+        'Reference',
+        'Reference.company',
+
+        self::SET_USER_REFERENCE,
+    ])]
     private ?string $company = null;
 
     #[ORM\Column(type: Types::TEXT)]
     #[Assert\NotBlank]
-    #[Groups('get')]
+    #[Groups([
+        'Reference',
+        'Reference.description',
+
+        self::SET_USER_REFERENCE,
+    ])]
     private ?string $description = null;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE)]
     #[Assert\NotBlank]
-    #[Groups('get')]
+    #[Groups([
+        'Reference',
+        'Reference.startedAt',
+
+        self::SET_USER_REFERENCE,
+    ])]
     private ?DateTimeInterface $startedAt = null;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]
-    #[Groups('get')]
+    #[Groups([
+        'Reference',
+        'Reference.endedAt',
+
+        self::SET_USER_REFERENCE,
+    ])]
     private ?DateTimeInterface $endedAt = null;
 
     #[ORM\OneToMany(mappedBy: 'reference', targetEntity: Media::class, cascade: ['persist'], orphanRemoval: true)]
     #[Assert\Count(min: 1, minMessage: 'add image please')]
-    #[Groups('get')]
     private Collection $medias;
 
-    #[ORM\ManyToOne(inversedBy: 'formations')]
+    #[ORM\ManyToOne(inversedBy: 'references')]
     private ?User $user = null;
 
     #[ORM\OneToMany(mappedBy: 'reference', targetEntity: Project::class)]
+    #[Groups([
+        'Reference',
+        'Reference.projects',
+
+        self::SET_USER_REFERENCE,
+    ])]
     private Collection $projects;
 
+    /**
+     * @throws Throwable
+     */
     public function __construct()
     {
+        $this->id = $this->createUuid();
         $this->medias = new ArrayCollection();
         $this->projects = new ArrayCollection();
     }
@@ -82,9 +138,9 @@ class Reference
         return $this->title;
     }
 
-    public function getId(): ?int
+    public function getId(): string
     {
-        return $this->id;
+        return $this->id->toString();
     }
 
     public function getTitle(): ?string

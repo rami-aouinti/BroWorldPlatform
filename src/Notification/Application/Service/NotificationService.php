@@ -21,6 +21,12 @@ class NotificationService
         $this->hub = $hub;
     }
 
+    /**
+     * @param User $user
+     * @param      $message
+     *
+     * @return void
+     */
     public function sendNotification(User $user, $message): void
     {
         $update = new Update(

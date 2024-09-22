@@ -146,10 +146,8 @@ export default {
                     this.$emit(evt, data);
                     if (evt === "addedfile") {
                         this.files.push(data);
-                        console.log(data);
                         UserService.uploadPhoto(data).then(
                             (response) => {
-                                console.log(response.data);
                             },
                             (error) => {
                                 this.content =

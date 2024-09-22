@@ -31,6 +31,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 class Tag
 {
     use ColorTrait;
+
     /**
      * Internal Tag ID
      */

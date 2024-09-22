@@ -573,10 +573,8 @@ export default {
     mounted() {
         setTimeout(() => {
             if (this.user) {
-                console.log(this.user);
             this.user.avatar = 'http://localhost/uploads/' + this.user.avatar;
-            console.log('Après le délai');
-            console.log(this.user.avatar);
+            this.user.company.image = 'http://localhost/uploads/' + this.user.company.image;
             }
         }, 1000);
 

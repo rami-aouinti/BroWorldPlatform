@@ -38,9 +38,11 @@ final class ActivityValidator extends ConstraintValidator
         }
 
         if ((bool)$this->systemConfiguration->find('activity.allow_duplicate_number') === false && (($number = $value->getNumber()) !== null)) {
-            foreach ($this->activityRepository->findBy([
+            foreach (
+                $this->activityRepository->findBy([
                 'number' => $number,
-            ]) as $tmp) {
+                ]) as $tmp
+            ) {
                 if ($tmp->getId() !== $value->getId()) {
                     $this->context->buildViolation(Activity::getErrorName(Activity::ACTIVITY_NUMBER_EXISTING))
                         ->setParameter('%number%', $number)

@@ -23,6 +23,9 @@ class BlogService {
     async addComment(post, content) {
         return await axios.post(API_URL + "blog/post/comment/" + post, {'content': content}, {headers: authHeader()});
     }
+    async addPost(post) {
+        return await axios.post(API_URL + "blog/post/new", post, {headers: authHeader()});
+    }
 
     async likePost(post) {
         return await axios.post(API_URL + "post/" + post + "/like", {}, {headers: authHeader()});
