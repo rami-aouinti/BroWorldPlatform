@@ -80,6 +80,78 @@ doctrine:
                         dir: '%kernel.project_dir%/src/User/Domain/Entity'
                         prefix: 'App\User\Domain\Entity'
                         alias: User
+                    Configuration:
+                        type: attribute
+                        is_bundle: false
+                        dir: '%kernel.project_dir%/src/Configuration/Domain/Entity'
+                        prefix: 'App\Configuration\Domain\Entity'
+                        alias: Configuration
+                    Menu:
+                        type: attribute
+                        is_bundle: false
+                        dir: '%kernel.project_dir%/src/Menu/Domain/Entity'
+                        prefix: 'App\Menu\Domain\Entity'
+                        alias: Menu
+                    Blog:
+                        type: attribute
+                        is_bundle: false
+                        dir: '%kernel.project_dir%/src/Blog/Domain/Entity'
+                        prefix: 'App\Blog\Domain\Entity'
+                        alias: Blog
+                    Messenger:
+                        type: attribute
+                        is_bundle: false
+                        dir: '%kernel.project_dir%/src/Messenger/Domain/Entity'
+                        prefix: 'App\Messenger\Domain\Entity'
+                        alias: Messenger
+                    Quiz:
+                        type: attribute
+                        is_bundle: false
+                        dir: '%kernel.project_dir%/src/Quiz/Domain/Entity'
+                        prefix: 'App\Quiz\Domain\Entity'
+                        alias: Quiz
+                    Calendar:
+                        type: attribute
+                        is_bundle: false
+                        dir: '%kernel.project_dir%/src/Calendar/Domain/Entity'
+                        prefix: 'App\Calendar\Domain\Entity'
+                        alias: Calendar
+                    Crm:
+                        type: attribute
+                        is_bundle: false
+                        dir: '%kernel.project_dir%/src/Crm/Domain/Entity'
+                        prefix: 'App\Crm\Domain\Entity'
+                        alias: Crm
+                    Notification:
+                        type: attribute
+                        is_bundle: false
+                        dir: '%kernel.project_dir%/src/Notification/Domain/Entity'
+                        prefix: 'App\Notification\Domain\Entity'
+                        alias: Notification
+                    Resume:
+                        type: attribute
+                        is_bundle: false
+                        dir: '%kernel.project_dir%/src/Resume/Domain/Entity'
+                        prefix: 'App\Resume\Domain\Entity'
+                        alias: Resume
+                    Job:
+                        type: attribute
+                        is_bundle: false
+                        dir: '%kernel.project_dir%/src/Job/Domain/Entity'
+                        prefix: 'App\Job\Domain\Entity'
+                        alias: Job
+                    Media:
+                        type: attribute
+                        is_bundle: false
+                        dir: '%kernel.project_dir%/src/Media/Domain/Entity'
+                        prefix: 'App\Media\Domain\Entity'
+                        alias: Media
+                    Shop:
+                        type: attribute
+                        is_bundle: false
+                        dir: '%kernel.project_dir%/src/Shop/Domain/Entity'
+                        prefix: 'App\Shop\Domain\Entity'
+                        alias: Shop
                 dql:
                     datetime_functions:
                         datesub: DoctrineExtensions\Query\Mysql\DateSub

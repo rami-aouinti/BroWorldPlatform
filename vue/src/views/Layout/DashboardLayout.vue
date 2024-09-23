@@ -13,7 +13,7 @@
         class="position-absolute drawer-state"
       ></div>
       <app-bar
-        v-if="$route.name != 'Profile'"
+        v-if="$route.name !== 'Profile'"
         background="bg-transparent"
         has-bg
         @drawer-toggle="drawer = $event"
@@ -22,7 +22,7 @@
         @toggleSettingsDrawer="toggleSettingsDrawer"
       ></app-bar>
       <app-bar
-        v-else-if="$route.name == 'Profile'"
+        v-else-if="$route.name === 'Profile'"
         background="bg-default"
         has-bg
         @drawer-toggle="drawer = $event"
@@ -96,6 +96,7 @@ import Drawer from "@/components/Drawer.vue";
 import AppBar from "@/components/AppBar.vue";
 import ContentFooter from "@/components/Footer.vue";
 import SettingsDrawer from "@/components/Widgets/SettingsDrawer.vue";
+import ConfigurationService from "../../services/configuration.service";
 
 export default {
   components: {
@@ -112,6 +113,7 @@ export default {
       sidebarColor: "success",
       sidebarTheme: "dark",
       navbarFixed: false,
+        configuration: [],
     };
   },
   methods: {
@@ -125,9 +127,37 @@ export default {
       this.showSettingsDrawer = value;
     },
     updateSidebarColor(value) {
+        function updateSidebarColorValue(configArray, value) {
+            configArray.forEach(config => {
+                if (config.configurationKey === 'sidebarColor') {
+                    try {
+                        const item = {
+                            configurationKey: config.configurationKey,
+                            configurationEntry: value
+                        };
+
+                        ConfigurationService.updateConfiguration(item, config.id).then(
+                            (response) => {
+                            },
+                            (error) => {
+                                this.content =
+                                    (error.response && error.response.data) ||
+                                    error.message ||
+                                    error.toString();
+                            }
+                        )
+                    } catch (error) {
+                        console.error('Problem by update:', error);
+                    }
+                }
+            });
+        }
+
+        updateSidebarColorValue(this.configuration, value);
       this.sidebarColor = value;
     },
     updateSidebarTheme(value) {
+        updateSidebarThemeValue(this.configuration, value);
       let siblings = event.target.closest("button").parentElement.children;
       for (var i = 0; i < siblings.length; i++) {
         siblings[i].classList.remove("bg-gradient-default");
@@ -138,6 +168,7 @@ export default {
       this.sidebarTheme = value;
     },
     toggleNavbarPosition(value) {
+        updateNavBarFixedValue(this.configuration, value);
       this.navbarFixed = value;
     },
   },

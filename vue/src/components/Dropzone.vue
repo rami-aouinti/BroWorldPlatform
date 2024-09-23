@@ -159,7 +159,7 @@ export default {
     },
   },
   async mounted() {
-    this.initDropzone();
+    await this.initDropzone();
   },
 };
 </script>

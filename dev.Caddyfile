@@ -1,0 +1,4 @@
+http://localhost {
+    reverse_proxy /.well-known/mercure http://mercure:80
+}
+

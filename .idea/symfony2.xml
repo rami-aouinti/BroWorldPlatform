@@ -3,6 +3,7 @@
   <component name="Symfony2PluginSettings">
     <option name="pluginEnabled" value="true" />
     <option name="profilerCsvPath" value="" />
+    <option name="lastServiceGeneratorLanguage" value="yaml" />
     <option name="containerFiles">
       <list>
         <container_file path="var/cache/dev/App_KernelDevDebugContainer.xml" />

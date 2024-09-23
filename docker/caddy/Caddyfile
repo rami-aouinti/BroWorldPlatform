@@ -1,0 +1,12 @@
+:80
+
+route {
+    mercure {
+        transport_url http://localhost:8081/.well-known/mercure
+        publisher_jwt !ChangeThisMercureHubJWTSecretKey!
+        subscriber_jwt !ChangeThisMercureHubJWTSecretKey!
+        cors_origins *
+    }
+
+    respond "Mercure works!"
+}

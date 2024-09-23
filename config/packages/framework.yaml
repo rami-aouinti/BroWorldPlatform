@@ -1,12 +1,16 @@
 # see https://symfony.com/doc/current/reference/configuration/framework.html
 framework:
     secret: '%env(APP_SECRET)%'
-    csrf_protection: false
+    csrf_protection: true
     annotations: false
     http_method_override: false
     handle_all_throwables: true
     default_locale: '%locale%'
-
+    session:
+        enabled: true
+        handler_id: null
+        cookie_secure: auto
+        cookie_samesite: lax
     # see https://symfony.com/doc/current/deployment/proxies.html
     trusted_proxies: '%env(TRUSTED_PROXIES)%'
     trusted_headers: [ 'x-forwarded-for', 'x-forwarded-host', 'x-forwarded-proto', 'x-forwarded-port', 'x-forwarded-prefix' ]

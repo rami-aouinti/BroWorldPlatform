@@ -21,7 +21,7 @@
               src="@/assets/img/logo-ct-white.png"
               class="navbar-brand-img ms-3"
               width="32"
-              v-if="sidebarTheme == 'dark'"
+              v-if="sidebarTheme === 'dark'"
             >
             </v-img>
             <v-img
@@ -32,7 +32,7 @@
             >
             </v-img>
             <span class="ms-2 font-weight-bold text-sm"
-              >Material Dashboard 2 PRO</span
+              >{{ (configuration && configuration.title) || 'Title' }}</span
             >
           </div>
         </v-list-item-title>
@@ -41,7 +41,7 @@
 
     <hr
       class="horizontal mb-0"
-      :class="sidebarTheme == 'dark' ? 'light' : 'dark'"
+      :class="sidebarTheme === 'dark' ? 'light' : 'dark'"
     />
 
     <v-list nav dense>
@@ -58,7 +58,7 @@
 
           <v-list-item-content>
             <v-list-item-title class="ms-2 ps-1 font-weight-light">
-              Brooklyn Alice
+                {{ user ? `${user.firstName} ${user.lastName}` : 'No Username' }}
             </v-list-item-title>
           </v-list-item-content>
         </template>
@@ -126,7 +126,7 @@
 
     <hr
       class="horizontal mb-3"
-      :class="sidebarTheme == 'dark' ? 'light' : 'dark'"
+      :class="sidebarTheme === 'dark' ? 'light' : 'dark'"
     />
 
     <v-list nav dense>
@@ -230,14 +230,14 @@
           d-none-mini
           white-space-nowrap
         "
-        :class="sidebarTheme == 'dark' ? 'text-white' : 'text-default'"
+        :class="sidebarTheme === 'dark' ? 'text-white' : 'text-default'"
       >
         Pages
       </h5>
 
       <v-list-group
         :ripple="false"
-        v-for="item in itemsPages"
+        v-for="item in menu"
         :key="item.title"
         v-model="item.active"
         append-icon="fas fa-angle-down"
@@ -339,7 +339,7 @@
 
       <hr
         class="horizontal my-4"
-        :class="sidebarTheme == 'dark' ? 'light' : 'dark'"
+        :class="sidebarTheme === 'dark' ? 'light' : 'dark'"
       />
 
       <h5
@@ -355,7 +355,7 @@
           d-none-mini
           white-space-nowrap
         "
-        :class="sidebarTheme == 'dark' ? 'text-white' : 'text-default'"
+        :class="sidebarTheme === 'dark' ? 'text-white' : 'text-default'"
       >
         Docs
       </h5>
@@ -415,6 +415,9 @@
   </v-navigation-drawer>
 </template>
 <script>
+
+import {mapGetters} from "vuex";
+
 export default {
   name: "drawer",
   props: {
@@ -429,7 +432,7 @@ export default {
     sidebarTheme: {
       type: String,
       default: "dark",
-    },
+    }
   },
   data: () => ({
     mini: false,
@@ -474,11 +477,43 @@ export default {
       },
     ],
     items: [
-      {
+        {
+            action: "dashboard",
+            active: false,
+            title: "Admin",
+            items: [
+                {
+                    title: "Dashboard",
+                    prefix: "D",
+                    link: "/pages/dashboards/admin",
+                },
+                {
+                    title: "User Management",
+                    prefix: "U",
+                    link: "/pages/dashboards/admin/user",
+                },
+                {
+                    title: "Configuration Management",
+                    prefix: "C",
+                    link: "/pages/dashboards/admin/configuration",
+                },
+                {
+                    title: "Menu Management",
+                    prefix: "M",
+                    link: "/pages/dashboards/admin/menu",
+                },
+            ],
+        },
+        {
         action: "dashboard",
         active: true,
         title: "Dashboards",
         items: [
+            {
+                title: "Quiz",
+                prefix: "A",
+                link: "/pages/dashboards/quiz",
+            },
           {
             title: "Analytics",
             prefix: "A",
@@ -507,213 +542,7 @@ export default {
         ],
       },
     ],
-    itemsPages: [
-      {
-        action: "image",
-        active: false,
-        title: "Pages",
-        items: [
-          {
-            title: "Profile",
-            prefix: "P",
-            active: false,
-            items: [
-              {
-                title: "Profile Overview",
-                prefix: "P",
-                link: "/pages/pages/profile/overview",
-              },
-              {
-                title: "All Projects",
-                prefix: "A",
-                link: "/pages/pages/profile/projects",
-              },
-              {
-                title: "Messages",
-                prefix: "M",
-                link: "/pages/pages/profile/messages",
-              },
-            ],
-          },
-          {
-            title: "Users",
-            prefix: "U",
-            active: false,
-            items: [
-              {
-                title: "Reports",
-                prefix: "R",
-                link: "/pages/pages/users/reports",
-              },
-              {
-                title: "New User",
-                prefix: "N",
-                link: "/pages/pages/users/new-user",
-              },
-            ],
-          },
-          {
-            title: "Account",
-            prefix: "A",
-            active: false,
-            items: [
-              {
-                title: "Settings",
-                prefix: "S",
-                link: "/pages/pages/account/settings",
-              },
-              {
-                title: "Billing",
-                prefix: "B",
-                link: "/pages/pages/account/billing",
-              },
-              {
-                title: "Invoice",
-                prefix: "I",
-                link: "/pages/pages/account/invoice",
-              },
-            ],
-          },
-          {
-            title: "Projects",
-            prefix: "P",
-            active: false,
-            items: [
-              {
-                title: "Timeline",
-                prefix: "T",
-                link: "/pages/pages/projects/timeline",
-              },
-            ],
-          },
-          {
-            title: "Virtual Reality",
-            prefix: "V",
-            active: false,
-            items: [
-              {
-                title: "VR Default",
-                prefix: "V",
-                link: "/pages/dashboards/vr/vr-default",
-              },
-              {
-                title: "VR Info",
-                prefix: "V",
-                link: "/pages/dashboards/vr/vr-info",
-              },
-            ],
-          },
-          {
-            title: "Pricing Page",
-            prefix: "P",
-            link: "/pages/pages/pricing-page",
-          },
-          { title: "RTL", prefix: "R", link: "/pages/pages/rtl" },
-          { title: "Charts", prefix: "C", link: "/pages/pages/charts" },
-          { title: "Alerts", prefix: "A", link: "/pages/pages/alerts" },
-          {
-            title: "Notifications",
-            prefix: "N",
-            link: "/pages/pages/notifications",
-          },
-        ],
-      },
-      {
-        action: "apps",
-        active: false,
-        title: "Applications",
-        items: [
-          { title: "CRM", prefix: "C", link: "/pages/dashboards/crm" },
-          { title: "Kanban", prefix: "K", link: "/pages/applications/kanban" },
-          { title: "Wizard", prefix: "W", link: "/pages/applications/wizard" },
-          {
-            title: "DataTables",
-            prefix: "D",
-            link: "/pages/applications/datatables",
-          },
-          {
-            title: "Calendar",
-            prefix: "C",
-            link: "/pages/applications/calendar",
-          },
-        ],
-      },
-      {
-        action: "shopping_basket",
-        active: false,
-        title: "Ecommerce",
-        items: [
-          {
-            title: "Products",
-            prefix: "P",
-            active: false,
-            items: [
-              {
-                title: "New Product",
-                prefix: "N",
-                link: "/pages/ecommerce/products/new-product",
-              },
-              {
-                title: "Edit Product",
-                prefix: "E",
-                link: "/pages/ecommerce/products/edit-product",
-              },
-              {
-                title: "Product Page",
-                prefix: "P",
-                link: "/pages/ecommerce/products/product-page",
-              },
-            ],
-          },
-          {
-            title: "Orders",
-            prefix: "O",
-            active: false,
-            items: [
-              {
-                title: "Order List",
-                prefix: "O",
-                link: "/pages/ecommerce/orders/list",
-              },
-              {
-                title: "Order Details",
-                prefix: "O",
-                link: "/pages/ecommerce/orders/details",
-              },
-            ],
-          },
-        ],
-      },
-      {
-        action: "content_paste",
-        active: false,
-        title: "Authentication",
-        items: [
-          {
-            title: "Sign Up",
-            prefix: "S",
-            active: false,
-            items: [
-              {
-                title: "Basic",
-                prefix: "B",
-                link: "/pages/authentication/signup/basic",
-              },
-              {
-                title: "Cover",
-                prefix: "C",
-                link: "/pages/authentication/signup/cover",
-              },
-              {
-                title: "Illustration",
-                prefix: "I",
-                link: "/pages/authentication/signup/illustration",
-              },
-            ],
-          },
-        ],
-      },
-    ],
+      menus: [],
   }),
   methods: {
     listClose(event) {
@@ -798,5 +627,10 @@ export default {
       }
     },
   },
+    computed: {
+        ...mapGetters('user', ['user']),
+        ...mapGetters('menu', ['menu']),
+        ...mapGetters('configuration', ['configuration']),
+    }
 };
 </script>

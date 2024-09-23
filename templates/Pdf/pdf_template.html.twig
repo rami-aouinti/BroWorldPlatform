@@ -1,0 +1,34 @@
+{# templates/pdf_template.html.twig #}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PDF Title</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        .content {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .image {
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+<h1>{{ title }}</h1>
+<div class="content">
+    {{ content|raw }}
+</div>
+<div class="image">
+    <img src="{{ imagePath }}" style="max-width: 100%; height: auto;" alt="Flag">
+</div>
+</body>
+</html>

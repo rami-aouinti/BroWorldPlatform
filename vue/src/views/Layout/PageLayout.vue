@@ -12,7 +12,7 @@
           min-vh-50
         "
         :style="
-          this.$route.name == 'Pricing'
+          this.$route.name === 'Pricing'
             ? `background-image: url(${require('../../assets/img/bg-pricing.jpg')}); background-size: cover; background-position: 50%;`
             : ''
         "
@@ -22,7 +22,7 @@
             <v-col cols="12" md="6" class="mx-auto py-0">
               <h2
                 class="text-h2 font-weight-bold text-white text-center mb-2"
-                v-if="this.$route.name == 'Pricing'"
+                v-if="this.$route.name === 'Pricing'"
               >
                 {{ headerTitle() }}
               </h2>

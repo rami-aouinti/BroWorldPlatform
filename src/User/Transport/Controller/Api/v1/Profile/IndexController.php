@@ -25,11 +25,11 @@ use Symfony\Component\Serializer\SerializerInterface;
  */
 #[AsController]
 #[OA\Tag(name: 'Profile')]
-class IndexController
+readonly class IndexController
 {
     public function __construct(
-        private readonly SerializerInterface $serializer,
-        private readonly RolesService $rolesService,
+        private SerializerInterface $serializer,
+        private RolesService $rolesService,
     ) {
     }
 
@@ -100,6 +100,9 @@ class IndexController
         /** @var array<int, string> $roles */
         $roles = $output['roles'];
         $output['roles'] = $this->rolesService->getInheritedRoles($roles);
+
+        $output['following'] = $loggedInUser->getFollowing();
+        $output['followers'] = $loggedInUser->getFollowers();
 
         return new JsonResponse($output);
     }

@@ -1,0 +1,56 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Blog\Transport\Controller\Api\v1\Post;
+
+use App\Blog\Application\DTO\Post\PostCreate;
+use App\Blog\Application\DTO\Post\PostPatch;
+use App\Blog\Application\DTO\Post\PostUpdate;
+use App\Blog\Application\Resource\PostResource;
+use App\General\Transport\Rest\Controller;
+use App\General\Transport\Rest\ResponseHandler;
+use App\General\Transport\Rest\Traits\Actions;
+use OpenApi\Attributes as OA;
+use Symfony\Component\HttpKernel\Attribute\AsController;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Core\Authorization\Voter\AuthenticatedVoter;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
+
+/**
+ * @package App\Post
+ *
+ * @method PostResource getResource()
+ * @method ResponseHandler getResponseHandler()
+ */
+#[AsController]
+#[Route(
+    path: '/v1/admin/post',
+)]
+#[IsGranted(AuthenticatedVoter::IS_AUTHENTICATED_FULLY)]
+#[OA\Tag(name: 'Post Management')]
+class PostController extends Controller
+{
+    use Actions\Admin\CountAction;
+    use Actions\Admin\FindAction;
+    use Actions\Admin\FindOneAction;
+    use Actions\Admin\IdsAction;
+    use Actions\Root\CreateAction;
+    use Actions\Root\PatchAction;
+    use Actions\Root\UpdateAction;
+
+    /**
+     * @var array<string, string>
+     */
+    protected static array $dtoClasses = [
+        Controller::METHOD_CREATE => PostCreate::class,
+        Controller::METHOD_UPDATE => PostUpdate::class,
+        Controller::METHOD_PATCH => PostPatch::class,
+    ];
+
+    public function __construct(
+        PostResource $resource,
+    ) {
+        parent::__construct($resource);
+    }
+}

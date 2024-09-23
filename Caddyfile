@@ -1,0 +1,8 @@
+:80 {
+    route {
+        mercure {
+            # Enable the CORS headers for localhost
+            cors_origins http://localhost:8080
+        }
+    }
+}

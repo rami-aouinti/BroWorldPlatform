@@ -1,0 +1,8 @@
+http://localhost {
+    redir https://localhost{uri}
+}
+
+https://localhost {
+    reverse_proxy * localhost:3000
+    tls self_signed
+}

@@ -13,20 +13,20 @@ use Symfony\Component\Security\Core\User\UserInterface;
 /**
  * @package App\User
  */
-class SecurityUser implements UserInterface, PasswordAuthenticatedUserInterface
+readonly class SecurityUser implements UserInterface, PasswordAuthenticatedUserInterface
 {
-    private readonly string $identifier;
-    private readonly string | null $password;
-    private readonly Language $language;
-    private readonly Locale $locale;
-    private readonly string $timezone;
+    private string $identifier;
+    private string | null $password;
+    private Language $language;
+    private Locale $locale;
+    private string $timezone;
 
     /**
      * @param array<int, string> $roles
      */
     public function __construct(
         User $user,
-        private readonly array $roles = [],
+        private array $roles = [],
     ) {
         $this->identifier = $user->getId();
         $this->password = $user->getPassword();

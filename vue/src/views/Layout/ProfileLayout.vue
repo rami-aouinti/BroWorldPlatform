@@ -12,7 +12,7 @@
         has-bg
         @drawer-toggle="drawer = $event"
         :toggle-active="drawer"
-        v-if="$route.name != 'Project'"
+        v-if="$route.name !== 'Project'"
       ></app-bar-profile>
       <v-container fluid>
         <div
@@ -32,7 +32,7 @@
             has-bg
             @drawer-toggle="drawer = $event"
             :toggle-active="drawer"
-            v-if="$route.name == 'Project'"
+            v-if="$route.name === 'Project'"
           ></app-bar-profile-white>
         </div>
         <v-card
@@ -50,11 +50,11 @@
             </v-col>
             <v-col cols="auto" class="my-auto">
               <div class="h-100">
-                <h5 class="mb-1 text-h5 text-typo font-weight-bold">
-                  Richard Devis
+                <h5 class="mb-1 text-h5 text-typo font-weight-bold" v-if="user && user.firstName && user.lastName">
+                    {{ user.firstName }} {{ user.lastName }}
                 </h5>
-                <p class="mb-0 font-weight-light text-body text-sm">
-                  CEO / Co-Founder
+                <p class="mb-0 font-weight-light text-body text-sm" v-if="profile && profile.title">
+                    {{ profile.title }}
                 </p>
               </div>
             </v-col>
@@ -251,6 +251,7 @@ import Drawer from "@/components/Drawer.vue";
 import AppBarProfile from "@/components/AppBarProfile.vue";
 import AppBarProfileWhite from "@/components/AppBarProfileWhite.vue";
 import ContentFooter from "@/components/Footer.vue";
+import {mapGetters} from "vuex";
 
 export default {
   components: {
@@ -276,6 +277,10 @@ export default {
   mounted() {
     this.initScrollbar();
   },
+    computed: {
+        ...mapGetters('user', ['user']),
+        ...mapGetters('profile', ['profile']),
+    }
 };
 </script>
 <style lang="scss"></style>
