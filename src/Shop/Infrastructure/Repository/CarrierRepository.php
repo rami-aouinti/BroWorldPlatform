@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace App\Shop\Infrastructure\Repository;
 
+use App\General\Infrastructure\Repository\BaseRepository;
 use App\Shop\Domain\Entity\Carrier;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use App\Shop\Domain\Repository\Interfaces\CarrierRepositoryInterface;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -14,39 +15,18 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method Carrier[]    findAll()
  * @method Carrier[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class CarrierRepository extends ServiceEntityRepository
+class CarrierRepository extends BaseRepository implements CarrierRepositoryInterface
 {
-    public function __construct(ManagerRegistry $registry)
-    {
-        parent::__construct($registry, Carrier::class);
-    }
+    /**
+     * @psalm-var class-string
+     */
+    protected static string $entityName = Carrier::class;
 
-    // /**
-    //  * @return Carrier[] Returns an array of Carrier objects
-    //  */
-    /*
-    public function findByExampleField($value)
-    {
-        return $this->createQueryBuilder('c')
-            ->andWhere('c.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('c.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
+    /**
+     * @param ManagerRegistry $managerRegistry
+     */
+    public function __construct(
+        protected ManagerRegistry $managerRegistry,
+    ) {
     }
-    */
-
-    /*
-    public function findOneBySomeField($value): ?Carrier
-    {
-        return $this->createQueryBuilder('c')
-            ->andWhere('c.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-    */
 }

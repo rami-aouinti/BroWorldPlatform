@@ -386,6 +386,7 @@ class User implements EntityInterface, UserInterface, UserGroupAwareInterface, E
         $this->applicants = new ArrayCollection();
         $this->addresses = new ArrayCollection();
         $this->orders = new ArrayCollection();
+        $this->carts = new ArrayCollection();
     }
 
     /**

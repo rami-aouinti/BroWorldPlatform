@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Shop\Domain\Entity;
 
+use App\General\Domain\Entity\Interfaces\EntityInterface;
 use App\General\Domain\Entity\Traits\Timestampable;
 use App\General\Domain\Entity\Traits\Uuid;
 use App\Shop\Infrastructure\Repository\OrderRepository;
@@ -26,7 +27,7 @@ use Throwable;
  */
 #[ORM\Entity(repositoryClass: OrderRepository::class)]
 #[ORM\Table(name: 'shop_order')]
-class Order
+class Order implements EntityInterface
 {
     use Blameable;
     use Timestampable;

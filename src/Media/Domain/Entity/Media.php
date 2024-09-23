@@ -39,12 +39,23 @@ class Media
     private UuidInterface $id;
 
     #[ORM\Column(type: 'string', length: 255)]
+    #[Groups([
+        'Media',
+        'Media.name',
+    ])]
+    private string $name;
+
+    #[ORM\Column(type: 'string', length: 255)]
     private string $contextKey;
 
     #[ORM\Column(type: 'string', length: 255)]
     private string $mimeType;
 
     #[ORM\Column(type: 'string', length: 50)]
+    #[Groups([
+        'Media',
+        'Media.fileExtension',
+    ])]
     private string $fileExtension;
 
     #[ORM\Column(type: 'integer')]
@@ -54,6 +65,10 @@ class Media
     private array $metaData;
 
     #[ORM\Column(type: 'string', length: 2048)]
+    #[Groups([
+        'Media',
+        'Media.path',
+    ])]
     private string $path;
 
     #[ORM\Column(type: 'boolean')]
@@ -78,6 +93,14 @@ class Media
         return $this->id->toString();
     }
 
+    public  function getName(): string
+    {
+        return $this->name;
+    }
+    public  function setName(string $name):void
+    {
+        $this->name = $name;
+    }
 
     public  function getContextKey(): string
     {

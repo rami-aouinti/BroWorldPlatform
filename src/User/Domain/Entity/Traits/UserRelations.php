@@ -22,6 +22,7 @@ use App\Resume\Domain\Entity\Language;
 use App\Resume\Domain\Entity\Reference;
 use App\Resume\Domain\Entity\Skill;
 use App\Shop\Domain\Entity\Address;
+use App\Shop\Domain\Entity\Cart;
 use App\Shop\Domain\Entity\Order;
 use App\User\Domain\Entity\Profile;
 use App\User\Domain\Entity\User;
@@ -229,10 +230,31 @@ trait UserRelations
     private ?Company $company = null;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Address::class)]
-    private $addresses;
+    #[Groups([
+        'User',
+        'User.addresses',
+        self::SET_USER_PROFILE,
+        self::SET_USER_BASIC,
+    ])]
+    private Collection $addresses;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Order::class)]
-    private $orders;
+    #[Groups([
+        'User',
+        'User.orders',
+        self::SET_USER_PROFILE,
+        self::SET_USER_BASIC,
+    ])]
+    private Collection $orders;
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Cart::class)]
+    #[Groups([
+        'User',
+        'User.carts',
+        self::SET_USER_PROFILE,
+        self::SET_USER_BASIC,
+    ])]
+    private Collection $carts;
 
     public function getProfile(): ?Profile
     {
@@ -742,6 +764,36 @@ trait UserRelations
             // set the owning side to null (unless already changed)
             if ($order->getUser() === $this) {
                 $order->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection
+     */
+    public function getCarts(): Collection
+    {
+        return $this->carts;
+    }
+
+    public function addCart(Cart $cart): self
+    {
+        if (!$this->carts->contains($cart)) {
+            $this->carts[] = $cart;
+            $cart->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCart(Cart $cart): self
+    {
+        if ($this->carts->removeElement($cart)) {
+            // set the owning side to null (unless already changed)
+            if ($cart->getUser() === $this) {
+                $cart->setUser(null);
             }
         }
 

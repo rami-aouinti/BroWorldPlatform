@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Shop\Domain\Entity;
 
+use App\General\Domain\Entity\Interfaces\EntityInterface;
 use App\General\Domain\Entity\Traits\Timestampable;
 use App\General\Domain\Entity\Traits\Uuid;
 use App\Shop\Infrastructure\Repository\CategoryRepository;
@@ -24,13 +25,13 @@ use Throwable;
  */
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
 #[ORM\Table(name: 'shop_category')]
-class Category
+class Category implements EntityInterface
 {
     use Blameable;
     use Timestampable;
     use Uuid;
 
-    final public const string SET_SHOP_ADDRESS = 'set.ShopAddress';
+    final public const string SET_SHOP_CATEGORY = 'set.ShopCategory';
 
     #[ORM\Id]
     #[ORM\Column(
@@ -43,15 +44,21 @@ class Category
         'Category',
         'Category.id',
 
-        self::SET_SHOP_ADDRESS,
+        self::SET_SHOP_CATEGORY,
     ])]
     private UuidInterface $id;
 
     #[ORM\Column(type: 'string', length: 255)]
+    #[Groups([
+        'Category',
+        'Category.name',
+
+        self::SET_SHOP_CATEGORY,
+    ])]
     private ?string $name;
 
     #[ORM\OneToMany(mappedBy: 'category', targetEntity: Product::class)]
-    private ArrayCollection $products;
+    private Collection $products;
 
     /**
      * @throws Throwable

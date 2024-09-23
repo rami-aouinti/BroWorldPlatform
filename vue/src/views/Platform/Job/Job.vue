@@ -281,29 +281,6 @@ export default {
   },
   data: function () {
     return {
-        imageCards: [
-            {
-                image: require("@/assets/img/product-1-min.jpeg"),
-                title: "Cozy 5 Stars Apartment",
-                text: "The place is close to Barceloneta Beach and bus stop just 2 min by walk and near to 'Naviglio' where you can enjoy the main night life in Barcelona.",
-                price: "899",
-                location: "Barcelona, Spain",
-            },
-            {
-                image: require("@/assets/img/product-2-min.jpeg"),
-                title: "Office Studio",
-                text: "The place is close to Barceloneta Beach and bus stop just 2 min by walk and near to 'Naviglio' where you can enjoy the main night life in Barcelona.",
-                price: "1.119",
-                location: "London, UK",
-            },
-            {
-                image: require("@/assets/img/product-3-min.jpeg"),
-                title: "Beautiful Castle",
-                text: "The place is close to Barceloneta Beach and bus stop just 2 min by walk and near to 'Naviglio' where you can enjoy the main night life in Barcelona.",
-                price: "459",
-                location: "Milan, Italy",
-            },
-        ],
         selectedCategory: [],
         selectedLocales: null,
         searchJobs: '',

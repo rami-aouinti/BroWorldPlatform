@@ -121,8 +121,6 @@ class JobApplicationController extends AbstractController
 
         foreach ($files as $file) {
             $folder = $this->createFolder('Mon Dossier');
-
-
             $this->mediaService->uploadMedia($file,'uploads/jobs/application', $folder);
 
         }

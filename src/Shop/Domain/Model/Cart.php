@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace App\Shop\Domain\Model;
 
 use App\Shop\Infrastructure\Repository\ProductRepository;
+use Doctrine\ORM\Exception\ORMException;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\TransactionRequiredException;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
@@ -16,20 +19,20 @@ class Cart
 {
     private SessionInterface $session;
 
-    public function __construct(SessionInterface $session, ProductRepository $repository)
+    public function __construct(SessionInterface $session)
     {
         $this->session = $session;
-        $this->repository = $repository;
     }
 
 
     /**
      * Crée un tableau associatif id => quantité et le stocke en session
      *
-     * @param int $id
+     * @param string $id
+     *
      * @return void
      */
-    public function add(int $id):void
+    public function add(string $id):void
     {
         $cart = $this->session->get('cart', []);
 
@@ -68,10 +71,10 @@ class Cart
     /**
      * Supprime entièrement un produit du panier (quelque soit sa quantité)
      *
-     * @param int $id
+     * @param string $id
      * @return void
      */
-    public function removeItem(int $id): void
+    public function removeItem(string $id): void
     {
         $cart = $this->session->get('cart', []);
         unset($cart[$id]);
@@ -82,10 +85,10 @@ class Cart
     /**
      * Diminue de 1 la quantité d'un produit
      *
-     * @param int $id
+     * @param string $id
      * @return void
      */
-    public function decreaseItem(int $id): void
+    public function decreaseItem(string $id): void
     {
         $cart = $this->session->get('cart', []);
         if ($cart[$id] < 2) {
@@ -101,9 +104,11 @@ class Cart
      * Récupère le panier en session, puis récupère les objets produits de la bdd
      * et calcule les totaux
      *
+     * @param ProductRepository $productRepository
+     *
      * @return array
      */
-    public function getDetails(): array
+    public function getDetails(ProductRepository $productRepository): array
     {
         $cartProducts = [
             'products' => [],
@@ -116,7 +121,10 @@ class Cart
         $cart = $this->session->get('cart', []);
         if ($cart) {
             foreach ($cart as $id => $quantity) {
-                $currentProduct = $this->repository->find($id);
+                try {
+                    $currentProduct = $productRepository->find($id);
+                } catch (OptimisticLockException|TransactionRequiredException|ORMException $e) {
+                }
                 if ($currentProduct) {
                     $cartProducts['products'][] = [
                         'product' => $currentProduct,

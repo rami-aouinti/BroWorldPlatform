@@ -155,6 +155,55 @@
                       small
                   >
                       <v-icon class="material-icons-round" size="20">
+                          shopping_cart
+                      </v-icon>
+                  </v-btn>
+              </template>
+
+              <v-list class="pa-3">
+                  <v-list-item
+                      v-for="(item, i) in profileMenu"
+                      :key="i"
+                      class="pa-4 list-item-hover-active d-flex align-items-center py-1 my-1 border-radius-"
+                      :to="item.path"
+                  >
+                      <v-icon class="material-icons-round text-body" size="20">
+                          {{ item.icon }}
+                      </v-icon>
+
+                      <v-list-item-content class="pa-0">
+                          <v-list-item-title class="text-body-2 ls-0 text-typo font-weight-600 mb-0">
+                              <v-row>
+                                  <v-col>
+                                      <h6 class="text-sm font-weight-normal ms-2 text-typo" v-html="item.title">
+                                          {{ item.title }}
+                                      </h6>
+                                  </v-col>
+                              </v-row>
+                          </v-list-item-title>
+                      </v-list-item-content>
+                  </v-list-item>
+              </v-list>
+          </v-menu>
+          <v-menu
+              transition="slide-y-transition"
+              offset-y
+              offset-x
+              min-width="300"
+              max-width="300"
+          >
+              <template v-slot:activator="{ on, attrs }">
+                  <v-btn
+                      icon
+                      :ripple="false"
+                      :class="{ 'btn-dark-hover': !hasBg, 'btn-hover': hasBg }"
+                      class="text-body"
+                      :color="linkColor"
+                      v-bind="attrs"
+                      v-on="on"
+                      small
+                  >
+                      <v-icon class="material-icons-round" size="20">
                           account_circle
                       </v-icon>
                   </v-btn>

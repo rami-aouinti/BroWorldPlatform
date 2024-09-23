@@ -48,6 +48,7 @@ class MediaService
         }
 
         $media = new Media();
+        $media->setName($file->getClientOriginalName());
         $media->setMimeType($file->getClientMimeType());
         $media->setFileExtension($file->guessExtension());
         $media->setFileSize($file->getSize());

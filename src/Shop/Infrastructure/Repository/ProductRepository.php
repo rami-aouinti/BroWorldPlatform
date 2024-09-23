@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace App\Shop\Infrastructure\Repository;
 
+use App\General\Infrastructure\Repository\BaseRepository;
 use App\Shop\Domain\Entity\Product;
 use App\Shop\Domain\Model\Search;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use App\Shop\Domain\Repository\Interfaces\ProductRepositoryInterface;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -15,15 +16,22 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method Product[]    findAll()
  * @method Product[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class ProductRepository extends ServiceEntityRepository
+class ProductRepository extends BaseRepository implements ProductRepositoryInterface
 {
-    public function __construct(ManagerRegistry $registry)
-    {
-        parent::__construct($registry, Product::class);
+    /**
+     * @psalm-var class-string
+     */
+    protected static string $entityName = Product::class;
+
+    /**
+     * @param ManagerRegistry $managerRegistry
+     */
+    public function __construct(
+        protected ManagerRegistry $managerRegistry,
+    ) {
     }
 
-    /**Requête custom pour la barre de recherche :
-     * Récupérations des produits filtrés par mots-clés et/ou catégories
+    /**
      *
      * @return Product[] Returns an array of Product objects
      */

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Shop\Domain\Entity;
 
+use App\General\Domain\Entity\Interfaces\EntityInterface;
 use App\General\Domain\Entity\Traits\Timestampable;
 use App\General\Domain\Entity\Traits\Uuid;
 use App\Shop\Infrastructure\Repository\CarrierRepository;
@@ -22,7 +23,7 @@ use Throwable;
  */
 #[ORM\Entity(repositoryClass: CarrierRepository::class)]
 #[ORM\Table(name: 'shop_carrier')]
-class Carrier
+class Carrier implements EntityInterface
 {
     use Blameable;
     use Timestampable;

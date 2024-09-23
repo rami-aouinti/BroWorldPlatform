@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace App\Shop\Infrastructure\Repository;
 
+use App\General\Infrastructure\Repository\BaseRepository;
 use App\Shop\Domain\Entity\Order;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use App\Shop\Domain\Repository\Interfaces\OrderRepositoryInterface;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -14,13 +15,20 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method Order[]    findAll()
  * @method Order[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class OrderRepository extends ServiceEntityRepository
+class OrderRepository extends BaseRepository implements OrderRepositoryInterface
 {
-    public function __construct(ManagerRegistry $registry)
-    {
-        parent::__construct($registry, Order::class);
-    }
+    /**
+     * @psalm-var class-string
+     */
+    protected static string $entityName = Order::class;
 
+    /**
+     * @param ManagerRegistry $managerRegistry
+     */
+    public function __construct(
+        protected ManagerRegistry $managerRegistry,
+    ) {
+    }
     /**
     * @return Order[] Returns an array of Order objects
     */

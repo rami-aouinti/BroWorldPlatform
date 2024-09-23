@@ -8,6 +8,7 @@ import PageTypeLayout from "../views/Platform/Layout/PageTypeLayout";
 import AuthBasicLayout from "../views/Layout/AuthBasicLayout";
 import AuthCoverLayout from "../views/Layout/AuthCoverLayout";
 import AuthIllustrationLayout from "../views/Layout/AuthIllustrationLayout";
+import Checkout from "../views/Ecommerce/Process/Checkout.vue";
 
 
 // Dashboard pages
@@ -117,6 +118,32 @@ const AdminMenuDatatables = () =>
     import(/* webpackChunkName: "pages" */ "@/views/Admin/MenuDatatables.vue");
 
 
+const Admin = () =>
+    import(/* webpackChunkName: "pages" */ "@/views/Platform/Admin/Dashboard.vue");
+
+const AdminUsers = () =>
+    import(/* webpackChunkName: "pages" */ "@/views/Platform/Admin/Management/UserManagement/User/Datatables.vue");
+
+
+const AdminUsersGroup = () =>
+    import(/* webpackChunkName: "pages" */ "@/views/Platform/Admin/Management/UserManagement/Group/Datatables.vue");
+
+
+const AdminUsersRole = () =>
+    import(/* webpackChunkName: "pages" */ "@/views/Platform/Admin/Management/UserManagement/Role/Datatables.vue");
+
+const AdminShop = () =>
+    import(/* webpackChunkName: "pages" */ "@/views/Platform/Admin/Management/ShopManagement/Dashboard.vue");
+
+const AdminShopCategory = () =>
+    import(/* webpackChunkName: "pages" */ "@/views/Platform/Admin/Management/ShopManagement/Category/Datatables.vue");
+
+const AdminShopProduct = () =>
+    import(/* webpackChunkName: "pages" */ "@/views/Platform/Admin/Management/ShopManagement/Product/Datatables.vue");
+
+const AdminShopOrder = () =>
+    import(/* webpackChunkName: "pages" */ "@/views/Platform/Admin/Management/ShopManagement/Order/Datatables.vue");
+
 const Blog = () =>
     import(/* webpackChunkName: "pages" */ "@/views/Platform/Blog/Blog.vue");
 
@@ -150,6 +177,20 @@ const Job = () =>
 
 const JobDetail = () =>
     import(/* webpackChunkName: "pages" */ "@/views/Platform/Job/Job/JobDetail.vue");
+
+const ProductDetail = () =>
+    import(/* webpackChunkName: "pages" */ "@/views/Platform/Ecommerce/Product/ProductDetail.vue");
+
+const NewProductShop = () =>
+    import(/* webpackChunkName: "pages" */ "@/views/Platform/Ecommerce/Product/NewProduct.vue");
+
+
+const CheckoutShop = () =>
+    import(/* webpackChunkName: "pages" */ "@/views/Platform/Ecommerce/Process/Checkout.vue");
+
+const PaymentShop = () =>
+    import(/* webpackChunkName: "pages" */ "@/views/Platform/Ecommerce/Process/Paiement.vue");
+
 
 Vue.use(VueRouter);
 
@@ -373,6 +414,124 @@ let authIllustrationPages = {
   ],
 };
 
+
+let blog = {
+    path: "/",
+    component: PageTypeLayout,
+    name: "Blog",
+    children: [
+        {
+            path: "/",
+            name: "Blog",
+            component: Blog,
+        },
+    ],
+};
+
+let admin = {
+    path: "/",
+    component: PageTypeLayout,
+    name: "Admin",
+    children: [
+        {
+            path: "/admin",
+            name: "Admin",
+            component: Admin,
+        },
+    ],
+};
+
+let adminUsers = {
+    path: "/",
+    component: PageTypeLayout,
+    name: "AdminUsers",
+    children: [
+        {
+            path: "/admin/users",
+            name: "AdminUsers",
+            component: AdminUsers,
+        },
+    ],
+};
+
+let adminUsersGroup = {
+    path: "/",
+    component: PageTypeLayout,
+    name: "AdminUsersGroup",
+    children: [
+        {
+            path: "/admin/user/groups",
+            name: "AdminUsersGroup",
+            component: AdminUsersGroup,
+        },
+    ],
+};
+
+let adminUsersRole = {
+    path: "/",
+    component: PageTypeLayout,
+    name: "AdminUsersRole",
+    children: [
+        {
+            path: "/admin/users/roles",
+            name: "AdminUsersRole",
+            component: AdminUsersRole,
+        },
+    ],
+};
+
+let adminShop = {
+    path: "/",
+    component: PageTypeLayout,
+    name: "AdminShop",
+    children: [
+        {
+            path: "/admin/shop",
+            name: "AdminShop",
+            component: AdminShop,
+        },
+    ],
+};
+
+let adminShopCategory = {
+    path: "/",
+    component: PageTypeLayout,
+    name: "AdminShopCategory",
+    children: [
+        {
+            path: "/admin/shop/category",
+            name: "AdminShopCategory",
+            component: AdminShopCategory,
+        },
+    ],
+};
+
+let adminShopProduct = {
+    path: "/",
+    component: PageTypeLayout,
+    name: "AdminShopProduct",
+    children: [
+        {
+            path: "/admin/shop/product",
+            name: "AdminShopProduct",
+            component: AdminShopProduct,
+        },
+    ],
+};
+
+let adminShopOrder = {
+    path: "/",
+    component: PageTypeLayout,
+    name: "AdminShopOrder",
+    children: [
+        {
+            path: "/admin/shop/order",
+            name: "AdminShopOrder",
+            component: AdminShopOrder,
+        },
+    ],
+};
+
 let login = {
     path: "/login",
     component: AuthBasicLayout,
@@ -402,26 +561,13 @@ let register = {
 let logout = {
 
     path: '/logout',
-        name: 'logout',
+    name: 'logout',
     beforeEnter(to, from, next) {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    next('/login');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        next('/login');
     }
 }
-
-let blog = {
-    path: "/",
-    component: PageTypeLayout,
-    name: "Blog",
-    children: [
-        {
-            path: "/",
-            name: "Blog",
-            component: Blog,
-        },
-    ],
-};
 
 let crm = {
     path: "/",
@@ -566,6 +712,75 @@ let jobDetail = {
     ],
 };
 
+let productDetail = {
+    path: "/",
+    component: PageTypeLayout,
+    name: "ProductDetail",
+    children: [
+        {
+            path: "/product/:id",
+            name: "ProductDetail",
+            component: ProductDetail,
+            meta: {
+                groupName: "Shop",
+            },
+            props: true
+        },
+    ],
+};
+
+let newProduct = {
+    path: "/",
+    component: PageTypeLayout,
+    name: "newProduct",
+    children: [
+        {
+            path: "/product/new",
+            name: "newProduct",
+            component: NewProductShop,
+            meta: {
+                groupName: "Shop",
+            },
+            props: true
+        },
+    ],
+};
+
+
+let checkout = {
+    path: "/",
+    component: PageTypeLayout,
+    name: "checkout",
+    children: [
+        {
+            path: "/shop/checkout",
+            name: "checkout",
+            component: CheckoutShop,
+            meta: {
+                groupName: "Shop",
+            },
+            props: true
+        },
+    ],
+};
+
+let payment = {
+    path: "/",
+    component: PageTypeLayout,
+    name: "payment",
+    children: [
+        {
+            path: "/shop/payment",
+            name: "payment",
+            component: PaymentShop,
+            meta: {
+                groupName: "Shop",
+            },
+            props: true
+        },
+    ],
+};
+
 let messenger = {
     path: "/",
     component: PageTypeLayout,
@@ -580,9 +795,17 @@ let messenger = {
 };
 
 const routes = [
+    blog,
+    admin,
+    adminUsers,
+    adminUsersGroup,
+    adminUsersRole,
+    adminShop,
+    adminShopCategory,
+    adminShopProduct,
+    adminShopOrder,
     login,
     logout,
-    blog,
     register,
     crm,
     ecommerce,
@@ -595,6 +818,10 @@ const routes = [
     messenger,
     job,
     jobDetail,
+    productDetail,
+    newProduct,
+    checkout,
+    payment,
   {
     path: "/pages",
     name: "Dashboard",

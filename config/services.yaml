@@ -224,11 +224,6 @@ services:
         factory: [ '@doctrine.orm.entity_manager', getRepository ]
         arguments: [ 'App\Crm\Domain\Entity\WorkingTime' ]
 
-    App\Crm\Infrastructure\Repository\AccessTokenRepository:
-        class: App\Crm\Infrastructure\Repository\AccessTokenRepository
-        factory: [ '@doctrine.orm.entity_manager', getRepository ]
-        arguments: [ 'App\Crm\Domain\Entity\AccessToken' ]
-
     monolog.formatter.kimai:
         class: Monolog\Formatter\LineFormatter
         arguments:

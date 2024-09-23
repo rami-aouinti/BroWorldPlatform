@@ -183,7 +183,7 @@
             mt-2
             text-xs
           "
-          to="/resume"
+          @click="goToResumePage"
           color="#fff"
           >Generate your resume</v-btn
         >
@@ -202,9 +202,28 @@
             mt-2
             text-xs
           "
-              to="/job"
+              @click="goToJobPage"
               color="#fff"
           >Jobs</v-btn
+          >
+          <v-btn
+              elevation="0"
+              height="43"
+              class="
+            font-weight-bold
+            text-uppercase
+            btn-info
+            bg-gradient-primary
+            py-2
+            px-6
+            me-2
+            w-100
+            mt-2
+            text-xs
+          "
+              @click="goToShopPage"
+              color="#fff"
+          >Shop</v-btn
           >
         <v-btn
           elevation="0"
@@ -222,7 +241,7 @@
             shadow-none
           "
           color="#fff"
-          to="/quiz"
+          @click="goToQuizPage"
           >Start Quiz</v-btn
         >
         <div class="text-center d-flex mt-5">
@@ -319,6 +338,22 @@ export default {
     active: function () {
       this.isActive = !this.isActive;
     },
+      goToJobPage() {
+          this.$emit('toggleSettingsDrawer', false);
+          this.$router.push({ name: 'Job' });
+      },
+      goToQuizPage() {
+          this.$emit('toggleSettingsDrawer', false);
+          this.$router.push({ name: 'Quiz' });
+      },
+      goToResumePage() {
+          this.$emit('toggleSettingsDrawer', false);
+          this.$router.push({ name: 'Resume' });
+      },
+      goToShopPage() {
+          this.$emit('toggleSettingsDrawer', false);
+          this.$router.push({ name: 'Ecommerce' });
+      },
   },
 };
 </script>

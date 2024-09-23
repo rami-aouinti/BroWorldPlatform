@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace App\Shop\Infrastructure\Repository;
 
+use App\General\Infrastructure\Repository\BaseRepository;
 use App\Shop\Domain\Entity\Category;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use App\Shop\Domain\Repository\Interfaces\CategoryRepositoryInterface;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -14,39 +15,23 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method Category[]    findAll()
  * @method Category[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class CategoryRepository extends ServiceEntityRepository
+class CategoryRepository extends BaseRepository implements CategoryRepositoryInterface
 {
-    public function __construct(ManagerRegistry $registry)
-    {
-        parent::__construct($registry, Category::class);
-    }
+    /**
+     * @var array<int, string>
+     */
+    protected static array $searchColumns = ['name'];
 
-    // /**
-    //  * @return Category[] Returns an array of Category objects
-    //  */
-    /*
-    public function findByExampleField($value)
-    {
-        return $this->createQueryBuilder('c')
-            ->andWhere('c.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('c.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
+    /**
+     * @psalm-var class-string
+     */
+    protected static string $entityName = Category::class;
 
-    /*
-    public function findOneBySomeField($value): ?Category
-    {
-        return $this->createQueryBuilder('c')
-            ->andWhere('c.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
+    /**
+     * @param ManagerRegistry $managerRegistry
+     */
+    public function __construct(
+        protected ManagerRegistry $managerRegistry,
+    ) {
     }
-    */
 }

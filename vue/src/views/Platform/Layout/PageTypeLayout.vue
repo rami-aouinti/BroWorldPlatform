@@ -40,11 +40,59 @@
           text-dark
           z-index-9999
         "
+        style="bottom: 20px; right: 20px;"
         @click="showSettingsDrawer = true"
       >
         <v-icon size="20">fa fa-cog py-2</v-icon>
       </v-btn>
-
+        <v-btn
+            :ripple="false"
+            icon
+            rounded
+            color="#fff"
+            width="52px"
+            height="52px"
+            class="
+          fixed-plugin-button
+          position-fixed
+          btn-light
+          bg-white
+          text-dark
+          z-index-9999
+        "
+            style="bottom: 80px; right: 20px;"
+            @click="showShopDrawer = true"
+        >
+            <v-icon size="20">fa fa-shopping-cart</v-icon>
+        </v-btn>
+        <v-btn
+            :ripple="false"
+            icon
+            rounded
+            color="#fff"
+            width="52px"
+            height="52px"
+            class="
+          fixed-plugin-button
+          position-fixed
+          btn-light
+          bg-white
+          text-dark
+          z-index-9999
+        "
+            style="bottom: 140px; right: 20px;"
+            @click="showSettingsDrawer = true"
+        >
+            <v-icon size="20">fa fa-briefcase</v-icon>
+        </v-btn>
+        <shop-drawer
+            :showShopDrawer="showShopDrawer"
+            @toggleShopDrawer="toggleShopDrawer"
+            @updateSidebarColor="updateSidebarColor"
+            @updateSidebarTheme="updateSidebarTheme"
+            @toggleNavbarPosition="toggleNavbarPosition"
+        >
+        </shop-drawer>
       <settings-drawer
         :showSettingsDrawer="showSettingsDrawer"
         @toggleSettingsDrawer="toggleSettingsDrawer"
@@ -81,6 +129,7 @@ import Drawer from "@/views/Platform/Layout/Drawer.vue";
 import AppBar from "@/views/Platform/Layout/AppBar.vue";
 import ContentFooter from "@/views/Platform/Layout/Footer.vue";
 import SettingsDrawer from "@/views/Platform/Layout/SettingsDrawer.vue";
+import ShopDrawer from "@/views/Platform/Layout/ShopDrawer.vue";
 import ConfigurationService from "../../../services/configuration.service";
 
 export default {
@@ -90,11 +139,13 @@ export default {
     Drawer,
     AppBar,
     SettingsDrawer,
+      ShopDrawer,
   },
   data() {
     return {
       drawer: null,
       showSettingsDrawer: false,
+      showShopDrawer: false,
       sidebarColor: "success",
       sidebarTheme: "dark",
       navbarFixed: false,
@@ -111,6 +162,9 @@ export default {
     toggleSettingsDrawer(value) {
       this.showSettingsDrawer = value;
     },
+      toggleShopDrawer(value) {
+          this.showShopDrawer = value;
+      },
     updateSidebarColor(value) {
         function updateSidebarColorValue(configArray, value) {
             configArray.forEach(config => {
